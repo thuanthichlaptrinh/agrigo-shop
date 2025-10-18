@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link href="https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css" rel="stylesheet" />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+            integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+        />
+        <link rel="stylesheet" href="style.css" />
+
+        <link rel="stylesheet" href="products.css" />
+        <title>FASHIONVERSE</title>
+    </head>
+    <body>
+        <!-- SIDEBAR -->
+        <section id="sidebar">
+            <a href="./index.html" class="brand"><i class="bx bxs-smile icon"></i> ADMIN</a>
+            <ul class="side-menu">
+                <li>
+                    <a href="./index.html"><i class="fa-solid fa-gauge icon"></i> Tổng quan</a>
+                </li>
+                <li class="divider" data-text="main">Main</li>
+                <li>
+                    <a href="./quanlyUsers.html"><i class="fa-solid fa-users-line icon"></i> Quản lý người dùng</a>
+                </li>
+                <li>
+                    <a href="./quanlyProducts.html"><i class="fa-solid fa-shirt icon"></i> Quản lý sản phẩm</a>
+                </li>
+                <li>
+                    <a href="./quanlyCategory.html"><i class="fa-solid fa-layer-group icon"></i> Quản lý loại sản phẩm</a>
+                </li>
+                <li>
+                    <a href="./quanlyUsers.html"><i class="fa-solid fa-briefcase icon"></i> Quản lý đơn hàng</a>
+                </li>
+                <li>
+                    <a href="#"><i class="fa-solid fa-chart-area icon"></i> Quản lý nhà cung cấp</a>
+                </li>
+            </ul>
+        </section>
+        <!-- SIDEBAR -->
+
+        <!-- NAVBAR -->
+        <section id="content">
+            <!-- NAVBAR -->
+            <nav>
+                <i class="bx bx-menu toggle-sidebar"></i>
+                <form action="#">
+                    <div class="form-group">
+                        <input type="text" placeholder="Search..." />
+                        <i class="bx bx-search icon"></i>
+                    </div>
+                </form>
+                <a href="#" class="nav-link">
+                    <i class="bx bxs-bell icon"></i>
+                    <span class="badge">5</span>
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="bx bxs-message-square-dots icon"></i>
+                    <span class="badge">8</span>
+                </a>
+                <span class="divider"></span>
+                <div class="profile">
+                    <img
+                        src="https://images.unsplash.com/photo-1517841905240-472988babdf9?ixid=MnwxMjA3fDB8MHxzZWFyY2h8NHx8cGVvcGxlfGVufDB8fDB8fA%3D%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+                        alt=""
+                    />
+                    <ul class="profile-link">
+                        <li>
+                            <a href="#"><i class="bx bxs-user-circle icon"></i> Hồ sơ</a>
+                        </li>
+                        <li>
+                            <a href="#"><i class="bx bxs-cog"></i> Cài đặt</a>
+                        </li>
+                        <li>
+                            <a href="#"><i class="bx bxs-log-out-circle"></i> Đăng xuất</a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <!-- NAVBAR -->
+
+            <!-- MAIN -->
+            <main>
+                <h1 class="title">Quản lý Users</h1>
+                <ul class="breadcrumbs">
+                    <li><a href="#">Home</a></li>
+                    <li class="divider">/</li>
+                    <li><a href="#" class="active">Users</a></li>
+                </ul>
+                <div class="container">
+                    <div class="card">
+                        <div class="card-header">
+                            <h6>Table</h6>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="authors-table">
+                                <thead>
+                                    <tr>
+                                        <th>STT</th>
+                                        <th>Tên & Email</th>
+                                        <th>SĐT & Địa chỉ</th>
+                                        <th>Mật khẩu</th>
+                                        <th>Trạng thái</th>
+                                        <th>Ngày đăng ký</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>1</td>
+                                        <td>
+                                            <div class="author-info">
+                                                <img src="./z5762957717526_f853a5455c761e2bb130ee198bfe15c3.jpg" style="object-fit: cover" alt="John Michael" class="avatar" />
+                                                <div>
+                                                    <h6>Thùy Trang heo</h6>
+                                                    <small class="email">fadfasd@creative-tim.com</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <p class="sdt">(+84) 859692398</p>
+                                            <small class="address">Công viên phần Mền Quang Trung</small>
+                                        </td>
+                                        <td>
+                                            <small>********</small>
+                                        </td>
+                                        <td><span class="badge user">User</span></td>
+                                        <td><small class="date">18/05/2024</small></td>
+                                        <td>
+                                            <a href="#" class="edit-link"><i class="fa-solid fa-user-pen"></i></a>
+                                            <a href="" class="info-link"><i class="fa-solid fa-circle-info" style="font-size: 19px; color: #28a745"></i></a>
+                                            <a href="#" class="delete-link"><i class="fa-solid fa-trash"></i></a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>2</td>
+                                        <td>
+                                            <div class="author-info">
+                                                <img src="bruce-mars.jpg" alt="John Michael" class="avatar" />
+                                                <div>
+                                                    <h6>John Michael</h6>
+                                                    <small class="email">john@creative-tim.com</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <p class="sdt">(+84) 859692398</p>
+                                            <small class="address">Công viên phần Mền Quang Trung</small>
+                                        </td>
+                                        <td>
+                                            <small>********</small>
+                                        </td>
+                                        <td><span class="badge admin">Admin</span></td>
+                                        <td><small class="date">22/01/2024</small></td>
+                                        <td>
+                                            <a href="#" class="edit-link"><i class="fa-solid fa-user-pen"></i></a>
+                                            <a href="#" class="info-link" style="font-size: 19px; color: #28a745"><i class="fa-solid fa-circle-info"></i></a>
+                                            <a href="#" class="delete-link"><i class="fa-solid fa-trash"></i></a>
+                                        </td>
+                                    </tr>
+                                    <!-- Repeat <tr> for other authors -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+            <!-- MAIN -->
+        </section>
+        <!-- NAVBAR -->
+
+        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+        <script src="script.js"></script>
+    </body>
+</html>

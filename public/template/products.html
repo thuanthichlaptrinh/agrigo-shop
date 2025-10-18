@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+        <link rel="stylesheet" href="./Assets/Bootstrap5/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="./Assets/css/base.css" />
+        <link rel="stylesheet" href="./Assets/css/animation.css" />
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css" />
+        <link rel="stylesheet" href="./Assets/css/style.css" />
+        <script src="./Assets/Bootstrap5/js/bootstrap.min.js"></script>
+        <script src="./Assets/js/main.js"></script>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.4.0/remixicon.css"
+            integrity="sha512-hH7VMMVfPgfkpYx2GazOEG6RrYM+y8cS7FzccwBTWQeyhPv01XYk0MVcuhh4EAimOELWvqKjhNwes/UsYoyN6w=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+        />
+        <!-- Slick CSS -->
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/jquery.slick/1.6.0/slick.css" />
+
+        <!-- Slick JS -->
+        <script src="https://cdn.jsdelivr.net/jquery/1.11.0/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/jquery.slick/1.6.0/slick.min.js"></script>
+        <style>
+            .btn-Them:hover,
+            .btn-ThanhToan:hover {
+                filter: brightness(1.5);
+            }
+        </style>
+    </head>
+    <body>
+        <header class="header" style="z-index: 100">
+            <div class="container-fluid" style="background: var(--bg-primary)">
+                <div class="container">
+                    <div class="row">
+                        <div class="navbar navbar-expand-sm" style="margin-left: 4px; margin-top: 4px">
+                            <div class="col-3">
+                                <a href="#" class="navbar-brand text-white">
+                                    <b style="color: #ffea09; font-size: 25px">Organic Shop</b>
+                                    <!-- <img src="./Assets/Images/logo2.png" style="width: 150px; height: 50px; object-fit: cover" alt="" /> -->
+                                </a>
+                            </div>
+
+                            <form class="col-6 d-flex align-items-center">
+                                <button type="submit" style="margin-right: -40px; border: none; background-color: transparent; z-index: 2">
+                                    <i class="ri-search-line fs-22-t" style="color: green"></i>
+                                </button>
+                                <input type="search" class="form-control w-100 header-search" style="padding-left: 42px" placeholder="Bạn tìm gì ở nông sản xanh - nhóm 2" />
+                                <a href="#" class="nav-link text-white align-items-centers cart">
+                                    <i class="ri-shopping-cart-line d-flex align-content-center justify-content-center"></i>
+                                    <span>3</span>
+                                </a>
+                            </form>
+
+                            <div class="col-3">
+                                <ul class="navbar-nav" style="float: right">
+                                    <li class="nav-item">
+                                        <a href="#" class="nav-link text-white location" style="padding-right: 3px">
+                                            <i class="ri-map-pin-line fs-17-t"></i>
+                                            <span>Địa chỉ:</span>
+                                            <span class="fw-700" style="margin-left: 4px; color: rgb(255 255 255 / 1)">Thành phố Hồ Chí Minh, P5, Q8</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-3" style="margin-left: -12px">
+                            <div class="d-flex align-items-center py-0 text-white bg-menu" style="border-top-left-radius: 8px; border-top-right-radius: 8px; width: 300.5px">
+                                <i class="ri-menu-line mx-2" style="font-size: 22px"></i>
+                                <span class="text-uperc fw-500 fs-16-t">Danh mục sản phẩm</span>
+                            </div>
+                        </div>
+                        <div class="col-7">
+                            <div></div>
+                        </div>
+                        <div class="col-2" style="padding-left: 0; position: relative; right: -24px">
+                            <div class="float-end">
+                                <div class="d-flex bg-menu text-white align-items-center text-center px-2" style="height: 33px; border-top-left-radius: 8px; border-top-right-radius: 8px">
+                                    <i class="ri-user-line" style="display: flex; font-size: 18px; align-items: center; justify-content: center; margin-bottom: -2px"></i>
+                                    <a href="./login.html" class="d-block text-white" style="text-decoration: none; padding-left: 5px">Tài khoản của Thuận</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="container" style="margin-top: var(--header-height)">
+            <div class="row">
+                <div class="col-3 slide-menu p-0">
+                    <ul class="nav flex-column bg-white">
+                        <li class="nav-item">
+                            <a href="" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Rau, củ, quả</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Thịt, cá, trứng, hải sản</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Gạo, bột, đồ khô</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Dầu ăn, nước chấm, gia vị</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Kem, thực phẩm đông mát</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Rau, củ, quả</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Thịt, cá, trứng, hải sản</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Gạo, bột, đồ khô</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Kem, thực phẩm đông mát</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Rau, củ, quả</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Thịt, cá, trứng, hải sản</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Gạo, bột, đồ khô</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Gạo, bột, đồ khô</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Kem, thực phẩm đông mát</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="" class="nav-link mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Rau, củ, quả</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="col-9 content-body">
+                    <div class="row" style="margin-left: -23px">
+                        <div class="p-2 bg-white my-2" style="border-radius: 4px">
+                            <a href="" style="text-decoration: none; color: #000">
+                                <i class="ri-arrow-left-s-line" style="font-size: 18px; border-right: 1px solid #dedede; padding-right: 6px; margin-right: 6px"></i>
+                            </a>
+                            <span class="fw-500">Trái cây</span>
+                        </div>
+                    </div>
+
+                    <form class="bg-white" style="margin-left: -23px; margin-right: -12px; border-radius: 4px; padding: 10px; padding-bottom: 12px">
+                        <div>
+                            <h6>Chọn theo tiêu chí</h6>
+                            <div class="d-flex align-items-center" style="gap: 8px">
+                                <div>
+                                    <select name="GiaBan" id="" style="padding: 4px 12px; border: 1px solid #cfcfcf; cursor: pointer; border-radius: 4px; height: 34px; font-size: 15px">
+                                        <option value="">Giá bán</option>
+                                        <option value="tang">Giá tăng dần</option>
+                                        <option value="giam">Giá giảm dần</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <select name="GiaBan" id="" style="padding: 4px 12px; border: 1px solid #cfcfcf; cursor: pointer; border-radius: 4px; height: 34px; font-size: 15px">
+                                        <option value="">Mức giá</option>
+                                        <option value="tang">Dưới 100.000đ</option>
+                                        <option value="tang">Từ 100.000đ - 300.000đ</option>
+                                        <option value="tang">Trên 300.000đ</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <select name="KhuyenMai" id="" style="padding: 4px 12px; border: 1px solid #cfcfcf; cursor: pointer; border-radius: 4px; height: 34px; font-size: 15px">
+                                        <option value="">Khuyến mãi</option>
+                                        <option value="yes">Còn khuyến mãi</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <select name="NhaCungCap" id="" style="padding: 4px 12px; border: 1px solid #cfcfcf; cursor: pointer; border-radius: 4px; height: 34px; font-size: 15px">
+                                        <option value="">Nhà cung cấp</option>
+                                        <option value="yes">Mỹ</option>
+                                        <option value="yes">Việt Nam</option>
+                                    </select>
+                                </div>
+                                <button type="submit" style="padding: 4px 12px; border: 1px solid #cfcfcf; cursor: pointer; border-radius: 4px; height: 34px; font-size: 15px">Lọc</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="mt-2" style="background-color: #fff9f9; margin-left: -23px; margin-right: -11px; box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px">
+                        <img src="./Assets/Images/Screenshot 2024-11-17 233057.png" class="mx-auto d-block" style="width: 400px" alt="" />
+                    </div>
+
+                    <!-- Thit, ca, trung, hai san -->
+                    <div class="row mt-2 bg-white mb-13-t pb-12-t" style="margin-left: -23px; padding-top: 14px; border-radius: 4px">
+                        <div class="col-lg-3 col-md-4 col-sm-12" style="margin-bottom: 14px">
+                            <div class="card" style="border: 1px solid #d8e1f9">
+                                <a href="">
+                                    <img src="./Assets/Images/tao_gala_phap_size_100_8aef2b9571944ed0b7a6ee52ea416e3d_large.webp" class="w-100" alt="" />
+                                </a>
+                                <div class="card-body">
+                                    <p class="card-title fw-400 txt-gray">Ức gà có xương</p>
+                                    <p class="card-title">
+                                        <span class="fw-700">28.350đ</span>
+                                        <span class="txt-gray fs-13-t">/300g</span>
+                                    </p>
+                                    <div class="container-ThemVGio">
+                                        <a href="#" class="btn btn-ThemVaoGio text-white mx-auto fw-500 d-block">Thêm vào giỏ</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-4 col-sm-12" style="margin-bottom: 14px">
+                            <div class="card" style="border: 1px solid #d8e1f9">
+                                <a href="">
+                                    <img src="./Assets/Images/tao_gala_phap_size_100_8aef2b9571944ed0b7a6ee52ea416e3d_large.webp" class="w-100" alt="" />
+                                </a>
+                                <div class="card-body">
+                                    <p class="card-title fw-400 txt-gray">Ức gà có xương</p>
+                                    <p class="card-title">
+                                        <span class="fw-700">28.350đ</span>
+                                        <span class="txt-gray fs-13-t">/300g</span>
+                                    </p>
+                                    <div class="container-ThemVGio">
+                                        <a href="#" class="btn btn-ThemVaoGio text-white mx-auto fw-500 d-block">Thêm vào giỏ</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-4 col-sm-12" style="margin-bottom: 14px">
+                            <div class="card" style="border: 1px solid #d8e1f9">
+                                <a href="">
+                                    <img src="./Assets/Images/tao_gala_phap_size_100_8aef2b9571944ed0b7a6ee52ea416e3d_large.webp" class="w-100" alt="" />
+                                </a>
+                                <div class="card-body">
+                                    <p class="card-title fw-400 txt-gray">Ức gà có xương</p>
+                                    <p class="card-title">
+                                        <span class="fw-700">28.350đ</span>
+                                        <span class="txt-gray fs-13-t">/300g</span>
+                                    </p>
+                                    <div class="container-ThemVGio">
+                                        <a href="#" class="btn btn-ThemVaoGio text-white mx-auto fw-500 d-block">Thêm vào giỏ</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-4 col-sm-12" style="margin-bottom: 14px">
+                            <div class="card" style="border: 1px solid #d8e1f9">
+                                <a href="">
+                                    <img src="./Assets/Images/tao_gala_phap_size_100_8aef2b9571944ed0b7a6ee52ea416e3d_large.webp" class="w-100" alt="" />
+                                </a>
+                                <div class="card-body">
+                                    <p class="card-title fw-400 txt-gray">Ức gà có xương</p>
+                                    <p class="card-title">
+                                        <span class="fw-700">28.350đ</span>
+                                        <span class="txt-gray fs-13-t">/300g</span>
+                                    </p>
+                                    <div class="container-ThemVGio">
+                                        <a href="#" class="btn btn-ThemVaoGio text-white mx-auto fw-500 d-block">Thêm vào giỏ</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-4 col-sm-12" style="margin-bottom: 14px">
+                            <div class="card" style="border: 1px solid #d8e1f9">
+                                <a href="">
+                                    <img src="./Assets/Images/tao_gala_phap_size_100_8aef2b9571944ed0b7a6ee52ea416e3d_large.webp" class="w-100" alt="" />
+                                </a>
+                                <div class="card-body">
+                                    <p class="card-title fw-400 txt-gray">Ức gà có xương</p>
+                                    <p class="card-title">
+                                        <span class="fw-700">28.350đ</span>
+                                        <span class="txt-gray fs-13-t">/300g</span>
+                                    </p>
+                                    <div class="container-ThemVGio">
+                                        <a href="#" class="btn btn-ThemVaoGio text-white mx-auto fw-500 d-block">Thêm vào giỏ</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-4 col-sm-12" style="margin-bottom: 14px">
+                            <div class="card" style="border: 1px solid #d8e1f9">
+                                <a href="">
+                                    <img src="./Assets/Images/tao_gala_phap_size_100_8aef2b9571944ed0b7a6ee52ea416e3d_large.webp" class="w-100" alt="" />
+                                </a>
+                                <div class="card-body">
+                                    <p class="card-title fw-400 txt-gray">Ức gà có xương</p>
+                                    <p class="card-title">
+                                        <span class="fw-700">28.350đ</span>
+                                        <span class="txt-gray fs-13-t">/300g</span>
+                                    </p>
+                                    <div class="container-ThemVGio">
+                                        <a href="#" class="btn btn-ThemVaoGio text-white mx-auto fw-500 d-block">Thêm vào giỏ</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-4 col-sm-12" style="margin-bottom: 14px">
+                            <div class="card" style="border: 1px solid #d8e1f9">
+                                <a href="">
+                                    <img src="./Assets/Images/tao_gala_phap_size_100_8aef2b9571944ed0b7a6ee52ea416e3d_large.webp" class="w-100" alt="" />
+                                </a>
+                                <div class="card-body">
+                                    <p class="card-title fw-400 txt-gray">Ức gà có xương</p>
+                                    <p class="card-title">
+                                        <span class="fw-700">28.350đ</span>
+                                        <span class="txt-gray fs-13-t">/300g</span>
+                                    </p>
+                                    <div class="container-ThemVGio">
+                                        <a href="#" class="btn btn-ThemVaoGio text-white mx-auto fw-500 d-block">Thêm vào giỏ</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-4 col-sm-12" style="margin-bottom: 14px">
+                            <div class="card" style="border: 1px solid #d8e1f9">
+                                <a href="">
+                                    <img src="./Assets/Images/tao_gala_phap_size_100_8aef2b9571944ed0b7a6ee52ea416e3d_large.webp" class="w-100" alt="" />
+                                </a>
+                                <div class="card-body">
+                                    <p class="card-title fw-400 txt-gray">Ức gà có xương</p>
+                                    <p class="card-title">
+                                        <span class="fw-700">28.350đ</span>
+                                        <span class="txt-gray fs-13-t">/300g</span>
+                                    </p>
+                                    <div class="container-ThemVGio">
+                                        <a href="#" class="btn btn-ThemVaoGio text-white mx-auto fw-500 d-block">Thêm vào giỏ</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-4 col-sm-12" style="margin-bottom: 14px">
+                            <div class="card" style="border: 1px solid #d8e1f9">
+                                <a href="">
+                                    <img src="./Assets/Images/tao_gala_phap_size_100_8aef2b9571944ed0b7a6ee52ea416e3d_large.webp" class="w-100" alt="" />
+                                </a>
+                                <div class="card-body">
+                                    <p class="card-title fw-400 txt-gray">Ức gà có xương</p>
+                                    <p class="card-title">
+                                        <span class="fw-700">28.350đ</span>
+                                        <span class="txt-gray fs-13-t">/300g</span>
+                                    </p>
+                                    <div class="container-ThemVGio">
+                                        <a href="#" class="btn btn-ThemVaoGio text-white mx-auto fw-500 d-block">Thêm vào giỏ</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-4 col-sm-12" style="margin-bottom: 14px">
+                            <div class="card" style="border: 1px solid #d8e1f9">
+                                <a href="">
+                                    <img src="./Assets/Images/tao_gala_phap_size_100_8aef2b9571944ed0b7a6ee52ea416e3d_large.webp" class="w-100" alt="" />
+                                </a>
+                                <div class="card-body">
+                                    <p class="card-title fw-400 txt-gray">Ức gà có xương</p>
+                                    <p class="card-title">
+                                        <span class="fw-700">28.350đ</span>
+                                        <span class="txt-gray fs-13-t">/300g</span>
+                                    </p>
+                                    <div class="container-ThemVGio">
+                                        <a href="#" class="btn btn-ThemVaoGio text-white mx-auto fw-500 d-block">Thêm vào giỏ</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-4 col-sm-12" style="margin-bottom: 14px">
+                            <div class="card" style="border: 1px solid #d8e1f9">
+                                <a href="">
+                                    <img src="./Assets/Images/tao_gala_phap_size_100_8aef2b9571944ed0b7a6ee52ea416e3d_large.webp" class="w-100" alt="" />
+                                </a>
+                                <div class="card-body">
+                                    <p class="card-title fw-400 txt-gray">Ức gà có xương</p>
+                                    <p class="card-title">
+                                        <span class="fw-700">28.350đ</span>
+                                        <span class="txt-gray fs-13-t">/300g</span>
+                                    </p>
+                                    <div class="container-ThemVGio">
+                                        <a href="#" class="btn btn-ThemVaoGio text-white mx-auto fw-500 d-block">Thêm vào giỏ</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-4 col-sm-12" style="margin-bottom: 14px">
+                            <div class="card" style="border: 1px solid #d8e1f9">
+                                <a href="">
+                                    <img src="./Assets/Images/tao_gala_phap_size_100_8aef2b9571944ed0b7a6ee52ea416e3d_large.webp" class="w-100" alt="" />
+                                </a>
+                                <div class="card-body">
+                                    <p class="card-title fw-400 txt-gray">Ức gà có xương</p>
+                                    <p class="card-title">
+                                        <span class="fw-700">28.350đ</span>
+                                        <span class="txt-gray fs-13-t">/300g</span>
+                                    </p>
+                                    <div class="container-ThemVGio">
+                                        <a href="#" class="btn btn-ThemVaoGio text-white mx-auto fw-500 d-block">Thêm vào giỏ</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-4 col-sm-12" style="margin-bottom: 14px">
+                            <div class="card" style="border: 1px solid #d8e1f9">
+                                <a href="">
+                                    <img src="./Assets/Images/tao_gala_phap_size_100_8aef2b9571944ed0b7a6ee52ea416e3d_large.webp" class="w-100" alt="" />
+                                </a>
+                                <div class="card-body">
+                                    <p class="card-title fw-400 txt-gray">Ức gà có xương</p>
+                                    <p class="card-title">
+                                        <span class="fw-700">28.350đ</span>
+                                        <span class="txt-gray fs-13-t">/300g</span>
+                                    </p>
+                                    <div class="container-ThemVGio">
+                                        <a href="#" class="btn btn-ThemVaoGio text-white mx-auto fw-500 d-block">Thêm vào giỏ</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-4 col-sm-12" style="margin-bottom: 14px">
+                            <div class="card" style="border: 1px solid #d8e1f9">
+                                <a href="">
+                                    <img src="./Assets/Images/tao_gala_phap_size_100_8aef2b9571944ed0b7a6ee52ea416e3d_large.webp" class="w-100" alt="" />
+                                </a>
+                                <div class="card-body">
+                                    <p class="card-title fw-400 txt-gray">Ức gà có xương</p>
+                                    <p class="card-title">
+                                        <span class="fw-700">28.350đ</span>
+                                        <span class="txt-gray fs-13-t">/300g</span>
+                                    </p>
+                                    <div class="container-ThemVGio">
+                                        <a href="#" class="btn btn-ThemVaoGio text-white mx-auto fw-500 d-block">Thêm vào giỏ</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-4 col-sm-12" style="margin-bottom: 14px">
+                            <div class="card" style="border: 1px solid #d8e1f9">
+                                <a href="">
+                                    <img src="./Assets/Images/tao_gala_phap_size_100_8aef2b9571944ed0b7a6ee52ea416e3d_large.webp" class="w-100" alt="" />
+                                </a>
+                                <div class="card-body">
+                                    <p class="card-title fw-400 txt-gray">Ức gà có xương</p>
+                                    <p class="card-title">
+                                        <span class="fw-700">28.350đ</span>
+                                        <span class="txt-gray fs-13-t">/300g</span>
+                                    </p>
+                                    <div class="container-ThemVGio">
+                                        <a href="#" class="btn btn-ThemVaoGio text-white mx-auto fw-500 d-block">Thêm vào giỏ</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-4 col-sm-12" style="margin-bottom: 14px">
+                            <div class="card" style="border: 1px solid #d8e1f9">
+                                <a href="">
+                                    <img src="./Assets/Images/tao_gala_phap_size_100_8aef2b9571944ed0b7a6ee52ea416e3d_large.webp" class="w-100" alt="" />
+                                </a>
+                                <div class="card-body">
+                                    <p class="card-title fw-400 txt-gray">Ức gà có xương</p>
+                                    <p class="card-title">
+                                        <span class="fw-700">28.350đ</span>
+                                        <span class="txt-gray fs-13-t">/300g</span>
+                                    </p>
+                                    <div class="container-ThemVGio">
+                                        <a href="#" class="btn btn-ThemVaoGio text-white mx-auto fw-500 d-block">Thêm vào giỏ</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-4 col-sm-12" style="margin-bottom: 14px">
+                            <div class="card" style="border: 1px solid #d8e1f9">
+                                <a href="">
+                                    <img src="./Assets/Images/tao_gala_phap_size_100_8aef2b9571944ed0b7a6ee52ea416e3d_large.webp" class="w-100" alt="" />
+                                </a>
+                                <div class="card-body">
+                                    <p class="card-title fw-400 txt-gray">Ức gà có xương</p>
+                                    <p class="card-title">
+                                        <span class="fw-700">28.350đ</span>
+                                        <span class="txt-gray fs-13-t">/300g</span>
+                                    </p>
+                                    <div class="container-ThemVGio">
+                                        <a href="#" class="btn btn-ThemVaoGio text-white mx-auto fw-500 d-block">Thêm vào giỏ</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <footer class="row mb-3" style="margin-right: -24px; margin-left: -11px">
+                        <ul class="p-2 d-flex align-items-center mb-0" style="background-color: var(--bg-footer); margin-left: -12px">
+                            <li class="text-white fs-14-t fw-500">bán 7:00 - 21:30</li>
+                            <li class="mx-3">
+                                <a href="" class="fw-700 text-white fs-14-t" style="text-decoration: none"><i class="ri-phone-line"></i> 19001908</a>
+                            </li>
+                            <li class="text-white fs-14-t fw-500">Khiếu nại 7:00 - 21:30</li>
+                            <li class="mx-3">
+                                <a href="" class="fw-700 text-white fs-14-t" style="text-decoration: none"><i class="ri-phone-line"></i> 18001067</a>
+                            </li>
+                            <li class="fw-700 fs-14-t fw-500" style="text-decoration: none; color: yellow; margin-left: 80px; margin-right: 20px">Cam kết:</li>
+                            <li class="text-white fs-14-t fw-500"><i class="ri-checkbox-circle-line"></i> 15.000 sản phẩm</li>
+                            <li class="text-white mx-3 fs-14-t fw-500"><i class="ri-checkbox-circle-line"></i> Freeship đơn 100k</li>
+                            <li class="text-white fw-500 fs-14-t"><i class="ri-checkbox-circle-line"></i> Giao 2h</li>
+                        </ul>
+
+                        <div class="row bg-white pt-3">
+                            <div class="col-6 d-flex justify-content-between">
+                                <ul class="pl-0-t">
+                                    <li class="nav-item">
+                                        <a href="" class="text-dark nav-link pb-2 fs-15-t" style="text-decoration: none">Hướng dẫn mua</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="" class="text-dark nav-link pb-2 fs-15-t" style="text-decoration: none">Tích điểm quà tặng VIP</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="" class="text-dark nav-link pb-2 fs-15-t" style="text-decoration: none">Cần thuê mặt bằng</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="" class="text-dark nav-link pb-2 fs-15-t" style="text-decoration: none">Hỏi đáp</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="" class="text-dark nav-link pb-2 fs-15-t" style="text-decoration: none">Tuyển 6542 việc</a>
+                                    </li>
+                                </ul>
+
+                                <ul class="pl-0-t">
+                                    <li class="nav-item">
+                                        <a href="" class="text-dark nav-link pb-2 fs-15-t" style="text-decoration: none">Hóa đơn điện tử</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="" class="text-dark nav-link pb-2 fs-15-t" style="text-decoration: none">Giới thiệu công ty</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="" class="text-dark nav-link pb-2 fs-15-t" style="text-decoration: none">Liên hệ</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="" class="text-dark nav-link pb-2 fs-15-t" style="text-decoration: none">Quy chế web</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="" class="text-dark nav-link pb-2 fs-15-t" style="text-decoration: none">cảnh báo giả mạo</a>
+                                    </li>
+                                </ul>
+
+                                <ul class="pl-0-t">
+                                    <li class="nav-item">
+                                        <a href="" class="text-dark nav-link pb-2 fs-15-t" style="text-decoration: none">Chính sách khách hàng</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="" class="text-dark nav-link pb-2 fs-15-t" style="text-decoration: none">Chính sách giao hàng</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="" class="text-dark nav-link pb-2 fs-15-t" style="text-decoration: none">Chính sách đổi trả</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="" class="text-dark nav-link pb-2 fs-15-t" style="text-decoration: none">Trả góp, điện nước</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="" class="text-dark nav-link pb-2 fs-15-t" style="text-decoration: none">Đăng ký chào hàng</a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="col-1"></div>
+
+                            <div class="col-5">
+                                <div class="mb-2">
+                                    <img src="./Assets/Images/checked.png" style="width: 20px" alt="" />
+                                    <span>Cam kết chất lượng, không hài lòng trả hàng !</span>
+                                </div>
+                                <div class="mb-2">
+                                    <img src="./Assets/Images/shipped.png" style="width: 20px" alt="" />
+                                    <span>Giao hàng đúng hẹn, trễ tặng ngay 100.000đ</span>
+                                </div>
+                                <div class="mb-2">
+                                    <a href=""><img src="./Assets/Icon/facebook.png" style="width: 20px" alt="" /></a>
+                                    <a href=""><img src="./Assets/Icon/youtube.png" class="mx-1" style="width: 20px" alt="" /></a>
+                                    <a href=""> <img src="./Assets/Icon/instagram.png" style="width: 20px" alt="" /></a>
+                                </div>
+                                <div>
+                                    <img src="./Assets/Images/ggp-as.png" class="mx-auto d-block" style="width: 280px" alt="" />
+                                </div>
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            </div>
+        </main>
+
+        <script src="./Assets/js/Slick.js"></script>
+    </body>
+</html>

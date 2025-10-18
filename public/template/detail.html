@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+        <link rel="stylesheet" href="./Assets/Bootstrap5/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="./Assets/css/base.css" />
+        <link rel="stylesheet" href="./Assets/css/animation.css" />
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css" />
+        <link rel="stylesheet" href="./Assets/css/style.css" />
+        <script src="./Assets/Bootstrap5/js/bootstrap.min.js"></script>
+        <script src="./Assets/js/main.js"></script>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.4.0/remixicon.css"
+            integrity="sha512-hH7VMMVfPgfkpYx2GazOEG6RrYM+y8cS7FzccwBTWQeyhPv01XYk0MVcuhh4EAimOELWvqKjhNwes/UsYoyN6w=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+        />
+        <!-- Slick CSS -->
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/jquery.slick/1.6.0/slick.css" />
+
+        <!-- Slick JS -->
+        <script src="https://cdn.jsdelivr.net/jquery/1.11.0/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/jquery.slick/1.6.0/slick.min.js"></script>
+
+        <style>
+            .card:hover {
+                box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+            }
+            .slick-carousel .product-item {
+                padding: 10px;
+                box-sizing: border-box;
+            }
+
+            .slick-prev,
+            .slick-next {
+                z-index: 1;
+                width: 44px;
+                height: 44px;
+                padding: 4px;
+                background-color: #f4f4f4;
+                border-radius: 50%;
+                box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+                color: #717171;
+                text-align: center;
+                font-weight: bold;
+                font-size: 25px;
+            }
+
+            .slick-prev {
+                left: 0px;
+            }
+
+            .slick-next {
+                right: 0;
+            }
+
+            .slick-prev:hover,
+            .slick-next:hover {
+                background-color: #fff;
+                color: #000;
+            }
+
+            .slick-prev::before,
+            .slick-next::before {
+                font-size: 18px;
+                color: #000;
+            }
+
+            .slide-menu {
+                display: none; /* Mặc định ẩn */
+                position: absolute;
+                top: 100%; /* Hiển thị ngay dưới menu */
+                left: 0;
+                background-color: #fff;
+                width: 100%;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                border-radius: 8px;
+                z-index: 100;
+            }
+
+            .bg-menu:hover .slide-menu {
+                display: block;
+            }
+            .bg-menu:hover .container-main {
+                background: #000 !important;
+            }
+
+            .btn-Them:hover,
+            .btn-ThanhToan:hover {
+                filter: brightness(1.5);
+            }
+        </style>
+    </head>
+    <body>
+        <header class="header" style="z-index: 100">
+            <div class="container-fluid" style="background: var(--bg-primary)">
+                <div class="container">
+                    <div class="row">
+                        <div class="navbar navbar-expand-sm" style="margin-left: 4px; margin-top: 4px">
+                            <div class="col-3">
+                                <a href="#" class="navbar-brand text-white">
+                                    <b style="color: #ffea09; font-size: 25px">Organic Shop</b>
+                                    <!-- <img src="./Assets/Images/logo2.png" style="width: 150px; height: 50px; object-fit: cover" alt="" /> -->
+                                </a>
+                            </div>
+
+                            <form class="col-6 d-flex align-items-center">
+                                <button type="submit" style="margin-right: -40px; border: none; background-color: transparent; z-index: 2">
+                                    <i class="ri-search-line fs-22-t" style="color: green"></i>
+                                </button>
+                                <input type="search" class="form-control w-100 header-search" style="padding-left: 42px" placeholder="Bạn tìm gì ở nông sản xanh - nhóm 2" />
+                                <a href="#" class="nav-link text-white align-items-centers cart">
+                                    <i class="ri-shopping-cart-line d-flex align-content-center justify-content-center"></i>
+                                    <span>3</span>
+                                </a>
+                            </form>
+
+                            <div class="col-3">
+                                <ul class="navbar-nav" style="float: right">
+                                    <li class="nav-item">
+                                        <a href="#" class="nav-link text-white location" style="padding-right: 3px">
+                                            <i class="ri-map-pin-line fs-17-t"></i>
+                                            <span>Địa chỉ:</span>
+                                            <span class="fw-700" style="margin-left: 4px; color: rgb(255 255 255 / 1)">Thành phố Hồ Chí Minh, P5, Q8</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-3" style="margin-left: -12px">
+                            <div class="d-flex align-items-center py-0 text-white bg-menu" style="border-top-left-radius: 8px; border-top-right-radius: 8px; width: 300.5px; position: relative">
+                                <i class="ri-menu-line mx-2" style="font-size: 22px"></i>
+                                <span class="text-uperc fw-500 fs-16-t">Danh mục sản phẩm</span>
+                                <div class="slide-menu" style="position: absolute; top: 100%; left: 0; width: 100%; z-index: 10">
+                                    <ul class="nav flex-column bg-white" style="box-shadow: 0 60px 80px rgba(0, 0, 0, 0.6), 0 45px 26px rgba(0, 0, 0, 0.14)">
+                                        <li class="nav-item">
+                                            <a href="" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Rau, củ, quả</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Thịt, cá, trứng, hải sản</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Gạo, bột, đồ khô</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Dầu ăn, nước chấm, gia vị</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Kem, thực phẩm đông mát</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Rau, củ, quả</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Thịt, cá, trứng, hải sản</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Gạo, bột, đồ khô</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Kem, thực phẩm đông mát</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Rau, củ, quả</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Thịt, cá, trứng, hải sản</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Gạo, bột, đồ khô</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Gạo, bột, đồ khô</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Kem, thực phẩm đông mát</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="" class="nav-link mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Rau, củ, quả</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-7">
+                            <div></div>
+                        </div>
+                        <div class="col-2" style="padding-left: 0; position: relative; right: -24px">
+                            <div class="float-end">
+                                <div class="d-flex bg-menu text-white align-items-center text-center px-2" style="height: 33px; border-top-left-radius: 8px; border-top-right-radius: 8px">
+                                    <i class="ri-user-line" style="display: flex; font-size: 18px; align-items: center; justify-content: center; margin-bottom: -2px"></i>
+                                    <a href="./login.html" class="d-block text-white" style="text-decoration: none; padding-left: 5px">Tài khoản của Thuận</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="container container-main" style="margin-top: var(--header-height)">
+            <div class="row bg-white mb-2" style="padding: 12px 10px">
+                <div class="d-flex align-items-center">
+                    <a href="" style="text-decoration: none; font-size: 14px; color: #000">Trang chủ</a>
+                    <span class="mx-2" style="font-size: 14px; color: #999">/</span>
+                    <a href="" style="text-decoration: none; font-size: 14px; color: #000">Danh mục</a>
+                    <span class="mx-2" style="font-size: 14px; color: #999">/</span>
+                    <a href="" style="text-decoration: none; font-size: 14px; color: #999">Sản phẩm</a>
+                </div>
+            </div>
+            <div class="row bg-white mb-2">
+                <div class="col-6 pl-0-t">
+                    <div style="padding-top: 10px; padding-left: 10px; padding-bottom: 10px">
+                        <img style="object-fit: cover" src="./Assets/Images/thung-48-hop-sua-tuoi-tiet-trung-nguyen-chat-khong-duong-th-true-milk-180ml-202202210830044491.jpg" class="w-100" alt="" />
+                        <!-- <div class="d-flex p-3">
+                            <div class="swiper-img swiper-img-checked">
+                                <img
+                                    src="./Assets/Images/thung-48-hop-sua-tuoi-tiet-trung-nguyen-chat-khong-duong-th-true-milk-180ml-202202210830044491.jpg"
+                                    class="p-1 w-100 h-auto"
+                                    style="object-fit: cover"
+                                    alt=""
+                                />
+                            </div>
+                            <div class="swiper-img">
+                                <img
+                                    src="./Assets/Images/thung-48-hop-sua-tuoi-tiet-trung-nguyen-chat-khong-duong-th-true-milk-180ml-202202210830044491.jpg"
+                                    class="w-150-t w-100 h-auto p-1"
+                                    style="object-fit: cover"
+                                    alt=""
+                                />
+                            </div>
+                            <div class="swiper-img">
+                                <img
+                                    src="./Assets/Images/thung-48-hop-sua-tuoi-tiet-trung-nguyen-chat-khong-duong-th-true-milk-180ml-202202210830044491.jpg"
+                                    class="w-150-t w-100 h-auto p-1"
+                                    style="object-fit: cover"
+                                    alt=""
+                                />
+                            </div>
+                        </div> -->
+                    </div>
+                </div>
+                <div class="col-6 pl-0-t">
+                    <div class="p-3">
+                        <p class="fw-500 fs-24-t">Thùng 48 hộp sữa tươi tiệt trùng nguyên chất không đường TH true MILK 180ml</p>
+                        <div class="d-flex align-items-center">
+                            <p>Xuất xứ: <span style="color: #12487f">Việt nam</span></p>
+                            <p class="mx-2" style="color: #999">|</p>
+                            <p>Mã: <span style="color: #12487f">123</span></p>
+                            <p class="mx-2" style="color: #999">|</p>
+                            <p>Tình trạng: <span style="color: #12487f">Còn hàng</span></p>
+                        </div>
+                        <hr />
+                        <p class="text-red fw-700 fs-24-t">25,000 <span class="fs-18-t">đ</span></p>
+                        <div class="d-flex align-items-center">
+                            <div class="btn-group" style="border: 1px solid #ccc">
+                                <button href="" class="btn btn-outline-secondary" style="border: none">-</button>
+                                <input
+                                    type="text"
+                                    value="1"
+                                    style="width: 60px; background-color: #e9ecef; text-align: center; border: none; border-left: 1px solid #ccc; border-right: 1px solid #ccc"
+                                />
+                                <button href="" class="btn btn-outline-secondary" style="border: none">+</button>
+                            </div>
+                        </div>
+                        <div style="margin-top: 26px; margin-bottom: 2px">
+                            <a href="" class="btn btn-Them fw-500" style="padding: 8px 18px; background-color: #ff505a; border: 1px solid #ff505a; color: white; font-weight: 700">THÊM VÀO GIỎ</a>
+                            <a
+                                href=""
+                                class="btn btn-ThanhToan fw-500"
+                                style="padding: 8px 18px; background-color: #ff505a; border: 1px solid #ff505a; color: white; font-weight: 700; margin-left: 2px"
+                                >THANH TOÁN</a
+                            >
+                        </div>
+                        <div class="mt-4 p-3" style="background-color: #e9ecef">
+                            <p class="fs-16-t">Giao hàng đúng hẹn, nếu trễ tặng PGG 100.000đ</p>
+                            <p class="fs-16-t">Đổi, trả sản phẩm trong 48 giờ</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Mô tả sản phẩm -->
+            <div class="row bg-white mb-2 p-2">
+                <p class="fw-500 fs-24-t" style="padding: 10px; border-bottom: 1px solid #eaeaea">Mô tả sản phẩm</p>
+                <p>
+                    Hạt giống Rạng Đông là đơn vị cung cấp hạt giống rau củ quả uy tín từ năm 2014. Cty chuyên nghiên cứu, sản xuất và kinh doanh hạt giống rau màu chất lượng cao. Công ty đã nghiên
+                    cứu ra những sản phẩm hạt giống rau màu với các đặc tính vượt trội như: Năng suất cao,kháng bênh tốt, chất lượng sản phẩm tốt, được thị trường ưa chuộng. HẠT GIỐNG RẠNG ĐÔNG –
+                    GIỐNG TỐT CHO MÙA BỘI THU. HƯỚNG DẪN CÁCH TRỒNG RAU CỦ QUẢ ĐƠN GIẢN, HIỆU QUẢ VÀ AN TOÀN – Thời gian trồng, thu hoạch từ 55-90 ngày, tùy loại. – Chế độ nước tưới: ngày 1-2 lượt,
+                    phun mưa.
+                </p>
+            </div>
+            <!-- Sản phẩm cùng loại -->
+            <div class="row bg-white mb-2">
+                <h5 class="text-center p-3 fs-24-t fw-500">SẢN PHẨM LIÊN QUAN</h5>
+                <!-- Slick Carousel Wrapper -->
+                <div class="slick-carousel">
+                    <div class="product-item">
+                        <div class="card" style="border: none">
+                            <a href="">
+                                <img src="./Assets/Images/uc-ga-co-xuong-202405241349502844.jpg" class="w-100" alt="" />
+                            </a>
+                            <div class="card-body">
+                                <p class="card-title fw-500 txt-gray" style="color: #000000">Ức gà có xương</p>
+                                <p class="card-title">
+                                    <span class="fw-700" style="color: #a1001a">28.350đ</span>
+                                    <span class="txt-gray fs-13-t">/300g</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Lặp lại các sản phẩm -->
+                    <div class="product-item">
+                        <div class="card" style="border: none">
+                            <a href="">
+                                <img src="./Assets/Images/uc-ga-co-xuong-202405241349502844.jpg" class="w-100" alt="" />
+                            </a>
+                            <div class="card-body">
+                                <p class="card-title fw-500 txt-gray" style="color: #000000">Ức gà có xương</p>
+                                <p class="card-title">
+                                    <span class="fw-700" style="color: #a1001a">28.350đ</span>
+                                    <span class="txt-gray fs-13-t">/300g</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="product-item">
+                        <div class="card" style="border: none">
+                            <a href="">
+                                <img src="./Assets/Images/uc-ga-co-xuong-202405241349502844.jpg" class="w-100" alt="" />
+                            </a>
+                            <div class="card-body">
+                                <p class="card-title fw-500 txt-gray" style="color: #000000">Ức gà có xương</p>
+                                <p class="card-title">
+                                    <span class="fw-700" style="color: #a1001a">28.350đ</span>
+                                    <span class="txt-gray fs-13-t">/300g</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="product-item">
+                        <div class="card" style="border: none">
+                            <a href="">
+                                <img src="./Assets/Images/uc-ga-co-xuong-202405241349502844.jpg" class="w-100" alt="" />
+                            </a>
+                            <div class="card-body">
+                                <p class="card-title fw-500 txt-gray" style="color: #000000">Ức gà có xương</p>
+                                <p class="card-title">
+                                    <span class="fw-700" style="color: #a1001a">28.350đ</span>
+                                    <span class="txt-gray fs-13-t">/300g</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="product-item">
+                        <div class="card" style="border: none">
+                            <a href="">
+                                <img src="./Assets/Images/uc-ga-co-xuong-202405241349502844.jpg" class="w-100" alt="" />
+                            </a>
+                            <div class="card-body">
+                                <p class="card-title fw-500 txt-gray" style="color: #000000">Ức gà có xương</p>
+                                <p class="card-title">
+                                    <span class="fw-700" style="color: #a1001a">28.350đ</span>
+                                    <span class="txt-gray fs-13-t">/300g</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer class="row mb-3 mt-3" style="margin-right: -24px; margin-left: 0px">
+                <ul class="p-2 d-flex align-items-center mb-0" style="background-color: var(--bg-footer); margin-left: -12px">
+                    <li class="text-white fs-14-t fw-500">bán 7:00 - 21:30</li>
+                    <li class="mx-3">
+                        <a href="" class="fw-700 text-white fs-14-t" style="text-decoration: none"><i class="ri-phone-line"></i> 19001908</a>
+                    </li>
+                    <li class="text-white fs-14-t fw-500">Khiếu nại 7:00 - 21:30</li>
+                    <li class="mx-3">
+                        <a href="" class="fw-700 text-white fs-14-t" style="text-decoration: none"><i class="ri-phone-line"></i> 18001067</a>
+                    </li>
+                    <li class="fw-700 fs-14-t fw-500" style="text-decoration: none; color: yellow; margin-left: 300px; margin-right: 20px">Cam kết:</li>
+                    <li class="text-white fs-14-t fw-500"><i class="ri-checkbox-circle-line"></i> 15.000 sản phẩm</li>
+                    <li class="text-white mx-3 fs-14-t fw-500"><i class="ri-checkbox-circle-line"></i> Freeship đơn 100k</li>
+                    <li class="text-white fw-500 fs-14-t"><i class="ri-checkbox-circle-line"></i> Giao 2h</li>
+                </ul>
+
+                <div class="row bg-white pt-3">
+                    <div class="col-6 d-flex justify-content-between">
+                        <ul class="pl-0-t">
+                            <li class="nav-item">
+                                <a href="" class="text-dark nav-link pb-2 fs-15-t" style="text-decoration: none">Hướng dẫn mua</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="" class="text-dark nav-link pb-2 fs-15-t" style="text-decoration: none">Tích điểm quà tặng VIP</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="" class="text-dark nav-link pb-2 fs-15-t" style="text-decoration: none">Cần thuê mặt bằng</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="" class="text-dark nav-link pb-2 fs-15-t" style="text-decoration: none">Hỏi đáp</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="" class="text-dark nav-link pb-2 fs-15-t" style="text-decoration: none">Tuyển 6542 việc</a>
+                            </li>
+                        </ul>
+
+                        <ul class="pl-0-t">
+                            <li class="nav-item">
+                                <a href="" class="text-dark nav-link pb-2 fs-15-t" style="text-decoration: none">Hóa đơn điện tử</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="" class="text-dark nav-link pb-2 fs-15-t" style="text-decoration: none">Giới thiệu công ty</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="" class="text-dark nav-link pb-2 fs-15-t" style="text-decoration: none">Liên hệ</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="" class="text-dark nav-link pb-2 fs-15-t" style="text-decoration: none">Quy chế web</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="" class="text-dark nav-link pb-2 fs-15-t" style="text-decoration: none">cảnh báo giả mạo</a>
+                            </li>
+                        </ul>
+
+                        <ul class="pl-0-t">
+                            <li class="nav-item">
+                                <a href="" class="text-dark nav-link pb-2 fs-15-t" style="text-decoration: none">Chính sách khách hàng</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="" class="text-dark nav-link pb-2 fs-15-t" style="text-decoration: none">Chính sách giao hàng</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="" class="text-dark nav-link pb-2 fs-15-t" style="text-decoration: none">Chính sách đổi trả</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="" class="text-dark nav-link pb-2 fs-15-t" style="text-decoration: none">Trả góp, điện nước</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="" class="text-dark nav-link pb-2 fs-15-t" style="text-decoration: none">Đăng ký chào hàng</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-1"></div>
+
+                    <div class="col-5">
+                        <div class="mb-2">
+                            <img src="./Assets/Images/checked.png" style="width: 20px" alt="" />
+                            <span>Cam kết chất lượng, không hài lòng trả hàng !</span>
+                        </div>
+                        <div class="mb-2">
+                            <img src="./Assets/Images/shipped.png" style="width: 20px" alt="" />
+                            <span>Giao hàng đúng hẹn, trễ tặng ngay 100.000đ</span>
+                        </div>
+                        <div class="mb-2">
+                            <a href=""><img src="./Assets/Icon/facebook.png" style="width: 20px" alt="" /></a>
+                            <a href=""><img src="./Assets/Icon/youtube.png" class="mx-1" style="width: 20px" alt="" /></a>
+                            <a href=""> <img src="./Assets/Icon/instagram.png" style="width: 20px" alt="" /></a>
+                        </div>
+                        <div>
+                            <img src="./Assets/Images/ggp-as.png" class="mx-auto d-block" style="width: 280px" alt="" />
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </main>
+
+        <script>
+            $(document).ready(function () {
+                $(".slick-carousel").slick({
+                    slidesToShow: 4,
+                    slidesToScroll: 1,
+                    infinite: true,
+                    arrows: true, // Hiển thị mũi tên
+                    dots: false, // Tắt dots
+                    prevArrow: '<button type="button" class="slick-prev"><i class="ri-arrow-left-s-line"></i></button>',
+                    nextArrow: '<button type="button" class="slick-next"><i class="ri-arrow-right-s-line"></i></button>',
+                    responsive: [
+                        {
+                            breakpoint: 1024,
+                            settings: {
+                                slidesToShow: 3,
+                                slidesToScroll: 1,
+                            },
+                        },
+                        {
+                            breakpoint: 768,
+                            settings: {
+                                slidesToShow: 2,
+                                slidesToScroll: 1,
+                            },
+                        },
+                        {
+                            breakpoint: 480,
+                            settings: {
+                                slidesToShow: 1,
+                                slidesToScroll: 1,
+                            },
+                        },
+                    ],
+                });
+            });
+        </script>
+    </body>
+</html>
