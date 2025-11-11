@@ -1,0 +1,91 @@
+/* ===================================
+   GIAN HÀNG VÀ ƯU ĐÃI TỪ HÃNG
+   =================================== */
+
+/* Header với ngôi sao */
+.promo-header-wrapper {
+    position: relative;
+    overflow: hidden;
+}
+
+.promo-header-wrapper::before,
+.promo-header-wrapper::after {
+    content: '';
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    animation: float 3s ease-in-out infinite;
+}
+
+.promo-header-wrapper::before {
+    top: -50px;
+    left: -30px;
+}
+
+.promo-header-wrapper::after {
+    bottom: -50px;
+    right: -30px;
+    animation-delay: 1.5s;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Banner cards */
+.promo-banner-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.promo-banner-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.promo-banner-card img {
+    transition: transform 0.3s ease;
+}
+
+.promo-banner-card:hover img {
+    transform: scale(1.05);
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .promo-banner-card img {
+        height: 280px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .promo-banner-card img {
+        height: 240px !important;
+    }
+    
+    .promo-header-wrapper h4 {
+        font-size: 18px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .promo-banner-card img {
+        height: 200px !important;
+    }
+    
+    .promo-header-wrapper h4 {
+        font-size: 16px !important;
+    }
+    
+    .promo-header-wrapper i {
+        font-size: 18px !important;
+    }
+}

@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -6,6 +6,105 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif,
+        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+        "Noto Color Emoji";
+}
+
+/* Review Section Styles */
+.btn-write-review {
+    background-color: #00713b;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 24px;
+    transition: all 0.3s ease;
+}
+
+.btn-write-review:hover {
+    background-color: #00613b;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 113, 59, 0.3);
+}
+
+.progress {
+    background-color: #e9ecef;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-bar.bg-rating {
+    background-color: #00713b !important;
+    transition: width 0.6s ease;
+}
+
+.btn-filter {
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 14px;
+    color: #495057;
+    transition: all 0.3s ease;
+}
+
+.btn-filter:hover {
+    border-color: #00713b;
+    color: #00713b;
+    background-color: #e8f5e9;
+}
+
+.btn-filter-active {
+    background-color: #00713b;
+    border: 1px solid #00713b;
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 14px;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.btn-filter-active:hover {
+    background-color: #00613b;
+}
+
+.review-item {
+    padding: 16px;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.review-item:hover {
+    background-color: #f8f9fa;
+}
+
+.review-avatar div {
+    font-size: 18px;
+}
+
+.btn-view-more {
+    background-color: #fff;
+    border: 2px solid #00713b;
+    border-radius: 20px;
+    color: #00713b;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-view-more:hover {
+    background-color: #00713b;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 113, 59, 0.3);
+}
+
+.experience-rating {
+    padding: 12px;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.experience-rating:hover {
+    background-color: #e8f5e9;
+    box-shadow: 0 2px 4px rgba(0, 113, 59, 0.1);
 }

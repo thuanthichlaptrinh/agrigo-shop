@@ -1,0 +1,19 @@
+# Hướng dẫn thêm hình ảnh cho phần "Gian hàng và ưu đãi"
+
+Bạn cần thêm 9 hình ảnh vào thư mục: public/template/Assets/Images/
+
+Tên file cần thêm:
+1. promo-1.jpg - Cuộc phiêu lưu của ưu đãi (banner khuyến mãi)
+2. promo-2.jpg - Tích lũy mua sắm (banner tích điểm)
+3. promo-3.jpg - P&G Giặt Xả (sản phẩm Downy, Tide)
+4. promo-4.jpg - Cô Sprite (nước giải khát)
+5. promo-5.jpg - Cá song biển (hải sản)
+6. promo-6.jpg - Kem lạnh Carslam (mỹ phẩm)
+7. promo-7.jpg - Cá vàng dưới công (hải sản)
+8. promo-8.jpg - Thạch rau câu (đồ ăn vặt)
+9. promo-9.jpg - Review phim (giải trí)
+
+Kích thước khuyến nghị: 400x280px
+Format: JPG hoặc PNG
+
+Hoặc bạn có thể sử dụng hình ảnh từ template gốc của bạn.
