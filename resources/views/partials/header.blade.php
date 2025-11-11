@@ -5,7 +5,8 @@
                 <div class="navbar navbar-expand-sm" style="margin-left: 4px; margin-top: 4px">
                     <div class="col-3">
                         <a href="{{ url('/') }}" class="navbar-brand text-white">
-                            <b style="color: #ffea09; font-size: 25px">Organic Shop</b>
+                            <!-- <b style="color: #ffea09; font-size: 25px">Organic Shop</b> -->
+                            <img src="template/Assets/Images/logo5.png" alt="" style="height: 40px; width: 320px; object-fit: cover;">
                         </a>
                     </div>
 
