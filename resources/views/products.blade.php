@@ -15,55 +15,7 @@
 @section('content')
 <div class="row">
     <!-- Sidebar Menu -->
-    <div class="col-3 slide-menu p-0">
-        <ul class="nav flex-column bg-white">
-            <li class="nav-item">
-                <a href="#" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Rau, củ, quả</a>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Thịt, cá, trứng, hải sản</a>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Gạo, bột, đồ khô</a>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Dầu ăn, nước chấm, gia vị</a>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Kem, thực phẩm đông mát</a>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Rau, củ, quả</a>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Thịt, cá, trứng, hải sản</a>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Gạo, bột, đồ khô</a>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Kem, thực phẩm đông mát</a>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Rau, củ, quả</a>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Thịt, cá, trứng, hải sản</a>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Gạo, bột, đồ khô</a>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Gạo, bột, đồ khô</a>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link border-b mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Kem, thực phẩm đông mát</a>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link mx-3 p-0 py-2 text-dark fw-500 text-uperc fs-14-t">Rau, củ, quả</a>
-            </li>
-        </ul>
-    </div>
+    @include('partials.sidebar')
 
     <!-- Main Content -->
     <div class="col-9 content-body">
