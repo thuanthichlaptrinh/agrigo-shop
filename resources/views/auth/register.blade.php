@@ -92,7 +92,7 @@
 
         .form label .input {
             width: 295px;
-            padding: 10px 10px 20px 10px;
+            padding: 14px 10px 14px 10px;
             outline: 0;
             border: 1px solid rgba(105, 105, 105, 0.397);
             border-radius: 10px;
@@ -101,27 +101,53 @@
         .form label .input + span {
             position: absolute;
             left: 10px;
-            top: 15px;
+            top: 50%;
+            transform: translateY(-50%);
             color: grey;
             font-size: 0.9em;
             cursor: text;
-            transition: 0.3s ease;
+            transition: all 0.3s ease;
+            background-color: transparent;
+            padding: 0 5px;
+            pointer-events: none;
         }
 
         .form label .input:placeholder-shown + span {
-            top: 15px;
+            top: 50%;
+            transform: translateY(-50%);
             font-size: 0.9em;
         }
 
         .form label .input:focus + span,
-        .form label .input:valid + span {
-            top: 30px;
-            font-size: 0.7em;
+        .form label .input:not(:placeholder-shown) + span {
+            top: 0;
+            transform: translateY(-50%);
+            font-size: 0.75em;
             font-weight: 600;
+            color: rgb(0 97 51 / 1);
+            background-color: #fff;
         }
 
-        .form label .input:valid + span {
-            color: green;
+        /* Style cho select - chỉ khi focus hoặc có giá trị được chọn */
+        .form label select.input:focus + span,
+        .form label select.input.has-value + span {
+            top: 0;
+            transform: translateY(-50%);
+            font-size: 0.75em;
+            font-weight: 600;
+            color: rgb(0 97 51 / 1);
+            background-color: #fff;
+        }
+
+        /* Style cho date input - chỉ khi focus hoặc có giá trị */
+        .form label input[type="date"]:focus + span,
+        .form label input[type="date"].has-value + span {
+            top: 0;
+            transform: translateY(-50%);
+            font-size: 0.75em;
+            font-weight: 600;
+            color: rgb(0 97 51 / 1);
+            background-color: #fff;
         }
 
         .submit {
@@ -163,39 +189,66 @@
         </p>
         <p class="message">Vui lòng nhập đủ thông tin để đăng ký.</p>
 
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <div class="flex">
             <label style="margin-right: 10px">
-                <input required placeholder="" type="text" name="name" class="input" />
+                <input required placeholder="" type="text" name="TenNguoiDung" class="input" value="{{ old('TenNguoiDung') }}" />
                 <span>Họ và tên</span>
             </label>
 
             <label>
-                <input required placeholder="" type="email" name="email" class="input" />
+                <input required placeholder="" type="email" name="Email" class="input" value="{{ old('Email') }}" />
                 <span>Email</span>
             </label>
         </div>
 
         <div class="flex">
             <label style="margin-right: 10px">
-                <input required placeholder="" type="tel" name="phone" class="input" />
+                <input placeholder="" type="tel" name="SDT" class="input" value="{{ old('SDT') }}" />
                 <span>Số điện thoại</span>
             </label>
 
             <label>
-                <input required placeholder="" type="text" name="address" class="input" />
+                <input placeholder="" type="text" name="DiaChi" class="input" value="{{ old('DiaChi') }}" />
                 <span>Địa chỉ</span>
+            </label>
+        </div>
+
+        <div class="flex">
+            <label style="margin-right: 10px">
+                <input placeholder="" type="date" name="NgaySinh" class="input" value="{{ old('NgaySinh') }}" />
+                <span>Ngày sinh</span>
+            </label>
+
+            <label>
+                <select name="GioiTinh" class="input">
+                    <option value="">Chọn giới tính</option>
+                    <option value="Nam" {{ old('GioiTinh') == 'Nam' ? 'selected' : '' }}>Nam</option>
+                    <option value="Nữ" {{ old('GioiTinh') == 'Nữ' ? 'selected' : '' }}>Nữ</option>
+                    <option value="Khác" {{ old('GioiTinh') == 'Khác' ? 'selected' : '' }}>Khác</option>
+                </select>
+                <span>Giới tính</span>
             </label>
         </div>
 
         <div class="flex pr-10-t">
             <label style="margin-right: 10px">
-                <input required placeholder="" type="password" name="password" class="input" />
+                <input required placeholder="" type="password" name="MatKhau" class="input" />
                 <span>Mật khẩu</span>
             </label>
 
             <label>
-                <input required placeholder="" type="password" name="password_confirmation" class="input" />
-                <span> Nhập lại Mật khẩu</span>
+                <input required placeholder="" type="password" name="MatKhau_confirmation" class="input" />
+                <span>Nhập lại Mật khẩu</span>
             </label>
         </div>
 
@@ -205,5 +258,39 @@
             <a href="{{ route('login') }}">Đăng nhập</a>
         </p>
     </form>
+
+    <script>
+        // Xử lý floating label cho select
+        document.querySelectorAll('select.input').forEach(select => {
+            select.addEventListener('change', function() {
+                if (this.value !== '') {
+                    this.classList.add('has-value');
+                } else {
+                    this.classList.remove('has-value');
+                }
+            });
+            
+            // Kiểm tra giá trị ban đầu
+            if (select.value !== '') {
+                select.classList.add('has-value');
+            }
+        });
+
+        // Xử lý floating label cho date input
+        document.querySelectorAll('input[type="date"].input').forEach(dateInput => {
+            dateInput.addEventListener('change', function() {
+                if (this.value !== '') {
+                    this.classList.add('has-value');
+                } else {
+                    this.classList.remove('has-value');
+                }
+            });
+            
+            // Kiểm tra giá trị ban đầu
+            if (dateInput.value !== '') {
+                dateInput.classList.add('has-value');
+            }
+        });
+    </script>
 </body>
 </html>

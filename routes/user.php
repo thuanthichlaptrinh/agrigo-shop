@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-Route::prefix('user')->name('user.')->middleware(['auth'])->group(function () {
+Route::prefix('user')->name('user.')->middleware(['auth', 'user'])->group(function () {
     
     // Profile
     Route::get('/profile', function () {

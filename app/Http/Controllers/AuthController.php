@@ -1,0 +1,281 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\NguoiDung;
+use App\Models\VaiTro;
+use App\Models\Token;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Tymon\JWTAuth\Exceptions\JWTException;
+
+class AuthController extends Controller
+{
+    // Hiển thị form đăng nhập
+    public function showLoginForm()
+    {
+        return view('auth.login');
+    }
+
+    /**
+     * Xử lý đăng nhập với JWT Token
+     */
+    public function login(Request $request)
+    {
+        // Validation với các quy tắc bảo mật
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email|max:255',
+            'password' => 'required|string|min:6|max:255'
+        ], [
+            'email.required' => 'Vui lòng nhập email',
+            'email.email' => 'Email không hợp lệ',
+            'password.required' => 'Vui lòng nhập mật khẩu',
+            'password.min' => 'Mật khẩu phải có ít nhất 6 ký tự'
+        ]);
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput($request->only('email'));
+        }
+
+        // Tìm user theo email
+        $user = NguoiDung::where('Email', $request->email)->first();
+
+        if (!$user) {
+            return back()->withErrors(['email' => 'Email không tồn tại'])->withInput($request->only('email'));
+        }
+
+        // Kiểm tra tài khoản có bị khóa không
+        if (!$user->TrangThai) {
+            return back()->withErrors(['email' => 'Tài khoản đã bị khóa'])->withInput($request->only('email'));
+        }
+
+        // Kiểm tra mật khẩu
+        if (!Hash::check($request->password, $user->MatKhau)) {
+            return back()->withErrors(['password' => 'Mật khẩu không đúng'])->withInput($request->only('email'));
+        }
+
+        try {
+            // Tạo JWT token
+            $token = JWTAuth::fromUser($user);
+            
+            // Lưu token vào database
+            Token::createToken(
+                $user->ID, 
+                $token, 
+                Token::TYPE_REMEMBER_ME, 
+                config('jwt.ttl', 60) // Lấy từ config jwt
+            );
+            
+            // Lưu token vào session
+            session(['jwt_token' => $token]);
+            session(['user_id' => $user->ID]);
+
+            // Redirect theo vai trò
+            $vaiTro = $user->vaiTro->TenVaiTro ?? 'User';
+            
+            if ($vaiTro === VaiTro::ADMIN) {
+                return redirect()->route('admin.dashboard')->with('success', 'Đăng nhập thành công!');
+            } elseif ($vaiTro === VaiTro::PRODUCT_MANAGER) {
+                return redirect()->route('admin.products.index')->with('success', 'Đăng nhập thành công!');
+            } elseif ($vaiTro === VaiTro::ORDER_MANAGER) {
+                return redirect()->route('admin.dashboard')->with('success', 'Đăng nhập thành công!');
+            }
+
+            return redirect()->route('user.home')->with('success', 'Đăng nhập thành công!');
+
+        } catch (JWTException $e) {
+            return back()->withErrors(['email' => 'Lỗi hệ thống'])->withInput($request->only('email'));
+        }
+    }
+
+    // Hiển thị form đăng ký
+    public function showRegisterForm()
+    {
+        return view('auth.register');
+    }
+
+    /**
+     * Xử lý đăng ký với validation mạnh
+     */
+    public function register(Request $request)
+    {
+        // Validation chi tiết
+        $validator = Validator::make($request->all(), [
+            'TenNguoiDung' => [
+                'required',
+                'string',
+                'min:2',
+                'max:255'
+            ],
+            'Email' => [
+                'required',
+                'email',
+                'max:255',
+                'unique:NguoiDung,Email'
+            ],
+            'SDT' => [
+                'nullable',
+                'regex:/^(0|\+84)[0-9]{9,10}$/',
+                'unique:NguoiDung,SDT'
+            ],
+            'MatKhau' => [
+                'required',
+                'string',
+                'min:6',
+                'max:255',
+                'confirmed'
+            ],
+            'DiaChi' => 'nullable|string|max:500',
+            'NgaySinh' => 'nullable|date|before:today',
+            'GioiTinh' => 'nullable|in:Nam,Nữ,Khác'
+        ], [
+            'TenNguoiDung.required' => 'Vui lòng nhập họ và tên',
+            'TenNguoiDung.min' => 'Họ và tên phải có ít nhất 2 ký tự',
+            'Email.required' => 'Vui lòng nhập email',
+            'Email.email' => 'Email không hợp lệ',
+            'Email.unique' => 'Email đã được sử dụng',
+            'SDT.regex' => 'Số điện thoại không hợp lệ (VD: 0912345678)',
+            'SDT.unique' => 'Số điện thoại đã được sử dụng',
+            'MatKhau.required' => 'Vui lòng nhập mật khẩu',
+            'MatKhau.min' => 'Mật khẩu phải có ít nhất 6 ký tự',
+            'MatKhau.confirmed' => 'Xác nhận mật khẩu không khớp',
+            'NgaySinh.before' => 'Ngày sinh phải trước ngày hôm nay'
+        ]);
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput($request->except('MatKhau', 'MatKhau_confirmation'));
+        }
+
+        try {
+            // Lấy ID vai trò User
+            $userRole = VaiTro::where('TenVaiTro', VaiTro::USER)->first();
+            
+            if (!$userRole) {
+                return back()->withErrors(['email' => 'Lỗi hệ thống']);
+            }
+
+            // Tạo user mới
+            $user = NguoiDung::create([
+                'TenNguoiDung' => trim($request->TenNguoiDung),
+                'Email' => strtolower(trim($request->Email)),
+                'SDT' => $request->SDT,
+                'MatKhau' => Hash::make($request->MatKhau),
+                'DiaChi' => $request->DiaChi,
+                'NgaySinh' => $request->NgaySinh,
+                'GioiTinh' => $request->GioiTinh,
+                'TrangThai' => 1,
+                'IDVaiTro' => $userRole->ID
+            ]);
+
+            // Tạo JWT token
+            $token = JWTAuth::fromUser($user);
+            
+            // Lưu token vào database
+            Token::createToken($user->ID, $token, Token::TYPE_REMEMBER_ME, config('jwt.ttl', 60));
+            
+            session(['jwt_token' => $token]);
+            session(['user_id' => $user->ID]);
+
+            return redirect()->route('user.home')->with('success', 'Đăng ký thành công!');
+
+        } catch (\Exception $e) {
+            return back()->withErrors(['email' => 'Có lỗi xảy ra'])->withInput($request->except('MatKhau', 'MatKhau_confirmation'));
+        }
+    }
+
+    // Đăng xuất
+    public function logout(Request $request)
+    {
+        try {
+            $token = session('jwt_token');
+            $userId = session('user_id');
+            
+            // Invalidate JWT token
+            if ($token) {
+                JWTAuth::setToken($token)->invalidate();
+                
+                // Xóa token khỏi database
+                Token::where('Token', $token)
+                    ->where('IDNguoiDung', $userId)
+                    ->delete();
+            }
+            
+            // Xóa session
+            $request->session()->forget(['jwt_token', 'user_id']);
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()->route('user.home')->with('success', 'Đăng xuất thành công!');
+        } catch (\Exception $e) {
+            return redirect()->route('user.home');
+        }
+    }
+
+    // Hiển thị form quên mật khẩu
+    public function showForgotPasswordForm()
+    {
+        return view('auth.forgot-password');
+    }
+
+    // Xử lý quên mật khẩu (gửi email reset)
+    public function forgotPassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email|exists:NguoiDung,Email'
+        ], [
+            'email.required' => 'Vui lòng nhập email',
+            'email.email' => 'Email không hợp lệ',
+            'email.exists' => 'Email không tồn tại trong hệ thống'
+        ]);
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        // TODO: Gửi email reset password
+        // Tạm thời chỉ thông báo thành công
+        return back()->with('success', 'Link đặt lại mật khẩu đã được gửi đến email của bạn');
+    }
+
+    // Hiển thị form đặt lại mật khẩu
+    public function showResetPasswordForm($token)
+    {
+        return view('auth.reset-password', ['token' => $token]);
+    }
+
+    // Xử lý đặt lại mật khẩu
+    public function resetPassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email|exists:NguoiDung,Email',
+            'password' => 'required|min:6|confirmed',
+            'token' => 'required'
+        ], [
+            'email.required' => 'Vui lòng nhập email',
+            'email.email' => 'Email không hợp lệ',
+            'email.exists' => 'Email không tồn tại',
+            'password.required' => 'Vui lòng nhập mật khẩu mới',
+            'password.min' => 'Mật khẩu phải có ít nhất 6 ký tự',
+            'password.confirmed' => 'Xác nhận mật khẩu không khớp'
+        ]);
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        // TODO: Kiểm tra token và cập nhật mật khẩu
+        // Tạm thời chỉ cập nhật mật khẩu trực tiếp
+        $user = NguoiDung::where('Email', $request->email)->first();
+        
+        if ($user) {
+            $user->MatKhau = Hash::make($request->password);
+            $user->save();
+
+            return redirect()->route('login')->with('success', 'Đặt lại mật khẩu thành công');
+        }
+
+        return back()->withErrors(['email' => 'Có lỗi xảy ra, vui lòng thử lại']);
+    }
+}

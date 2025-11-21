@@ -10,7 +10,7 @@
         integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
         crossorigin="anonymous"
     />
-    <title>Đăng nhập - Organic Shop</title>
+    <title>Quên mật khẩu - Organic Shop</title>
 
     <style>
         @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap");
@@ -68,63 +68,57 @@
                 <div class="featured-image mb-3">
                     <img src="{{ asset('template/images/1.png') }}" class="img-fluid" style="width: 250px" />
                 </div>
-                <p class="text-white fs-2" style="font-family: 'Courier New', Courier, monospace; font-weight: 600">Be Verified</p>
+                <p class="text-white fs-2" style="font-family: 'Courier New', Courier, monospace; font-weight: 600">Quên mật khẩu?</p>
                 <small class="text-white text-wrap text-center" style="width: 17rem; font-family: 'Courier New', Courier, monospace">
-                    Join experienced Designers on this platform.
+                    Đừng lo lắng, chúng tôi sẽ giúp bạn lấy lại mật khẩu.
                 </small>
             </div>
 
             <!-- Right Box -->
             <div class="col-md-6 right-box">
-                <a href="{{ route('user.home') }}" class="text-dark p-3" style="position: relative; top: -40px; right: -365px">
+                <a href="{{ route('login') }}" class="text-dark p-3" style="position: relative; top: -40px; right: -365px">
                     <img src="{{ asset('template/Assets/Icon/close.png') }}" style="width: 14px" alt="" />
                 </a>
-                <form class="row align-items-center" action="{{ route('login') }}" method="POST">
+                <form class="row align-items-center" action="{{ route('password.email') }}" method="POST">
                     @csrf
                     <div class="header-text mb-4">
-                        <h2>Xin chào !</h2>
-                        <p>Chúng tôi rất vui khi bạn trở lại.</p>
+                        <h2>Quên mật khẩu</h2>
+                        <p>Nhập email của bạn để nhận link đặt lại mật khẩu.</p>
                     </div>
+
+                    @if (session('success'))
+                        <div class="alert alert-success">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
                     <div class="input-group mb-3">
                         <input type="email" name="email" class="form-control form-control-lg bg-light fs-6" placeholder="Email" value="{{ old('email') }}" required />
-                        @error('email')
-                            <div class="text-danger small mt-1">{{ $message }}</div>
-                        @enderror
                     </div>
-                    <div class="input-group mb-1">
-                        <input type="password" name="password" class="form-control form-control-lg bg-light fs-6" placeholder="Mật khẩu" required />
-                        @error('password')
-                            <div class="text-danger small mt-1">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    <div class="input-group mb-5 d-flex justify-content-between">
-                        <div class="form-check">
-                            <input type="checkbox" name="remember" class="form-check-input" id="formCheck" />
-                            <label for="formCheck" class="form-check-label text-secondary"><small>Ghi nhớ</small></label>
-                        </div>
-                        <div class="forgot">
-                            <small><a href="{{ route('password.request') }}">Quên mật khẩu?</a></small>
-                        </div>
-                    </div>
+
                     <div class="input-group mb-3">
                         <button
                             type="submit"
                             class="btn btn-xanh text-white btn-lg w-100 fs-6"
                             style="background: radial-gradient(159.85% 367.97% at 150% 123.85%, #ffe147 0, #65ae17 38.76%, #469c4b 59.65%, #00713b 100%)"
                         >
-                            Đăng nhập
+                            Gửi link đặt lại mật khẩu
                         </button>
                     </div>
-                    <div class="input-group mb-3">
-                        <button type="button" class="btn btn-lg btn-light w-100 fs-6">
-                            <img src="{{ asset('template/images/google.png') }}" style="width: 20px" class="me-2" />
-                            <small>Đăng nhập bằng Google</small>
-                        </button>
-                    </div>
+
                     <div class="row">
                         <small>
-                            Bạn chưa có tài khoản?
-                            <a href="{{ route('register') }}">Đăng ký</a>
+                            <a href="{{ route('login') }}">← Quay lại đăng nhập</a>
                         </small>
                     </div>
                 </form>
