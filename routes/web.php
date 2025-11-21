@@ -16,6 +16,11 @@ Route::get('/', function () {
     return view('user.home');
 })->name('user.home');
 
+// Trang không có quyền truy cập
+Route::get('/unauthorized', function () {
+    return view('errors.unauthorized');
+})->name('unauthorized');
+
 /*
 |--------------------------------------------------------------------------
 | Include Route Files

@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Cart routes for users
-Route::prefix('cart')->name('user.cart.')->middleware(['auth'])->group(function () {
+Route::prefix('cart')->name('user.cart.')->middleware('user')->group(function () {
     Route::get('/', function () {
         return view('user.cart.index');
     })->name('index');
@@ -32,7 +32,7 @@ Route::prefix('cart')->name('user.cart.')->middleware(['auth'])->group(function 
 });
 
 // Checkout routes
-Route::prefix('checkout')->name('user.checkout.')->middleware(['auth'])->group(function () {
+Route::prefix('checkout')->name('user.checkout.')->middleware('user')->group(function () {
     Route::get('/', function () {
         return view('user.cart.checkout');
     })->name('index');

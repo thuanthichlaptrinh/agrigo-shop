@@ -8,11 +8,11 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-Route::prefix('user')->name('user.')->middleware(['auth', 'user'])->group(function () {
+Route::prefix('user')->name('user.')->middleware('user')->group(function () {
     
     // Profile
     Route::get('/profile', function () {
-        return view('user.profile.index');
+        return view('user.profile');
     })->name('profile');
 
     Route::put('/profile', function () {

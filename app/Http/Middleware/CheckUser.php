@@ -29,6 +29,9 @@ class CheckUser
                 return redirect()->route('login')->with('error', 'Tài khoản không hợp lệ');
             }
 
+            // Lưu user vào request để sử dụng trong controller
+            $request->merge(['auth_user' => $user]);
+
             return $next($request);
             
         } catch (\Exception $e) {

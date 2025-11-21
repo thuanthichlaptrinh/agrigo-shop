@@ -33,6 +33,7 @@ class Token extends Model
     const TYPE_RESET_PASSWORD = 'reset_password';
     const TYPE_VERIFY_EMAIL = 'verify_email';
     const TYPE_REMEMBER_ME = 'remember_me';
+    const TYPE_JWT = 'jwt';
 
     // Helper methods
     public static function createToken($userId, $token, $type, $expiresInMinutes = 60)

@@ -34,19 +34,19 @@
 @endpush
 
 @section('content')
-<div class="row">
+<div class="row"> 
     <!-- Sidebar -->
     <div class="col-md-3">
-        <div class="bg-white p-3" style="border-radius: 8px">
-            <div class="d-flex align-items-center mb-4">
+        <div class="bg-white p-3 mt-3" style="border-radius: 8px; margin-left: -12px; width: 300.5px">
+            <div class="d-flex align-items-center mb-4"> 
                 <div class="me-3">
-                    <img src="{{ asset('template/Assets/Images/user-avatar.png') }}" 
+                    <img src="{{ auth_user()->HinhAnh ?? asset('template/Assets/Images/user-avatar.png') }}" 
                          style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover" 
                          alt="Avatar" />
                 </div>
                 <div>
-                    <h6 class="mb-0 fw-700">{{ Auth::user()->name ?? 'Ngô Minh Thuận' }}</h6>
-                    <p class="text-muted mb-0 small">{{ Auth::user()->email ?? 'thuan@example.com' }}</p>
+                    <h6 class="mb-0 fw-700">{{ auth_user()->TenNguoiDung ?? 'Người dùng' }}</h6>
+                    <p class="text-muted mb-0 small">{{ auth_user()->Email ?? 'email@example.com' }}</p>
                 </div>
             </div>
 
@@ -102,8 +102,8 @@
     </div>
 
     <!-- Main Content -->
-    <div class="col-md-9">
-        <div class="bg-white p-4" style="border-radius: 8px">
+    <div class="col-md-9 mt-3" style="margin-left: -24px;">
+        <div class="bg-white p-4" style="border-radius: 8px; margin-right: -36px;">
             <h4 class="fw-700 mb-4">Thông tin cá nhân</h4>
 
             <form action="{{ route('user.profile.update') }}" method="POST" enctype="multipart/form-data">
@@ -113,32 +113,32 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label class="form-label fw-500">Họ và tên</label>
-                        <input type="text" name="name" class="form-control" value="{{ old('name', Auth::user()->name ?? 'Ngô Minh Thuận') }}" required />
+                        <input type="text" name="TenNguoiDung" class="form-control" value="{{ old('TenNguoiDung', auth_user()->TenNguoiDung ?? '') }}" required />
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-500">Số điện thoại</label>
-                        <input type="tel" name="phone" class="form-control" value="{{ old('phone', Auth::user()->phone ?? '0783363383') }}" required />
+                        <input type="tel" name="SDT" class="form-control" value="{{ old('SDT', auth_user()->SDT ?? '') }}" />
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label class="form-label fw-500">Email</label>
-                        <input type="email" name="email" class="form-control" value="{{ old('email', Auth::user()->email ?? 'thuan@example.com') }}" required />
+                        <input type="email" name="Email" class="form-control" value="{{ old('Email', auth_user()->Email ?? '') }}" required readonly />
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-500">Ngày sinh</label>
-                        <input type="date" name="birthday" class="form-control" value="{{ old('birthday', Auth::user()->birthday ?? '2000-01-01') }}" />
+                        <input type="date" name="NgaySinh" class="form-control" value="{{ old('NgaySinh', auth_user()->NgaySinh ? auth_user()->NgaySinh->format('Y-m-d') : '') }}" />
                     </div>
                 </div>
 
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <label class="form-label fw-500">Giới tính</label>
-                        <select name="gender" class="form-select">
-                            <option value="male" {{ (old('gender', Auth::user()->gender ?? 'male') == 'male') ? 'selected' : '' }}>Nam</option>
-                            <option value="female" {{ (old('gender', Auth::user()->gender ?? '') == 'female') ? 'selected' : '' }}>Nữ</option>
-                            <option value="other" {{ (old('gender', Auth::user()->gender ?? '') == 'other') ? 'selected' : '' }}>Khác</option>
+                        <select name="GioiTinh" class="form-select">
+                            <option value="Nam" {{ (old('GioiTinh', auth_user()->GioiTinh ?? '') == 'Nam') ? 'selected' : '' }}>Nam</option>
+                            <option value="Nữ" {{ (old('GioiTinh', auth_user()->GioiTinh ?? '') == 'Nữ') ? 'selected' : '' }}>Nữ</option>
+                            <option value="Khác" {{ (old('GioiTinh', auth_user()->GioiTinh ?? '') == 'Khác') ? 'selected' : '' }}>Khác</option>
                         </select>
                     </div>
                     <div class="col-md-6">
@@ -149,7 +149,7 @@
 
                 <div class="mb-3">
                     <label class="form-label fw-500">Địa chỉ</label>
-                    <textarea name="address" class="form-control" rows="3">{{ old('address', Auth::user()->address ?? '157/29/01 Bùi Minh Trực, Phường 5, Quận 8, Hồ Chí Minh') }}</textarea>
+                    <textarea name="DiaChi" class="form-control" rows="3">{{ old('DiaChi', auth_user()->DiaChi ?? '') }}</textarea>
                 </div>
 
                 <div class="d-flex gap-2">
@@ -166,7 +166,7 @@
         </div>
 
         <!-- Order History -->
-        <div class="bg-white p-4 mt-3" style="border-radius: 8px">
+        <div class="bg-white p-4 mt-3" style="border-radius: 8px; margin-right: -36px;">
             <h5 class="fw-700 mb-3">Đơn hàng gần đây</h5>
             <div class="table-responsive">
                 <table class="table table-hover">

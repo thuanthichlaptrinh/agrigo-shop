@@ -14,8 +14,12 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 class AuthController extends Controller
 {
     // Hiển thị form đăng nhập
-    public function showLoginForm()
+    public function showLoginForm(Request $request)
     {
+        // Xóa thông tin đăng nhập cũ khi vào trang login
+        session()->forget(['jwt_token', 'user_id']);
+        \Illuminate\Support\Facades\Auth::logout();
+        
         return view('auth.login');
     }
 
@@ -64,7 +68,7 @@ class AuthController extends Controller
             Token::createToken(
                 $user->ID, 
                 $token, 
-                Token::TYPE_REMEMBER_ME, 
+                Token::TYPE_JWT, 
                 config('jwt.ttl', 60) // Lấy từ config jwt
             );
             
@@ -173,7 +177,7 @@ class AuthController extends Controller
             $token = JWTAuth::fromUser($user);
             
             // Lưu token vào database
-            Token::createToken($user->ID, $token, Token::TYPE_REMEMBER_ME, config('jwt.ttl', 60));
+            Token::createToken($user->ID, $token, Token::TYPE_JWT, config('jwt.ttl', 60));
             
             session(['jwt_token' => $token]);
             session(['user_id' => $user->ID]);
@@ -194,7 +198,11 @@ class AuthController extends Controller
             
             // Invalidate JWT token
             if ($token) {
-                JWTAuth::setToken($token)->invalidate();
+                try {
+                    JWTAuth::setToken($token)->invalidate();
+                } catch (\Exception $e) {
+                    // Token đã hết hạn hoặc không hợp lệ
+                }
                 
                 // Xóa token khỏi database
                 Token::where('Token', $token)
@@ -202,14 +210,51 @@ class AuthController extends Controller
                     ->delete();
             }
             
-            // Xóa session
-            $request->session()->forget(['jwt_token', 'user_id']);
+            // Xóa Auth facade
+            \Illuminate\Support\Facades\Auth::logout();
+            
+            // Lấy tên session và ID trước khi xóa
+            $sessionName = $request->session()->getName();
+            $sessionId = $request->session()->getId();
+            
+            // Xóa tất cả session data (bao gồm flash messages)
+            $request->session()->flush();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
+            
+            // Xóa session file trong storage
+            if ($sessionId) {
+                $sessionPath = storage_path('framework/sessions/' . $sessionId);
+                if (file_exists($sessionPath)) {
+                    @unlink($sessionPath);
+                }
+            }
+            
+            // Xóa cookie session
+            $cookie = \Cookie::forget($sessionName);
 
-            return redirect()->route('user.home')->with('success', 'Đăng xuất thành công!');
+            return redirect()->route('login')->withCookie($cookie);
         } catch (\Exception $e) {
-            return redirect()->route('user.home');
+            // Xóa session dù có lỗi
+            $sessionName = $request->session()->getName();
+            $sessionId = $request->session()->getId();
+            
+            $request->session()->flush();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            
+            // Xóa session file trong storage
+            if ($sessionId) {
+                $sessionPath = storage_path('framework/sessions/' . $sessionId);
+                if (file_exists($sessionPath)) {
+                    @unlink($sessionPath);
+                }
+            }
+            
+            // Xóa cookie session
+            $cookie = \Cookie::forget($sessionName);
+            
+            return redirect()->route('login')->withCookie($cookie);
         }
     }
 

@@ -76,7 +76,7 @@
 
             <!-- Right Box -->
             <div class="col-md-6 right-box">
-                <a href="{{ route('user.home') }}" class="text-dark p-3" style="position: relative; top: -40px; right: -365px">
+                <a href="{{ route('user.home') }}" class="text-dark p-3 close" style="position: relative; top: -40px; right: -365px">
                     <img src="{{ asset('template/Assets/Icon/close.png') }}" style="width: 14px" alt="" />
                 </a>
                 <form class="row align-items-center" action="{{ route('login') }}" method="POST">
@@ -86,7 +86,7 @@
                         <p>Chúng tôi rất vui khi bạn trở lại.</p>
                     </div>
                     <div class="input-group mb-3">
-                        <input type="email" name="email" class="form-control form-control-lg bg-light fs-6" placeholder="Email" value="{{ old('email') }}" required />
+                        <input type="email" name="email" class="form-control form-control-lg bg-light fs-6" placeholder="Email" required />
                         @error('email')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror

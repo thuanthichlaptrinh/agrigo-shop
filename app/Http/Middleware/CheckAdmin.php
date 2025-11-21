@@ -29,12 +29,17 @@ class CheckAdmin
                 return redirect()->route('login')->with('error', 'Tài khoản không hợp lệ');
             }
 
-            // Kiểm tra quyền Admin
+            // Kiểm tra quyền Admin/Manager (Admin, ProductManager, OrderManager)
             $vaiTro = $user->vaiTro->TenVaiTro ?? null;
             
-            if ($vaiTro !== VaiTro::ADMIN) {
-                return redirect()->route('user.home')->with('error', 'Bạn không có quyền truy cập');
+            $allowedRoles = [VaiTro::ADMIN, VaiTro::PRODUCT_MANAGER, VaiTro::ORDER_MANAGER];
+            
+            if (!in_array($vaiTro, $allowedRoles)) {
+                return redirect()->route('unauthorized')->with('error', 'Bạn không có quyền truy cập khu vực quản trị');
             }
+
+            // Lưu user vào request để sử dụng trong controller
+            $request->merge(['auth_user' => $user]);
 
             return $next($request);
             

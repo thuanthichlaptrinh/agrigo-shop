@@ -11,6 +11,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Thêm middleware global để ngăn cache
+        $middleware->web(append: [
+            \App\Http\Middleware\PreventBackHistory::class,
+        ]);
+        
         $middleware->alias([
             'admin' => \App\Http\Middleware\CheckAdmin::class,
             'user' => \App\Http\Middleware\CheckUser::class,

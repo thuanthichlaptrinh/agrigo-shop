@@ -8,7 +8,7 @@
     </form>
     <a href="{{ route('admin.notifications') }}" class="nav-link">
         <i class="bx bxs-bell icon"></i>
-        <span class="badge">{{ auth()->user()->unreadNotifications->count() ?? 0 }}</span>
+        <span class="badge">{{ auth_user()->thongBao()->where('DaXem', 0)->count() ?? 0 }}</span>
     </a>
     <a href="{{ route('admin.messages') }}" class="nav-link">
         <i class="bx bxs-message-square-dots icon"></i>
@@ -16,7 +16,7 @@
     </a>
     <span class="divider"></span>
     <div class="profile">
-        <img src="{{ auth()->user()->HinhAnh ?? asset('template/Assets/Images/default-avatar.png') }}" alt="{{ auth()->user()->TenNguoiDung }}" />
+        <img src="{{ auth_user()->HinhAnh ?? asset('template/Assets/Images/default-avatar.png') }}" alt="{{ auth_user()->TenNguoiDung }}" />
         <ul class="profile-link">
             <li>
                 <a href="{{ route('admin.profile') }}">
@@ -29,6 +29,9 @@
                 </a>
             </li>
             <li>
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                    @csrf
+                </form>
                 <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                     <i class="bx bxs-log-out-circle"></i> Đăng xuất
                 </a>

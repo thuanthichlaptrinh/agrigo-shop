@@ -50,17 +50,73 @@
                 </div>
                 <div class="col-2" style="padding-left: 0; position: relative; right: -24px">
                     <div class="float-end">
-                        <div class="d-flex bg-menu text-white align-items-center text-center px-2" style="height: 33px; border-top-left-radius: 8px; border-top-right-radius: 8px">
-                            <i class="ri-user-line" style="display: flex; font-size: 18px; align-items: center; justify-content: center; margin-bottom: -2px"></i>
-                            @auth
-                                <a href="{{ route('user.profile') }}" class="d-block text-white" style="text-decoration: none; padding-left: 5px">
-                                    Tài khoản của {{ Auth::user()->TenNguoiDung }}
-                                </a>
-                            @else
-                                <a href="{{ route('login') }}" class="d-block text-white" style="text-decoration: none; padding-left: 5px">
-                                    Đăng nhập
-                                </a>
-                            @endauth
+                        <div class="user-menu-wrapper" style="position: relative;">
+                            <div class="d-flex bg-menu text-white align-items-center text-center px-2 user-menu-trigger" style="height: 33px; border-top-left-radius: 8px; border-top-right-radius: 8px; cursor: pointer;">
+                                <i class="ri-user-line" style="display: flex; font-size: 18px; align-items: center; justify-content: center; margin-bottom: -2px"></i>
+                                @if(auth_user())
+                                    <span class="d-block text-white" style="padding-left: 5px; user-select: none;">
+                                        {{ auth_user()->TenNguoiDung }}
+                                    </span>
+                                    <i class="ri-arrow-down-s-line" style="font-size: 16px; margin-left: 3px; transition: transform 0.3s;"></i>
+                                @else
+                                    <a href="{{ route('login') }}" class="d-block text-white" style="text-decoration: none; padding-left: 5px;">
+                                        Đăng nhập
+                                    </a>
+                                @endif
+                            </div>
+                            
+                            @if(auth_user())
+                                <!-- Dropdown Menu -->
+                                <div class="user-dropdown" style="
+                                    position: absolute;
+                                    top: 100%;
+                                    right: 0;
+                                    background: white;
+                                    border-radius: 8px;
+                                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                                    min-width: 200px;
+                                    opacity: 0;
+                                    visibility: hidden;
+                                    transform: translateY(-10px);
+                                    transition: all 0.3s ease;
+                                    z-index: 10000;
+                                    margin-top: 5px;
+                                ">
+                                    <div style="padding: 10px 0;">
+                                        <a href="{{ route('user.profile') }}" style="
+                                            display: flex;
+                                            align-items: center;
+                                            padding: 10px 20px;
+                                            color: #333;
+                                            text-decoration: none;
+                                            transition: background 0.2s;
+                                        " class="dropdown-item-custom">
+                                            <i class="ri-user-line" style="font-size: 18px; margin-right: 10px; color: #4CAF50;"></i>
+                                            <span>Tài khoản của tôi</span>
+                                        </a>
+                                        <div style="height: 1px; background: #eee; margin: 5px 0;"></div>
+                                        <form action="{{ route('logout') }}" method="POST" style="margin: 0;">
+                                            @csrf
+                                            <button type="submit" style="
+                                                width: 100%;
+                                                display: flex;
+                                                align-items: center;
+                                                padding: 10px 20px;
+                                                color: #f44336;
+                                                text-decoration: none;
+                                                background: none;
+                                                border: none;
+                                                cursor: pointer;
+                                                transition: background 0.2s;
+                                                text-align: left;
+                                            " class="dropdown-item-custom">
+                                                <i class="ri-logout-box-line" style="font-size: 18px; margin-right: 10px;"></i>
+                                                <span>Đăng xuất</span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -68,3 +124,63 @@
         </div>
     </div>
 </header>
+
+<style>
+    .user-dropdown {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        min-width: 200px;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.3s ease;
+        z-index: 9999;
+        margin-top: 5px;
+    }
+    
+    .dropdown-item-custom:hover {
+        background-color: #f5f5f5;
+    }
+    
+    .user-menu-wrapper.active .user-dropdown {
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: translateY(0) !important;
+    }
+    
+    .user-menu-wrapper.active .ri-arrow-down-s-line {
+        transform: rotate(180deg);
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const userMenuWrapper = document.querySelector('.user-menu-wrapper');
+        const userMenuTrigger = document.querySelector('.user-menu-trigger');
+        const userDropdown = document.querySelector('.user-dropdown');
+        
+        if (userMenuTrigger && userDropdown) {
+            // Toggle dropdown khi click
+            userMenuTrigger.addEventListener('click', function(e) {
+                e.stopPropagation();
+                userMenuWrapper.classList.toggle('active');
+            });
+            
+            // Đóng dropdown khi click ra ngoài
+            document.addEventListener('click', function(e) {
+                if (!userMenuWrapper.contains(e.target)) {
+                    userMenuWrapper.classList.remove('active');
+                }
+            });
+            
+            // Ngăn đóng dropdown khi click vào bên trong
+            userDropdown.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        }
+    });
+</script>
