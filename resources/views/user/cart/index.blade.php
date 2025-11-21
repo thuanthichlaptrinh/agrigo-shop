@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('user.layouts.app')
 
 @section('title', 'Giỏ hàng - Organic Shop')
 
@@ -91,7 +91,7 @@
     <div class="mx-auto p-0" style="position: relative; min-height: 100vh; width: 700px; border: 1px solid rgb(228 233 242/1); background-color: #f2f5fa">
         <div class="bg-white">
             <div class="d-flex align-items-center" style="padding: 5px 10px; margin: 0 0 8px; cursor: pointer">
-                <a href="{{ route('home') }}">
+                <a href="{{ route('user.home') }}">
                     <i class="ri-arrow-left-s-line" style="font-size: 23px; padding: 0; margin: 0"></i>
                 </a>
                 <span class="mx-auto" style="font-size: 17px; font-weight: 700; color: #333">Giỏ hàng</span>
@@ -133,14 +133,14 @@
             @empty
             <div class="w-100 text-center py-5">
                 <p class="text-muted">Giỏ hàng của bạn đang trống</p>
-                <a href="{{ route('products') }}" class="btn btn-primary">Tiếp tục mua sắm</a>
+                <a href="{{ route('user.products.index') }}" class="btn btn-primary">Tiếp tục mua sắm</a>
             </div>
             @endforelse
         </div>
 
         <!-- Button đặt hàng fixed bottom -->
         <div class="btn-order-container bg-white">
-            <a href="{{ route('checkout') }}" class="text-white d-flex align-items-center justify-content-center text-center bg-primary-t btn-order" style="text-decoration: none;">
+            <a href="{{ route('user.checkout.index') }}" class="text-white d-flex align-items-center justify-content-center text-center bg-primary-t btn-order" style="text-decoration: none;">
                 <div class="btn-quantity" style="background: white; color: #333; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: 700; margin-right: 10px;">
                     {{ count($cartItems ?? []) }}
                 </div>

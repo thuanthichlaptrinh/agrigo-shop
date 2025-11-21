@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('user.layouts.app')
 
 @section('title', $product['name'] ?? 'Chi tiết sản phẩm - Organic Shop')
 
@@ -25,11 +25,11 @@
     <div class="col-12">
         <!-- Breadcrumb -->
         <div class="p-2 bg-white my-2" style="border-radius: 4px">
-            <a href="{{ route('home') }}" style="text-decoration: none; color: #000">
+            <a href="{{ route('user.home') }}" style="text-decoration: none; color: #000">
                 <i class="ri-home-line" style="font-size: 18px; margin-right: 6px"></i>
             </a>
             <i class="ri-arrow-right-s-line"></i>
-            <a href="{{ route('products') }}" style="text-decoration: none; color: #000">Sản phẩm</a>
+            <a href="{{ route('user.products.index') }}" style="text-decoration: none; color: #000">Sản phẩm</a>
             <i class="ri-arrow-right-s-line"></i>
             <span class="fw-500">{{ $product['name'] ?? 'Chi tiết sản phẩm' }}</span>
         </div>
@@ -89,7 +89,7 @@
                     <i class="ri-shopping-cart-line me-2"></i>
                     Thêm vào giỏ hàng
                 </button>
-                <a href="{{ route('checkout') }}" class="btn btn-success btn-lg flex-grow-1">
+                <a href="{{ route('user.checkout.index') }}" class="btn btn-success btn-lg flex-grow-1">
                     Mua ngay
                 </a>
             </div>
@@ -143,7 +143,7 @@
                 @for($i = 0; $i < 4; $i++)
                 <div class="col-lg-3 col-md-4 col-sm-12 mb-3">
                     <div class="card" style="border: 1px solid #d8e1f9">
-                        <a href="{{ route('product-detail', 1) }}">
+                        <a href="{{ route('user.products.detail', 1) }}">
                             <img src="{{ asset('template/Assets/Images/tao_gala_phap_size_100_8aef2b9571944ed0b7a6ee52ea416e3d_large.webp') }}" class="w-100" alt="" />
                         </a>
                         <div class="card-body">

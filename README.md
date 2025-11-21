@@ -79,46 +79,107 @@ Hệ thống quản lý bán nông sản Organic là một website thương mạ
 - Upload hình ảnh
 - Xem đánh giá của người khác
 
+#### 7. Chatbot hỗ trợ
+- Chat trực tuyến với AI
+- Trả lời tự động câu hỏi thường gặp
+- Hỗ trợ tìm kiếm sản phẩm
+- Liên hệ với Admin
+- Scroll to top button
+
 ### 👨‍💼 Quản trị viên (Admin)
 
+> **URL Admin:** `/admin/dashboard`  
+> **Middleware:** `auth` (cần đăng nhập)
+
 #### 1. Dashboard
-- Thống kê tổng quan
-- Doanh thu theo thời gian
-- Đơn hàng mới
+- Thống kê tổng quan (đơn hàng, doanh thu, sản phẩm, người dùng)
+- Biểu đồ doanh thu theo thời gian
+- Đơn hàng gần đây
 - Sản phẩm bán chạy
+- Giao diện admin riêng biệt
 
 #### 2. Quản lý sản phẩm
-- Thêm/Sửa/Xóa sản phẩm
-- Quản lý danh mục
-- Quản lý hình ảnh
+- CRUD sản phẩm (Create, Read, Update, Delete)
+- Tìm kiếm và lọc theo danh mục
+- Quản lý hình ảnh sản phẩm
 - Quản lý tồn kho
+- Cập nhật trạng thái (hiển thị/ẩn)
 
 #### 3. Quản lý đơn hàng
-- Xem danh sách đơn hàng
-- Xác nhận đơn hàng
-- Cập nhật trạng thái
+- Xem danh sách đơn hàng với phân trang
+- Chi tiết đơn hàng
+- Cập nhật trạng thái (Chờ xác nhận → Đã xác nhận → Đang giao → Đã giao)
+- Hủy đơn hàng
 - In hóa đơn
 
-#### 4. Quản lý khách hàng
-- Xem danh sách khách hàng
+#### 4. Quản lý người dùng
+- CRUD người dùng
 - Xem lịch sử mua hàng
-- Quản lý tài khoản
+- Quản lý vai trò (Admin/User)
+- Khóa/Mở khóa tài khoản
 
-#### 5. Quản lý khuyến mãi
-- Tạo chương trình khuyến mãi
-- Tạo voucher giảm giá
-- Áp dụng cho sản phẩm
+#### 5. Quản lý danh mục
+- CRUD danh mục sản phẩm
+- Sắp xếp thứ tự hiển thị
+- Quản lý hình ảnh danh mục
 
-#### 6. Quản lý nội dung
-- Quản lý banner
-- Quản lý bài viết
-- Quản lý FAQ
+#### 6. Quản lý nhà cung cấp
+- CRUD nhà cung cấp
+- Thông tin liên hệ
+- Sản phẩm theo nhà cung cấp
 
-#### 7. Báo cáo thống kê
-- Doanh thu theo ngày/tháng/năm
-- Sản phẩm bán chạy
-- Khách hàng thân thiết
-- Thống kê theo danh mục
+---
+
+## 🏗️ Kiến trúc hệ thống
+
+### Phân tách User/Admin
+
+Dự án được tổ chức theo kiến trúc **phân tách rõ ràng** giữa User và Admin:
+
+#### 🟢 User Module
+- **Routes**: `routes/web.php`, `routes/product.php`, `routes/cart.php`, `routes/user.php`
+- **Views**: `resources/views/user/`
+- **Assets**: `public/template/Assets/`
+- **Prefix**: Không có prefix (root level)
+- **Route Names**: `user.*` (ví dụ: `user.home`, `user.products.index`)
+
+#### 🔴 Admin Module
+- **Routes**: `routes/admin.php`
+- **Views**: `resources/views/admin/`
+- **Assets**: `public/template/Admin/`
+- **Prefix**: `/admin`
+- **Route Names**: `admin.*` (ví dụ: `admin.dashboard`, `admin.products.index`)
+- **Middleware**: `auth` (cần đăng nhập)
+
+#### 🔵 Shared Module
+- **Routes**: `routes/auth.php`
+- **Views**: `resources/views/auth/`
+- **Middleware**: `guest` (cho login/register)
+
+### Route Structure
+
+```php
+// User Routes
+GET  /                          → user.home
+GET  /products                  → user.products.index
+GET  /products/{id}             → user.products.detail
+GET  /cart                      → user.cart.index
+GET  /checkout                  → user.checkout.index
+GET  /user/profile              → user.profile
+GET  /user/orders               → user.orders.index
+
+// Admin Routes (require auth)
+GET  /admin/dashboard           → admin.dashboard
+GET  /admin/products            → admin.products.index
+POST /admin/products            → admin.products.store
+GET  /admin/products/{id}/edit  → admin.products.edit
+PUT  /admin/products/{id}       → admin.products.update
+DELETE /admin/products/{id}     → admin.products.destroy
+GET  /admin/users               → admin.users.index
+GET  /admin/orders              → admin.orders.index
+GET  /admin/categories          → admin.categories.index
+GET  /admin/suppliers           → admin.suppliers.index
+```
 
 ---
 
@@ -135,6 +196,8 @@ Hệ thống quản lý bán nông sản Organic là một website thương mạ
 - **Blade Template** - Laravel Template Engine
 - **Remix Icon** - Icon Library
 - **JavaScript (Vanilla)** - Client-side scripting
+- **Chatbot Widget** - AI-powered customer support
+- **Responsive Design** - Mobile-first approach
 
 ### Tools & Libraries
 - **Laravel Breeze** - Authentication (optional)
@@ -150,50 +213,83 @@ Hệ thống quản lý bán nông sản Organic là một website thương mạ
 organic-shop/
 ├── app/
 │   ├── Http/
-│   │   └── Controllers/     # Controllers
-│   ├── Models/              # Eloquent Models
+│   │   ├── Controllers/
+│   │   │   ├── Admin/           # Admin Controllers
+│   │   │   └── User/            # User Controllers
+│   │   └── Middleware/
+│   │       └── AdminMiddleware.php  # Admin authorization
+│   ├── Models/                  # Eloquent Models
 │   └── ...
 ├── database/
-│   ├── database.sql         # Database chính (24 bảng)
-│   ├── database2.sql        # Database bổ sung (15 bảng)
-│   ├── DATABASE_README.md   # Hướng dẫn database
-│   └── SO_SANH_YEU_CAU.md  # So sánh với yêu cầu
-├── docs/
-│   ├── VIEWS_README.md              # Hướng dẫn views
-│   ├── HUONG_DAN_GIAN_HANG_UU_DAI.md # Hướng dẫn gian hàng
-│   └── HUONG_DAN_BAI_VIET.md        # Hướng dẫn bài viết
+│   ├── database.sql             # Database chính (24 bảng)
+│   ├── database2.sql            # Database tối ưu (19 bảng)
+│   ├── DATABASE_README.md       # Hướng dẫn database
+│   └── SO_SANH_YEU_CAU.md      # So sánh với yêu cầu
 ├── public/
 │   └── template/
-│       ├── Assets/
-│       │   ├── css/         # CSS files
-│       │   ├── js/          # JavaScript files
-│       │   └── Images/      # Images
-│       └── ...
+│       ├── Admin/               # Admin assets
+│       │   ├── style.css
+│       │   ├── products.css
+│       │   └── script.js
+│       └── Assets/              # User assets
+│           ├── css/
+│           │   ├── base.css
+│           │   ├── style.css
+│           │   ├── chatbot.css  # Chatbot widget
+│           │   └── ...
+│           ├── js/
+│           │   ├── main.js
+│           │   └── chatbot.js   # Chatbot functionality
+│           └── Images/
 ├── resources/
 │   └── views/
-│       ├── layouts/
-│       │   └── app.blade.php        # Layout chính
-│       ├── partials/
-│       │   ├── header.blade.php     # Header
-│       │   └── footer.blade.php     # Footer
-│       ├── auth/
-│       │   ├── login.blade.php      # Đăng nhập
-│       │   └── register.blade.php   # Đăng ký
-│       ├── home.blade.php           # Trang chủ
-│       ├── products.blade.php       # Danh sách SP
-│       ├── product-detail.blade.php # Chi tiết SP
-│       ├── cart.blade.php           # Giỏ hàng
-│       ├── checkout.blade.php       # Thanh toán
-│       └── profile.blade.php        # Thông tin cá nhân
+│       ├── admin/               # 🔴 Admin Views
+│       │   ├── layouts/
+│       │   │   └── app.blade.php        # Admin layout
+│       │   ├── partials/
+│       │   │   ├── sidebar.blade.php    # Admin sidebar
+│       │   │   └── navbar.blade.php     # Admin navbar
+│       │   ├── dashboard.blade.php      # Dashboard
+│       │   ├── products/
+│       │   │   └── index.blade.php      # Quản lý sản phẩm
+│       │   ├── users/
+│       │   │   └── index.blade.php      # Quản lý người dùng
+│       │   ├── categories/
+│       │   │   └── index.blade.php      # Quản lý danh mục
+│       │   └── orders/
+│       │       └── index.blade.php      # Quản lý đơn hàng
+│       ├── user/                # 🟢 User Views
+│       │   ├── layouts/
+│       │   │   └── app.blade.php        # User layout
+│       │   ├── partials/
+│       │   │   ├── header.blade.php     # Header
+│       │   │   ├── footer.blade.php     # Footer
+│       │   │   ├── sidebar.blade.php    # Sidebar
+│       │   │   └── chatbot-widget.blade.php # Chatbot
+│       │   ├── home.blade.php           # Trang chủ
+│       │   ├── profile.blade.php        # Thông tin cá nhân
+│       │   ├── products/
+│       │   │   ├── index.blade.php      # Danh sách SP
+│       │   │   └── detail.blade.php     # Chi tiết SP
+│       │   ├── cart/
+│       │   │   ├── index.blade.php      # Giỏ hàng
+│       │   │   └── checkout.blade.php   # Thanh toán
+│       │   └── orders/
+│       │       └── index.blade.php      # Đơn hàng của tôi
+│       └── auth/                # 🔵 Authentication
+│           ├── login.blade.php
+│           └── register.blade.php
 ├── routes/
-│   ├── web.php              # Routes chính
-│   ├── auth.php             # Routes authentication
-│   ├── product.php          # Routes sản phẩm
-│   ├── cart.php             # Routes giỏ hàng
-│   └── user.php             # Routes user
+│   ├── web.php              # Routes chính (entry point)
+│   ├── admin.php            # 🔴 Admin routes
+│   ├── auth.php             # Authentication routes
+│   ├── product.php          # User product routes
+│   ├── cart.php             # Cart & checkout routes
+│   └── user.php             # User profile routes
 ├── .env                     # Environment config
 ├── composer.json            # PHP dependencies
-├── package.json             # Node dependencies
+├── RESTRUCTURE_GUIDE.md     # Hướng dẫn cấu trúc mới
+├── MIGRATION_COMPLETE.md    # Tài liệu migration
 └── README.md               # File này
 ```
 
@@ -331,6 +427,44 @@ npm run build
 
 ---
 
+## 🎨 Tính năng đặc biệt
+
+### 🤖 Chatbot Widget
+
+Chatbot AI tích hợp sẵn với các tính năng:
+
+- ✅ Giao diện hiện đại với gradient màu xanh lá
+- ✅ Toggle mở/đóng mượt mà
+- ✅ Trả lời tự động dựa trên từ khóa
+- ✅ Quick reply buttons (nút trả lời nhanh)
+- ✅ Hiển thị trạng thái "We're online!"
+- ✅ Typing indicator (đang gõ...)
+- ✅ Lưu trạng thái chat (sessionStorage)
+- ✅ Nút "Chat với Admin" để liên hệ trực tiếp
+- ✅ Responsive trên mọi thiết bị
+- ✅ Có thể tái sử dụng trên nhiều trang
+
+**Files:**
+- CSS: `public/template/Assets/css/chatbot.css`
+- JS: `public/template/Assets/js/chatbot.js`
+- View: `resources/views/user/partials/chatbot-widget.blade.php`
+
+### 📜 Scroll to Top Button
+
+- ✅ Hiển thị khi cuộn xuống > 300px
+- ✅ Animation fade in/out mượt mà
+- ✅ Gradient màu xanh lá
+- ✅ Vị trí cố định phía trên chatbot toggle
+
+### 🎯 Responsive Design
+
+- ✅ Mobile-first approach
+- ✅ Breakpoints: 320px, 768px, 1024px, 1920px
+- ✅ Touch-friendly buttons
+- ✅ Optimized images
+
+---
+
 ## 📖 Hướng dẫn sử dụng
 
 ### Khách hàng
@@ -356,12 +490,13 @@ npm run build
 
 ### Quản trị viên
 
-#### Đăng nhập Admin
+#### Truy cập Admin Panel
 ```
-URL: /admin/login
-Email: admin@organic.vn
-Password: admin123
+URL: http://localhost:8000/admin/dashboard
+Yêu cầu: Đăng nhập với tài khoản có vai trò Admin
 ```
+
+**Lưu ý:** Hiện tại chưa có middleware phân quyền, cần implement `AdminMiddleware` để kiểm tra vai trò.
 
 #### Quản lý sản phẩm
 1. Vào "Quản lý sản phẩm"
@@ -405,14 +540,49 @@ Password: admin123
 
 ### Hướng dẫn chi tiết
 
-- [VIEWS_README.md](docs/VIEWS_README.md) - Hướng dẫn về Views
-- [HUONG_DAN_GIAN_HANG_UU_DAI.md](docs/HUONG_DAN_GIAN_HANG_UU_DAI.md) - Phần gian hàng và ưu đãi
-- [HUONG_DAN_BAI_VIET.md](docs/HUONG_DAN_BAI_VIET.md) - Phần bài viết
+- [RESTRUCTURE_GUIDE.md](RESTRUCTURE_GUIDE.md) - Hướng dẫn cấu trúc User/Admin
+- [MIGRATION_COMPLETE.md](MIGRATION_COMPLETE.md) - Tài liệu migration và cập nhật
 - [DATABASE_README.md](database/DATABASE_README.md) - Database chi tiết
+- [SO_SANH_YEU_CAU.md](database/SO_SANH_YEU_CAU.md) - So sánh với yêu cầu
+
+### Tính năng đặc biệt
+
+- **Chatbot Widget**: Xem code tại `public/template/Assets/js/chatbot.js`
+- **Scroll to Top**: Tích hợp trong chatbot.js
+- **Responsive Design**: Xem `public/template/Assets/css/chatbot.css`
 
 ### API Documentation
 
 Đang cập nhật...
+
+---
+
+## � TODO lList
+
+### Cần hoàn thiện
+
+- [ ] Tạo `AdminMiddleware` để phân quyền admin
+- [ ] Tạo các Controllers cho Admin module
+- [ ] Tạo các Controllers cho User module
+- [ ] Implement authentication với Laravel Breeze/Sanctum
+- [ ] Tạo Seeders cho database
+- [ ] Implement payment gateways (VNPay, MoMo)
+- [ ] Tạo API endpoints
+- [ ] Viết Unit Tests
+- [ ] Tối ưu performance
+- [ ] SEO optimization
+
+### Đã hoàn thành
+
+- [x] Tái cấu trúc views theo User/Admin
+- [x] Tách routes riêng biệt
+- [x] Tạo admin layout và partials
+- [x] Tạo user layout và partials
+- [x] Implement chatbot widget
+- [x] Scroll to top button
+- [x] Responsive design
+- [x] Database schema (19 bảng tối ưu)
+- [x] Cập nhật tất cả route names
 
 ---
 
@@ -487,5 +657,28 @@ Nếu có bất kỳ câu hỏi nào, vui lòng liên hệ:
 
 ---
 
+## 📋 Changelog
+
+### Version 2.0.0 (2025-11-21)
+- ✨ Tái cấu trúc hoàn toàn theo kiến trúc User/Admin
+- ✨ Thêm Chatbot Widget với AI
+- ✨ Thêm Scroll to Top button
+- ✨ Tối ưu database (giảm từ 39 xuống 19 bảng)
+- ✨ Cập nhật toàn bộ routes và views
+- 🐛 Sửa lỗi route names
+- 📝 Cập nhật documentation
+
+### Version 1.0.0 (2025-11-01)
+- 🎉 Phiên bản đầu tiên
+- ✨ Tính năng cơ bản cho User và Admin
+- ✨ Database với 39 bảng
+
+---
+
 <p align="center">Made with ❤️ by thuanthichlaptrinh</p>
 <p align="center">© 2025 Organic Shop. All rights reserved.</p>
+<p align="center">
+  <strong>Version 2.0.0</strong> | 
+  <a href="RESTRUCTURE_GUIDE.md">Docs</a> | 
+  <a href="MIGRATION_COMPLETE.md">Migration Guide</a>
+</p>

@@ -50,7 +50,7 @@
             </a>
         </li>
         <li class="nav-item">
-            <a href="{{ route('products') }}" class="nav-link text-center" style="padding: 12px 16px; color: #007e42; font-weight: 700;">
+            <a href="{{ route('user.products.index') }}" class="nav-link text-center" style="padding: 12px 16px; color: #007e42; font-weight: 700;">
                 Xem tất cả danh mục
                 <i class="ri-arrow-right-line"></i>
             </a>

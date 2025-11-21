@@ -2,31 +2,42 @@
 
 use Illuminate\Support\Facades\Route;
 
+/*
+|--------------------------------------------------------------------------
+| Cart Routes
+|--------------------------------------------------------------------------
+*/
 
-Route::get('/cart', function () {
-    return view('cart');
-})->name('cart');
+// Cart routes for users
+Route::prefix('cart')->name('user.cart.')->middleware(['auth'])->group(function () {
+    Route::get('/', function () {
+        return view('user.cart.index');
+    })->name('index');
+    
+    Route::post('/add', function () {
+        return redirect()->route('user.cart.index');
+    })->name('add');
+    
+    Route::post('/update', function () {
+        return redirect()->route('user.cart.index');
+    })->name('update');
+    
+    Route::delete('/remove/{id}', function ($id) {
+        return redirect()->route('user.cart.index');
+    })->name('remove');
+    
+    Route::delete('/clear', function () {
+        return redirect()->route('user.cart.index');
+    })->name('clear');
+});
 
-Route::post('/cart/add', function () {
-    return redirect()->route('cart');
-})->name('cart.add');
-
-Route::post('/cart/update', function () {
-    return redirect()->route('cart');
-})->name('cart.update');
-
-Route::delete('/cart/remove/{id}', function ($id) {
-    return redirect()->route('cart');
-})->name('cart.remove');
-
-Route::delete('/cart/clear', function () {
-    return redirect()->route('cart');
-})->name('cart.clear');
-
-Route::get('/checkout', function () {
-    return view('checkout');
-})->name('checkout');
-
-Route::post('/checkout', function () {
-    return view('checkout');
-})->name('checkout.process');
+// Checkout routes
+Route::prefix('checkout')->name('user.checkout.')->middleware(['auth'])->group(function () {
+    Route::get('/', function () {
+        return view('user.cart.checkout');
+    })->name('index');
+    
+    Route::post('/', function () {
+        return redirect()->route('user.orders.index');
+    })->name('process');
+});

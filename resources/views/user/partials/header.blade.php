@@ -10,12 +10,12 @@
                         </a>
                     </div>
 
-                    <form class="col-6 d-flex align-items-center" action="{{ route('search') }}" method="GET">
+                    <form class="col-6 d-flex align-items-center" action="{{ route('user.search') }}" method="GET">
                         <button type="submit" style="margin-right: -40px; border: none; background-color: transparent; z-index: 2">
                             <i class="ri-search-line fs-22-t" style="color: green"></i>
                         </button>
                         <input type="search" name="q" class="form-control w-100 header-search" style="padding-left: 42px" placeholder="Bạn tìm gì ở nông sản xanh - nhóm 2" />
-                        <a href="{{ route('cart') }}" class="nav-link text-white align-items-centers cart">
+                        <a href="{{ route('user.cart.index') }}" class="nav-link text-white align-items-centers cart">
                             <i class="ri-shopping-cart-line d-flex align-content-center justify-content-center"></i>
                             <span>{{ session('cart_count', 0) }}</span>
                         </a>
@@ -43,7 +43,7 @@
                     </div>
                     
                     <!-- Dropdown Menu -->
-                    @include('partials.sidebar-dropdown')
+                    @include('user.partials.sidebar-dropdown')
                 </div>
                 <div class="col-7">
                     <div></div>
@@ -53,8 +53,8 @@
                         <div class="d-flex bg-menu text-white align-items-center text-center px-2" style="height: 33px; border-top-left-radius: 8px; border-top-right-radius: 8px">
                             <i class="ri-user-line" style="display: flex; font-size: 18px; align-items: center; justify-content: center; margin-bottom: -2px"></i>
                             @auth
-                                <a href="{{ route('profile') }}" class="d-block text-white" style="text-decoration: none; padding-left: 5px">
-                                    Tài khoản của {{ Auth::user()->name }}
+                                <a href="{{ route('user.profile') }}" class="d-block text-white" style="text-decoration: none; padding-left: 5px">
+                                    Tài khoản của {{ Auth::user()->TenNguoiDung }}
                                 </a>
                             @else
                                 <a href="{{ route('login') }}" class="d-block text-white" style="text-decoration: none; padding-left: 5px">

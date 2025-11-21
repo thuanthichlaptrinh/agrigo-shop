@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('user.layouts.app')
 
 @section('title', 'Thông tin cá nhân - Organic Shop')
 
@@ -52,37 +52,37 @@
 
             <ul class="nav flex-column profile-menu">
                 <li class="nav-item">
-                    <a class="nav-link active" href="{{ route('profile') }}">
+                    <a class="nav-link active" href="{{ route('user.profile') }}">
                         <i class="ri-user-line me-2"></i>
                         Thông tin tài khoản
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('orders') }}">
+                    <a class="nav-link" href="{{ route('user.orders.index') }}">
                         <i class="ri-shopping-bag-line me-2"></i>
                         Đơn hàng của tôi
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('addresses') }}">
+                    <a class="nav-link" href="{{ route('user.addresses.index') }}">
                         <i class="ri-map-pin-line me-2"></i>
                         Sổ địa chỉ
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('wishlist') }}">
+                    <a class="nav-link" href="{{ route('user.wishlist.index') }}">
                         <i class="ri-heart-line me-2"></i>
                         Sản phẩm yêu thích
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('notifications') }}">
+                    <a class="nav-link" href="{{ route('user.notifications.index') }}">
                         <i class="ri-notification-line me-2"></i>
                         Thông báo
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('change-password') }}">
+                    <a class="nav-link" href="{{ route('user.change-password') }}">
                         <i class="ri-lock-line me-2"></i>
                         Đổi mật khẩu
                     </a>
@@ -106,7 +106,7 @@
         <div class="bg-white p-4" style="border-radius: 8px">
             <h4 class="fw-700 mb-4">Thông tin cá nhân</h4>
 
-            <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('user.profile.update') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
 
@@ -189,7 +189,7 @@
                                 <span class="badge bg-{{ $order['status_color'] }}">{{ $order['status_text'] }}</span>
                             </td>
                             <td>
-                                <a href="{{ route('orders.show', $order['id']) }}" class="btn btn-sm btn-outline-primary">Xem</a>
+                                <a href="{{ route('user.orders.show', $order['id']) }}" class="btn btn-sm btn-outline-primary">Xem</a>
                             </td>
                         </tr>
                         @empty

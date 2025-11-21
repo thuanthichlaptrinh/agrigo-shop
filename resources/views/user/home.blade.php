@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('user.layouts.app')
 
 @section('title', 'Trang chủ - Organic Shop')
 
@@ -19,7 +19,7 @@
 @section('content')
 <div class="row">
     <!-- Sidebar Menu -->
-    @include('partials.sidebar')
+    @include('user.partials.sidebar')
 
     <!-- Main Content -->
     <div class="col-10 content-body">
@@ -436,7 +436,7 @@
 
         <!-- Footer --> 
         <div class="mt-3" > 
-            @include('partials.footer')
+            @include('user.partials.footer')
         </div>
     </div>
 </div>

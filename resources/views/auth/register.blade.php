@@ -157,7 +157,7 @@
         @csrf
         <p class="title">
             Đăng ký tài khoản
-            <a href="{{ route('home') }}" class="text-dark p-3" style="position: relative; top: -40px; right: -340px">
+            <a href="{{ route('user.home') }}" class="text-dark p-3" style="position: relative; top: -40px; right: -340px">
                 <img src="{{ asset('template/Assets/Icon/close.png') }}" style="width: 14px" alt="" />
             </a>
         </p>

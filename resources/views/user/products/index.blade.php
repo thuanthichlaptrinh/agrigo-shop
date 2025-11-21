@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('user.layouts.app')
 
 @section('title', 'Danh sách sản phẩm - Organic Shop')
 
@@ -25,14 +25,14 @@
 @section('content')
 <div class="row">
     <!-- Sidebar Menu -->
-    @include('partials.sidebar')
+    @include('user.partials.sidebar')
 
     <!-- Main Content -->
     <div class="col-9 content-body">
         <!-- Breadcrumb -->
         <div class="row" style="margin-left: -23px">
             <div class="p-2 bg-white my-2" style="border-radius: 4px">
-                <a href="{{ route('home') }}" style="text-decoration: none; color: #000">
+                <a href="{{ route('user.home') }}" style="text-decoration: none; color: #000">
                     <i class="ri-arrow-left-s-line" style="font-size: 18px; border-right: 1px solid #dedede; padding-right: 6px; margin-right: 6px"></i>
                 </a>
                 <span class="fw-500">{{ $categoryName ?? 'Trái cây' }}</span>
@@ -95,7 +95,7 @@
             @forelse($products ?? [] as $product)
             <div class="col-lg-3 col-md-4 col-sm-12 mb-3">
                 <div class="card" style="border: 1px solid #d8e1f9">
-                    <a href="{{ route('product-detail', $product['id'] ?? 1) }}">
+                    <a href="{{ route('user.products.detail', $product['id'] ?? 1) }}">
                         <img src="{{ asset($product['image'] ?? 'template/Assets/Images/tao_gala_phap_size_100_8aef2b9571944ed0b7a6ee52ea416e3d_large.webp') }}" class="w-100" alt="" />
                     </a>
                     <div class="card-body">
@@ -114,7 +114,7 @@
             @for($i = 0; $i < 12; $i++)
             <div class="col-lg-3 col-md-4 col-sm-12 mb-3">
                 <div class="card" style="border: 1px solid #d8e1f9">
-                    <a href="{{ route('product-detail', 1) }}">
+                    <a href="{{ route('user.products.detail', 1) }}">
                         <img src="{{ asset('template/Assets/Images/tao_gala_phap_size_100_8aef2b9571944ed0b7a6ee52ea416e3d_large.webp') }}" class="w-100" alt="" />
                     </a>
                     <div class="card-body">

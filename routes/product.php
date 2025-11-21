@@ -2,18 +2,23 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/products', function () {
-    return view('products');
-})->name('products');
+// Product routes for users
+Route::prefix('products')->name('user.products.')->group(function () {
+    Route::get('/', function () {
+        return view('user.products.index');
+    })->name('index');
+    
+    Route::get('/{id}', function ($id) {
+        return view('user.products.detail', ['product' => ['id' => $id]]);
+    })->name('detail');
+});
 
-Route::get('/product/{id}', function ($id) {
-    return view('product-detail', ['product' => ['id' => $id]]);
-})->name('product-detail');
-
+// Search
 Route::get('/search', function () {
     return redirect()->back();
-})->name('search');
+})->name('user.search');
 
+// Category
 Route::get('/category/{slug}', function ($slug) {
-    return view('products', ['category' => $slug]);
-})->name('category');
+    return view('user.products.index', ['category' => $slug]);
+})->name('user.category');

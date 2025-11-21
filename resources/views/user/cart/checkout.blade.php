@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('user.layouts.app')
 
 @section('title', 'Thanh toán - Organic Shop')
 
@@ -58,10 +58,10 @@
         <!-- Actions -->
         <div class="row mt-2">
             <div class="d-flex align-items-center justify-content-center" style="gap: 8px">
-                <a href="{{ route('home') }}" class="btn-t" style="width: 200px; text-align: center; text-decoration: none; padding: 15px; border: 1px solid green; border-radius: 4px; color: green">
+                <a href="{{ route('user.home') }}" class="btn-t" style="width: 200px; text-align: center; text-decoration: none; padding: 15px; border: 1px solid green; border-radius: 4px; color: green">
                     Tiếp tục mua hàng
                 </a>
-                <a href="{{ route('profile') }}" class="btn-t d-flex align-items-center justify-content-center" style="width: 220px; text-align: center; text-decoration: none; padding: 6px; border: 1px solid green; border-radius: 4px; color: green">
+                <a href="{{ route('user.profile') }}" class="btn-t d-flex align-items-center justify-content-center" style="width: 220px; text-align: center; text-decoration: none; padding: 6px; border: 1px solid green; border-radius: 4px; color: green">
                     <div class="px-2">
                         <img src="{{ asset('template/Assets/Images/pencil1.png') }}" alt="" />
                     </div>

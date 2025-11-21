@@ -31,24 +31,19 @@
 </head>
 <body>
     <!-- Header -->
-    @include('partials.header')
+    @include('user.partials.header')
 
     <!-- Main Content -->
     <main class="container" style="margin-top: var(--header-height)">
         @yield('content')
     </main>
 
-    <!-- Fixed Icons -->
-    <div class="fixed-icon">
-        <!-- Nút cuộn -->
-        <!-- Chat với Admin -->
-        <!-- Chatbot Widget -->
-        @include('partials.chatbot-widget', [
-            'botName' => 'Organic Shop Support',
-            'avatarUrl' => asset('template/Assets/Images/logo2.png'),
-            'greeting' => 'Xin chào! Chào mừng bạn đến với Organic Shop. Tôi có thể giúp gì cho bạn hôm nay?'
-        ])
-    </div>
+    <!-- Chatbot Widget -->
+    @include('user.partials.chatbot-widget', [
+        'botName' => 'Organic Shop Support',
+        'avatarUrl' => asset('template/Assets/Images/logo2.png'),
+        'greeting' => 'Xin chào! Chào mừng bạn đến với Organic Shop. Tôi có thể giúp gì cho bạn hôm nay?'
+    ])
 
     <!-- Bootstrap 5 JS -->
     <script src="{{ asset('template/Assets/Bootstrap5/js/bootstrap.min.js') }}"></script>

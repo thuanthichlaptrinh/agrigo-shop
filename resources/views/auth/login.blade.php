@@ -76,7 +76,7 @@
 
             <!-- Right Box -->
             <div class="col-md-6 right-box">
-                <a href="{{ route('home') }}" class="text-dark p-3" style="position: relative; top: -40px; right: -365px">
+                <a href="{{ route('user.home') }}" class="text-dark p-3" style="position: relative; top: -40px; right: -365px">
                     <img src="{{ asset('template/Assets/Icon/close.png') }}" style="width: 14px" alt="" />
                 </a>
                 <form class="row align-items-center" action="{{ route('login') }}" method="POST">
