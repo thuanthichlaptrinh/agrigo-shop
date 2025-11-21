@@ -5,6 +5,9 @@ use App\Http\Controllers\Admin\LoaiSanPhamController;
 use App\Http\Controllers\Admin\DanhMucController;
 use App\Http\Controllers\Admin\NhaCungCapController;
 use App\Http\Controllers\Admin\VoucherController;
+use App\Http\Controllers\Admin\KhuyenMaiController;
+use App\Http\Controllers\Admin\ThongBaoController;
+use App\Http\Controllers\Admin\VaiTroController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -124,6 +127,33 @@ Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
         Route::get('/{id}', [NhaCungCapController::class, 'show'])->name('show');
     });
 
+    // Promotions Management
+    Route::prefix('promotions')->name('promotions.')->group(function () {
+        Route::get('/', [KhuyenMaiController::class, 'index'])->name('index');
+        Route::post('/', [KhuyenMaiController::class, 'store'])->name('store');
+        Route::put('/{id}', [KhuyenMaiController::class, 'update'])->name('update');
+        Route::delete('/{id}', [KhuyenMaiController::class, 'destroy'])->name('destroy');
+        Route::get('/{id}', [KhuyenMaiController::class, 'show'])->name('show');
+    });
+
+    // Notifications Management
+    Route::prefix('notifications')->name('notifications.')->group(function () {
+        Route::get('/', [ThongBaoController::class, 'index'])->name('index');
+        Route::post('/', [ThongBaoController::class, 'store'])->name('store');
+        Route::put('/{id}', [ThongBaoController::class, 'update'])->name('update');
+        Route::delete('/{id}', [ThongBaoController::class, 'destroy'])->name('destroy');
+        Route::get('/{id}', [ThongBaoController::class, 'show'])->name('show');
+    });
+
+    // Roles Management
+    Route::prefix('roles')->name('roles.')->group(function () {
+        Route::get('/', [VaiTroController::class, 'index'])->name('index');
+        Route::post('/', [VaiTroController::class, 'store'])->name('store');
+        Route::put('/{id}', [VaiTroController::class, 'update'])->name('update');
+        Route::delete('/{id}', [VaiTroController::class, 'destroy'])->name('destroy');
+        Route::get('/{id}', [VaiTroController::class, 'show'])->name('show');
+    });
+
     // Vouchers Management
     Route::prefix('vouchers')->name('vouchers.')->group(function () {
         Route::get('/', [VoucherController::class, 'index'])->name('index');
@@ -138,10 +168,6 @@ Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
     Route::get('/search', function () {
         return redirect()->route('admin.dashboard');
     })->name('search');
-    
-    Route::get('/notifications', function () {
-        return redirect()->route('admin.dashboard');
-    })->name('notifications');
     
     Route::get('/messages', function () {
         return redirect()->route('admin.dashboard');

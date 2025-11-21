@@ -119,7 +119,7 @@
             <main>
                 <div class="page-header">
                     <div>
-                        <h1>Voucher</h1>
+                        <h2>Quản lý Voucher</h2>
                         <p style="color: var(--text-muted); margin-top: 6px;">Quản lý chiến dịch giảm giá và điều kiện áp dụng.</p>
                     </div>
                     <div style="display: flex; gap: 10px; flex-wrap: wrap;">

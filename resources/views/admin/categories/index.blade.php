@@ -151,7 +151,7 @@
             <main>
                 <div class="page-header">
                     <div>
-                        <h1>Quản lý loại sản phẩm</h1>
+                        <h2>Quản lý loại sản phẩm</h2>
                         <p style="color: var(--text-muted); margin-top: 6px;">Theo dõi và cập nhật nhóm sản phẩm theo danh mục.</p>
                     </div>
                     <div style="display: flex; gap: 10px; flex-wrap: wrap;">

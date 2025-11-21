@@ -44,6 +44,21 @@
                 <i class="fa-solid fa-ticket icon"></i> Voucher
             </a>
         </li>
+        <li class="{{ request()->routeIs('admin.promotions.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.promotions.index') }}">
+                <i class="fa-solid fa-bullhorn icon"></i> Khuyến mãi
+            </a>
+        </li>
+        <li class="{{ request()->routeIs('admin.notifications.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.notifications.index') }}">
+                <i class="fa-solid fa-bell icon"></i> Thông báo
+            </a>
+        </li>
+        <li class="{{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.roles.index') }}">
+                <i class="fa-solid fa-user-shield icon"></i> Vai trò
+            </a>
+        </li>
         <li class="divider" data-text="settings">Cài đặt</li>
         <li>
             <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">

@@ -111,6 +111,26 @@ li {
 #sidebar .side-menu > li > a:hover {
     background: var(--grey);
 }
+#sidebar .side-menu > li.active > a {
+    background: var(--blue);
+    color: var(--light);
+    box-shadow: 0 8px 20px rgba(23, 117, 241, 0.25);
+    animation: highlightFade 0.35s ease;
+}
+#sidebar .side-menu > li.active > a .icon {
+    color: var(--light);
+}
+
+@keyframes highlightFade {
+    0% {
+        transform: translateX(-6px);
+        opacity: 0.4;
+    }
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
 #sidebar .side-menu > li > a.active .icon-right {
     transform: rotateZ(90deg);
 }
@@ -538,6 +558,37 @@ main .form-group {
     width: 100%;
     display: flex;
     grid-gap: 10px;
+}
+
+/* Shared modal styling */
+.neo-modal {
+    border-radius: 24px;
+    box-shadow: 0 35px 55px rgba(15, 23, 42, 0.35);
+    overflow: hidden;
+}
+.neo-modal .modal-header {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: #fff;
+    border-bottom: none;
+}
+.neo-modal .modal-body {
+    padding: 24px 30px;
+}
+.neo-modal .modal-footer {
+    padding: 0 30px 24px;
+}
+.neo-modal .btn.btn-primary {
+    background: linear-gradient(135deg, #0ea5e9, #38bdf8);
+    border: none;
+    box-shadow: 0 10px 20px rgba(14, 165, 233, 0.25);
+}
+.neo-modal .btn.btn-light {
+    border: 1px solid #e5e7eb;
+    background: #fff;
+}
+.link-highlight {
+    color: #0ea5e9;
+    text-decoration: underline;
 }
 main .form-group input {
     flex-grow: 1;

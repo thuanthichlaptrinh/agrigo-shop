@@ -133,7 +133,7 @@
             <main>
                 <div class="page-header">
                     <div>
-                        <h1>Danh mục sản phẩm</h1>
+                        <h3>Quản lý Danh mục sản phẩm</h3>
                         <p style="color: var(--text-muted); margin-top: 6px;">Quản lý danh mục gốc và hình ảnh hiển thị.</p>
                     </div>
                     <div style="display: flex; gap: 10px; flex-wrap: wrap;">

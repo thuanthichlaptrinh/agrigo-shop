@@ -6,7 +6,7 @@
             <i class="bx bx-search icon"></i>
         </div>
     </form>
-    <a href="{{ route('admin.notifications') }}" class="nav-link">
+    <a href="{{ route('admin.notifications.index') }}" class="nav-link">
         <i class="bx bxs-bell icon"></i>
         <span class="badge">{{ auth_user()->thongBao()->where('DaXem', 0)->count() ?? 0 }}</span>
     </a>

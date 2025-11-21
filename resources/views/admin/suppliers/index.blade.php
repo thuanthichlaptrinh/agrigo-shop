@@ -132,7 +132,7 @@
             <main>
                 <div class="page-header">
                     <div>
-                        <h1>Nhà cung cấp</h1>
+                        <h2>Quản lý nhà cung cấp</h2>
                         <p style="color: var(--text-muted); margin-top: 6px;">Quản lý thông tin liên hệ và sản phẩm liên kết.</p>
                     </div>
                     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
