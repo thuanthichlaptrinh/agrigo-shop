@@ -1,4 +1,4 @@
--- DATABASE: AGRICULTURAL SALES MANAGEMENT (Laravel Standardized)
+-- DATABASE: AGRICULTURAL SALES MANAGEMENT (Laravel Standardized - Vietnamese ENUM)
 CREATE DATABASE IF NOT EXISTS agricultural_sales
 CHARACTER SET utf8mb4
 COLLATE utf8mb4_unicode_ci;
@@ -8,7 +8,7 @@ USE agricultural_sales;
 -- 1. ROLES (Vai trò)
 CREATE TABLE roles (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50) NOT NULL, -- admin, customer, staff
+    name VARCHAR(50) NOT NULL, -- quản trị viên, khách hàng, nhân viên
     description VARCHAR(255),
     created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -23,9 +23,9 @@ CREATE TABLE users (
     password VARCHAR(255) NOT NULL,
     address VARCHAR(500),
     birthday DATE,
-    gender ENUM('male', 'female', 'other'),
+    gender ENUM('nam', 'nữ', 'khác'),
     avatar VARCHAR(1000),
-    status BOOLEAN DEFAULT TRUE, -- Active/Inactive
+    status BOOLEAN DEFAULT TRUE, -- Hoạt động/Không hoạt động
     role_id BIGINT UNSIGNED,
     email_verified_at TIMESTAMP NULL,
     remember_token VARCHAR(100),
@@ -39,7 +39,7 @@ CREATE TABLE user_tokens (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT UNSIGNED NOT NULL,
     token VARCHAR(500) NOT NULL,
-    type ENUM('reset_password', 'verify_email', 'refresh_token') NOT NULL,
+    type ENUM('đặt_lại_mật_khẩu', 'xác_thực_email', 'làm_mới_token') NOT NULL,
     expires_at TIMESTAMP NOT NULL,
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
@@ -88,16 +88,16 @@ CREATE TABLE suppliers (
 CREATE TABLE products (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    slug VARCHAR(255) UNIQUE, -- Added slug for SEO friendly URLs
+    slug VARCHAR(255) UNIQUE, -- Slug cho SEO
     description TEXT,
     detail_description LONGTEXT,
-    price DECIMAL(18,2) NOT NULL, -- Selling price
-    original_price DECIMAL(18,2), -- Original price (for comparison)
+    price DECIMAL(18,2) NOT NULL, -- Giá bán
+    original_price DECIMAL(18,2), -- Giá gốc (để so sánh)
     stock_quantity INT DEFAULT 0,
-    unit VARCHAR(30) NOT NULL, -- kg, box, etc.
-    image VARCHAR(1000), -- Main thumbnail
+    unit VARCHAR(30) NOT NULL, -- kg, hộp, v.v.
+    image VARCHAR(1000), -- Ảnh đại diện chính
     origin VARCHAR(100), -- Xuất xứ
-    shelf_life INT, -- Hạn sử dụng
+    shelf_life INT, -- Hạn sử dụng (ngày)
     weight VARCHAR(50),
     brand VARCHAR(255),
     view_count INT DEFAULT 0,
@@ -129,9 +129,9 @@ CREATE TABLE promotions (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description VARCHAR(1000),
-    type ENUM('percentage', 'fixed_amount') NOT NULL,
+    type ENUM('phần_trăm', 'số_tiền_cố_định') NOT NULL,
     discount_value DECIMAL(18,2) NOT NULL,
-    max_discount DECIMAL(18,2), -- Max discount amount if percentage
+    max_discount DECIMAL(18,2), -- Số tiền giảm tối đa nếu là phần trăm
     start_date DATETIME NOT NULL,
     end_date DATETIME NOT NULL,
     is_active BOOLEAN DEFAULT TRUE,
@@ -155,7 +155,7 @@ CREATE TABLE vouchers (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     code VARCHAR(50) UNIQUE NOT NULL,
     name VARCHAR(255) NOT NULL,
-    discount_type ENUM('percentage', 'fixed_amount') NOT NULL,
+    discount_type ENUM('phần_trăm', 'số_tiền_cố_định') NOT NULL,
     discount_value DECIMAL(18,2) NOT NULL,
     max_discount DECIMAL(18,2),
     min_order_value DECIMAL(18,2) DEFAULT 0,
@@ -168,12 +168,12 @@ CREATE TABLE vouchers (
     updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 12. VOUCHER USAGE HISTORY
+-- 12. VOUCHER USAGE HISTORY (Lịch sử sử dụng voucher)
 CREATE TABLE voucher_usage (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     voucher_id BIGINT UNSIGNED NOT NULL,
     user_id BIGINT UNSIGNED NOT NULL,
-    order_id BIGINT UNSIGNED, -- Will be linked after order creation
+    order_id BIGINT UNSIGNED, -- Sẽ được liên kết sau khi tạo đơn hàng
     discount_amount DECIMAL(18,2),
     used_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_voucher_usage_voucher FOREIGN KEY (voucher_id) REFERENCES vouchers(id) ON UPDATE CASCADE ON DELETE CASCADE,
@@ -186,7 +186,7 @@ CREATE TABLE cart_items (
     user_id BIGINT UNSIGNED NOT NULL,
     product_id BIGINT UNSIGNED NOT NULL,
     quantity INT NOT NULL DEFAULT 1,
-    price_at_add DECIMAL(18,2), -- Price when added (optional tracking)
+    price_at_add DECIMAL(18,2), -- Giá khi thêm vào giỏ (theo dõi tùy chọn)
     created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_cart_user FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE CASCADE,
@@ -203,14 +203,14 @@ CREATE TABLE orders (
     recipient_phone VARCHAR(15) NOT NULL,
     shipping_address VARCHAR(500) NOT NULL,
     delivery_time VARCHAR(100),
-    payment_method ENUM('cod', 'vnpay', 'momo', 'zalopay', 'bank_transfer') DEFAULT 'cod',
-    shipping_method ENUM('ghn', 'ghtk', 'viettel_post', 'internal') DEFAULT 'ghtk',
-    total_amount DECIMAL(18,2) NOT NULL, -- Sum of items
+    payment_method ENUM('tiền_mặt', 'vnpay', 'momo', 'zalopay', 'chuyển_khoản') DEFAULT 'tiền_mặt',
+    shipping_method ENUM('giao_hàng_nhanh', 'giao_hàng_tiết_kiệm', 'viettel_post', 'nội_bộ') DEFAULT 'giao_hàng_tiết_kiệm',
+    total_amount DECIMAL(18,2) NOT NULL, -- Tổng tiền hàng
     shipping_fee DECIMAL(18,2) DEFAULT 0,
     voucher_discount DECIMAL(18,2) DEFAULT 0,
     voucher_id BIGINT UNSIGNED,
-    final_amount DECIMAL(18,2) NOT NULL, -- Total to pay
-    status ENUM('pending', 'confirmed', 'shipping', 'delivered', 'cancelled') DEFAULT 'pending',
+    final_amount DECIMAL(18,2) NOT NULL, -- Tổng thanh toán
+    status ENUM('chờ_xử_lý', 'đã_xác_nhận', 'đang_giao', 'đã_giao', 'đã_hủy') DEFAULT 'chờ_xử_lý',
     note VARCHAR(1000),
     order_date TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     confirmed_at TIMESTAMP NULL,
@@ -226,9 +226,9 @@ CREATE TABLE order_items (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     order_id BIGINT UNSIGNED NOT NULL,
     product_id BIGINT UNSIGNED,
-    product_name VARCHAR(255) NOT NULL, -- Snapshot of product name
+    product_name VARCHAR(255) NOT NULL, -- Lưu tên sản phẩm tại thời điểm đặt
     quantity INT NOT NULL,
-    unit_price DECIMAL(18,2) NOT NULL, -- Snapshot of price
+    unit_price DECIMAL(18,2) NOT NULL, -- Lưu giá tại thời điểm đặt
     total_price DECIMAL(18,2) GENERATED ALWAYS AS (quantity * unit_price) STORED,
     created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_order_items_order FOREIGN KEY (order_id) REFERENCES orders(id) ON UPDATE CASCADE ON DELETE CASCADE,
@@ -242,8 +242,8 @@ CREATE TABLE payments (
     transaction_id VARCHAR(100),
     payment_method VARCHAR(50) NOT NULL,
     amount DECIMAL(18,2) NOT NULL,
-    status ENUM('pending', 'paid', 'failed', 'refunded') DEFAULT 'pending',
-    payment_details TEXT, -- JSON response from gateway
+    status ENUM('chờ_thanh_toán', 'đã_thanh_toán', 'thất_bại', 'đã_hoàn_tiền') DEFAULT 'chờ_thanh_toán',
+    payment_details TEXT, -- JSON response từ cổng thanh toán
     paid_at TIMESTAMP NULL,
     created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -258,8 +258,8 @@ CREATE TABLE reviews (
     order_id BIGINT UNSIGNED,
     rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
     comment VARCHAR(2000),
-    images VARCHAR(1000), -- Comma separated paths
-    status ENUM('pending', 'approved', 'hidden') DEFAULT 'pending',
+    images VARCHAR(1000), -- Đường dẫn ảnh phân cách bằng dấu phẩy
+    status ENUM('chờ_duyệt', 'đã_duyệt', 'đã_ẩn') DEFAULT 'chờ_duyệt',
     created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_reviews_product FOREIGN KEY (product_id) REFERENCES products(id) ON UPDATE CASCADE ON DELETE CASCADE,
@@ -271,7 +271,7 @@ CREATE TABLE reviews (
 CREATE TABLE review_replies (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     review_id BIGINT UNSIGNED NOT NULL,
-    user_id BIGINT UNSIGNED NOT NULL, -- Admin/Staff replying
+    user_id BIGINT UNSIGNED NOT NULL, -- Quản trị viên/Nhân viên phản hồi
     content VARCHAR(2000) NOT NULL,
     created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_replies_review FOREIGN KEY (review_id) REFERENCES reviews(id) ON UPDATE CASCADE ON DELETE CASCADE,
@@ -281,12 +281,12 @@ CREATE TABLE review_replies (
 -- 19. USER ACTIVITIES (Hoạt động: Yêu thích, Xem, Tìm kiếm)
 CREATE TABLE user_activities (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    user_id BIGINT UNSIGNED NULL, -- Allow guest
-    activity_type ENUM('search', 'wishlist', 'view_product') NOT NULL,
-    keyword VARCHAR(255), -- For search
-    product_id BIGINT UNSIGNED NULL, -- For wishlist/view
+    user_id BIGINT UNSIGNED NULL, -- Cho phép khách
+    activity_type ENUM('tìm_kiếm', 'yêu_thích', 'xem_sản_phẩm') NOT NULL,
+    keyword VARCHAR(255), -- Cho tìm kiếm
+    product_id BIGINT UNSIGNED NULL, -- Cho yêu thích/xem
     created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE KEY uniq_wishlist (user_id, product_id, activity_type), -- Prevent duplicate wishlist
+    UNIQUE KEY uniq_wishlist (user_id, product_id, activity_type), -- Ngăn trùng lặp yêu thích
     CONSTRAINT fk_activities_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT fk_activities_product FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -298,7 +298,7 @@ CREATE TABLE banners (
     description VARCHAR(500),
     image VARCHAR(1000) NOT NULL,
     link VARCHAR(500),
-    position ENUM('home_main', 'home_sub', 'product_page', 'sidebar') DEFAULT 'home_main',
+    position ENUM('trang_chủ_chính', 'trang_chủ_phụ', 'trang_sản_phẩm', 'thanh_bên') DEFAULT 'trang_chủ_chính',
     sort_order INT DEFAULT 0,
     start_date DATETIME,
     end_date DATETIME,
@@ -313,7 +313,7 @@ CREATE TABLE notifications (
     user_id BIGINT UNSIGNED,
     title VARCHAR(255) NOT NULL,
     content VARCHAR(1000) NOT NULL,
-    type ENUM('order', 'promotion', 'system', 'other') DEFAULT 'system',
+    type ENUM('đơn_hàng', 'khuyến_mãi', 'hệ_thống', 'khác') DEFAULT 'hệ_thống',
     link VARCHAR(500),
     is_read BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
@@ -329,13 +329,13 @@ CREATE TABLE contacts (
     phone VARCHAR(15),
     title VARCHAR(255) NOT NULL,
     content VARCHAR(2000) NOT NULL,
-    status ENUM('new', 'processing', 'processed', 'closed') DEFAULT 'new',
+    status ENUM('mới', 'đang_xử_lý', 'đã_xử_lý', 'đã_đóng') DEFAULT 'mới',
     created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_contacts_user FOREIGN KEY (user_id) REFERENCES users(id) ON UPDATE CASCADE ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- INDEXES FOR OPTIMIZATION
+-- INDEXES FOR OPTIMIZATION (Chỉ mục để tối ưu hóa)
 CREATE INDEX idx_products_name ON products(name);
 CREATE INDEX idx_products_price ON products(price);
 CREATE INDEX idx_products_status ON products(is_active);
@@ -357,4 +357,4 @@ CREATE INDEX idx_vouchers_status ON vouchers(is_active);
 
 CREATE INDEX idx_activities_type_user ON user_activities(activity_type, user_id);
 CREATE INDEX idx_activities_keyword ON user_activities(keyword);
-CREATE INDEX idx_activities_product_user ON user_activities(product_id, user_id);
+CREAT

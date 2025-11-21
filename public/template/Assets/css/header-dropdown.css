@@ -1,0 +1,67 @@
+/* ===================================
+   HEADER DROPDOWN MENU
+   =================================== */
+
+/* Category menu trigger */
+.category-menu-trigger {
+    position: relative;
+}
+
+/* Dropdown container */
+.category-dropdown {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+/* Show dropdown on hover */
+.col-3:hover .category-dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    display: block !important;
+}
+
+/* Dropdown menu items hover */
+.category-dropdown .nav-link:hover {
+    background-color: #f8f9fa;
+    color: #007e42 !important;
+    padding-left: 20px !important;
+}
+
+.category-dropdown .nav-link:hover i {
+    color: #007e42 !important;
+}
+
+/* Smooth animation */
+.category-dropdown .nav-item {
+    animation: slideIn 0.3s ease forwards;
+    opacity: 0;
+}
+
+.col-3:hover .category-dropdown .nav-item:nth-child(1) { animation-delay: 0.05s; }
+.col-3:hover .category-dropdown .nav-item:nth-child(2) { animation-delay: 0.1s; }
+.col-3:hover .category-dropdown .nav-item:nth-child(3) { animation-delay: 0.15s; }
+.col-3:hover .category-dropdown .nav-item:nth-child(4) { animation-delay: 0.2s; }
+.col-3:hover .category-dropdown .nav-item:nth-child(5) { animation-delay: 0.25s; }
+.col-3:hover .category-dropdown .nav-item:nth-child(6) { animation-delay: 0.3s; }
+.col-3:hover .category-dropdown .nav-item:nth-child(7) { animation-delay: 0.35s; }
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .category-dropdown {
+        width: 100% !important;
+    }
+}

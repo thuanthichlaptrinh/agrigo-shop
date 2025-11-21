@@ -4,6 +4,11 @@
 
 @push('styles')
 <style>
+    /* Hide header dropdown on cart page */
+    .category-dropdown {
+        display: none !important;
+    }
+    
     .close-cart-item {
         position: absolute;
         top: 12px;
@@ -25,29 +30,34 @@
     .btn-order-container {
         position: fixed;
         bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        max-width: 700px;
         width: 700px;
-        padding: 10px;
+        padding: 15px;
         box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
         background-color: white;
         z-index: 1000;
+        border-radius: 8px 8px 0 0;
+    }
+    
+    @media (max-width: 768px) {
+        .btn-order-container {
+            width: calc(100% - 40px);
+        }
     }
     .btn-order {
-        width: 700px !important;
         border: none;
-        padding: 12px 20px;
+        padding: 15px 20px;
         border-radius: 8px;
         width: 100%;
-        cursor: pointer; 
+        cursor: pointer;
+        transition: all 0.3s ease;
     }
-    .btn-quantity {
-        border-radius: 50%;
-        width: 30px;
-        height: 30px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0;
-        font-weight: 700;
+    .btn-order:hover {
+        filter: brightness(1.1);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
     .quantity-selector {
         display: flex;
@@ -128,14 +138,15 @@
             @endforelse
         </div>
 
-        <div>
-            <div class="btn-order-container bg-white">
-                <a href="{{ route('checkout') }}" class="text-white d-flex align-items-center justify-content-center text-center bg-primary-t btn-order" style="text-decoration: none;">
-                    <p class="text-dark btn-quantity">{{ count($cartItems ?? []) }}</p>
-                    <i class="ri-shopping-cart-2-fill fw-500 fs-22-t mx-2"></i>
-                    <span class="fs-20-t fw-700">Đặt hàng {{ number_format($cartTotal ?? 353000) }}đ</span>
-                </a>
-            </div>
+        <!-- Button đặt hàng fixed bottom -->
+        <div class="btn-order-container bg-white">
+            <a href="{{ route('checkout') }}" class="text-white d-flex align-items-center justify-content-center text-center bg-primary-t btn-order" style="text-decoration: none;">
+                <div class="btn-quantity" style="background: white; color: #333; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: 700; margin-right: 10px;">
+                    {{ count($cartItems ?? []) }}
+                </div>
+                <i class="ri-shopping-cart-2-fill" style="font-size: 22px; margin-right: 10px;"></i>
+                <span style="font-size: 20px; font-weight: 700;">Đặt hàng {{ number_format($cartTotal ?? 353000) }}đ</span>
+            </a>
         </div>
     </div>
 </div>

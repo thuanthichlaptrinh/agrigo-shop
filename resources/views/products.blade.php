@@ -5,6 +5,16 @@
 @push('styles')
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css" />
 <style>
+    /* Hide header dropdown on products page since sidebar is already visible */
+    .category-dropdown {
+        display: none !important;
+    }
+    
+    /* Disable hover effect on category menu trigger */
+    .category-menu-trigger {
+        cursor: default !important;
+    }
+    
     .btn-Them:hover,
     .btn-ThanhToan:hover {
         filter: brightness(1.5);

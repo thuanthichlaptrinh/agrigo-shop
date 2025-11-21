@@ -15,6 +15,8 @@
     <link rel="stylesheet" href="{{ asset('template/Assets/css/style.css') }}" />
     <link rel="stylesheet" href="{{ asset('template/Assets/css/promo-section.css') }}" />
     <link rel="stylesheet" href="{{ asset('template/Assets/css/articles-section.css') }}" />
+    <link rel="stylesheet" href="{{ asset('template/Assets/css/header-dropdown.css') }}" />
+    <link rel="stylesheet" href="{{ asset('template/Assets/css/chatbot.css') }}" />
     
     <!-- Remix Icon -->
     <link
@@ -38,18 +40,14 @@
 
     <!-- Fixed Icons -->
     <div class="fixed-icon">
-        <a href="#" class="scroll-up">
-            <img src="{{ asset('template/Assets/Images/up-arrow1.png') }}" alt="Scroll Up" />
-        </a>
-        <a href="">
-            <img src="{{ asset('template/Assets/Icon/facebook.png') }}" alt="Facebook" />
-        </a>
-        <a href="">
-            <img src="{{ asset('template/Assets/Icon/youtube.png') }}" alt="YouTube" />
-        </a>
-        <a href="">
-            <img src="{{ asset('template/Assets/Images/phone-call.png') }}" alt="Phone" />
-        </a>
+        <!-- Nút cuộn -->
+        <!-- Chat với Admin -->
+        <!-- Chatbot Widget -->
+        @include('partials.chatbot-widget', [
+            'botName' => 'Organic Shop Support',
+            'avatarUrl' => asset('template/Assets/Images/logo2.png'),
+            'greeting' => 'Xin chào! Chào mừng bạn đến với Organic Shop. Tôi có thể giúp gì cho bạn hôm nay?'
+        ])
     </div>
 
     <!-- Bootstrap 5 JS -->
@@ -57,6 +55,9 @@
     
     <!-- Custom JS -->
     <script src="{{ asset('template/Assets/js/main.js') }}"></script>
+    
+    <!-- Chatbot JS -->
+    <script src="{{ asset('template/Assets/js/chatbot.js') }}"></script>
     
     @stack('scripts')
 </body>

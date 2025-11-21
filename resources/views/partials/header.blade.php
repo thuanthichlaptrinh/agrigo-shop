@@ -36,11 +36,14 @@
             </div>
 
             <div class="row">
-                <div class="col-3" style="margin-left: -12px">
-                    <div class="d-flex align-items-center py-0 text-white bg-menu" style="border-top-left-radius: 8px; border-top-right-radius: 8px; width: 300.5px">
+                <div class="col-3" style="margin-left: -12px; position: relative;">
+                    <div class="category-menu-trigger d-flex align-items-center py-0 text-white bg-menu" style="border-top-left-radius: 8px; border-top-right-radius: 8px; width: 300.5px; cursor: pointer;">
                         <i class="ri-menu-line mx-2" style="font-size: 22px"></i>
                         <span class="text-uperc fw-500 fs-16-t">Danh mục sản phẩm</span>
                     </div>
+                    
+                    <!-- Dropdown Menu -->
+                    @include('partials.sidebar-dropdown')
                 </div>
                 <div class="col-7">
                     <div></div>

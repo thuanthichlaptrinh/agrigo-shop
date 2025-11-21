@@ -2,6 +2,20 @@
 
 @section('title', 'Trang chủ - Organic Shop')
 
+@push('styles')
+<style>
+    /* Hide header dropdown on home page since sidebar is already visible */
+    .col-3:hover .category-dropdown {
+        display: none !important; 
+    }
+    
+    /* Disable hover effect on category menu trigger */
+    .category-menu-trigger {
+        cursor: default !important;
+    }
+</style>
+@endpush
+
 @section('content')
 <div class="row">
     <!-- Sidebar Menu -->

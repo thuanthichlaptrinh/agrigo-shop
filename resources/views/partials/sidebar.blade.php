@@ -99,3 +99,21 @@
         </li>
     </ul>
 </div>
+
+<style>
+    /* Hover effect for sidebar nav links */
+    .slide-menu .nav-link {
+        transition: all 0.3s ease;
+    }
+    
+    .slide-menu .nav-link:hover {
+        color: #007e42 !important;
+        background-color: #f8f9fa;
+        padding-left: 8px !important;
+    }
+    
+    .slide-menu .nav-link:hover i {
+        transition: all 0.3s ease !important;
+        color: #007e42 !important;
+    }
+</style>

@@ -251,14 +251,7 @@
     border-radius: 50%;
 }
 
-.container .row .btn-order-container {
-    background-color: white !important;
-    position: fixed;
-    bottom: 0;
-    left: 495px;
-    right: 495px;
-    margin-bottom: 10px;
-}
+/* Removed - button order styling moved to cart.blade.php */
 
 .btn-order {
     position: absolute;
