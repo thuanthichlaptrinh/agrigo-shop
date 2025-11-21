@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\LoaiSanPhamController;
 use App\Http\Controllers\Admin\DanhMucController;
 use App\Http\Controllers\Admin\NhaCungCapController;
+use App\Http\Controllers\Admin\VoucherController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -121,6 +122,16 @@ Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
         Route::put('/{id}', [NhaCungCapController::class, 'update'])->name('update');
         Route::delete('/{id}', [NhaCungCapController::class, 'destroy'])->name('destroy');
         Route::get('/{id}', [NhaCungCapController::class, 'show'])->name('show');
+    });
+
+    // Vouchers Management
+    Route::prefix('vouchers')->name('vouchers.')->group(function () {
+        Route::get('/', [VoucherController::class, 'index'])->name('index');
+        Route::post('/', [VoucherController::class, 'store'])->name('store');
+        Route::post('/bulk', [VoucherController::class, 'bulkStore'])->name('bulk-store');
+        Route::put('/{id}', [VoucherController::class, 'update'])->name('update');
+        Route::delete('/{id}', [VoucherController::class, 'destroy'])->name('destroy');
+        Route::get('/{id}', [VoucherController::class, 'show'])->name('show');
     });
     
     // Utility Routes

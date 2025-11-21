@@ -39,6 +39,11 @@
                 <i class="fa-solid fa-chart-area icon"></i> Nhà cung cấp
             </a>
         </li>
+        <li class="{{ request()->routeIs('admin.vouchers.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.vouchers.index') }}">
+                <i class="fa-solid fa-ticket icon"></i> Voucher
+            </a>
+        </li>
         <li class="divider" data-text="settings">Cài đặt</li>
         <li>
             <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
