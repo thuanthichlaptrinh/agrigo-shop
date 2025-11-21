@@ -14,6 +14,11 @@
                 <i class="fa-solid fa-users-line icon"></i> Người dùng
             </a>
         </li>
+        <li class="{{ request()->routeIs('admin.catalog.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.catalog.index') }}">
+                <i class="fa-solid fa-layer-group icon"></i> Danh mục
+            </a>
+        </li>
         <li class="{{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
             <a href="{{ route('admin.categories.index') }}">
                 <i class="fa-solid fa-users-line icon"></i> Loại sản phẩm
@@ -23,12 +28,7 @@
             <a href="{{ route('admin.products.index') }}">
                 <i class="fa-solid fa-shirt icon"></i> Sản phẩm
             </a>
-        </li>
-        <li class="{{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
-            <a href="{{ route('admin.categories.index') }}">
-                <i class="fa-solid fa-layer-group icon"></i> Danh mục
-            </a>
-        </li>
+        </li> 
         <li class="{{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
             <a href="{{ route('admin.orders.index') }}">
                 <i class="fa-solid fa-briefcase icon"></i> Đơn hàng
