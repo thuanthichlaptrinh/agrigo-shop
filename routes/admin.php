@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -60,29 +61,14 @@ Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
     
     // Users Management
     Route::prefix('users')->name('users.')->group(function () {
-        Route::get('/', function () {
-            return view('admin.users.index');
-        })->name('index');
-        
-        Route::get('/create', function () {
-            return view('admin.users.create');
-        })->name('create');
-        
-        Route::post('/', function () {
-            return redirect()->route('admin.users.index');
-        })->name('store');
-        
-        Route::get('/{id}/edit', function ($id) {
-            return view('admin.users.edit', ['id' => $id]);
-        })->name('edit');
-        
-        Route::put('/{id}', function ($id) {
-            return redirect()->route('admin.users.index');
-        })->name('update');
-        
-        Route::delete('/{id}', function ($id) {
-            return redirect()->route('admin.users.index');
-        })->name('destroy');
+        Route::get('/', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Admin\UserController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\Admin\UserController::class, 'store'])->name('store');
+        Route::get('/{id}', [\App\Http\Controllers\Admin\UserController::class, 'show'])->name('show');
+        Route::get('/{id}/edit', [\App\Http\Controllers\Admin\UserController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('update');
+        Route::patch('/{id}/toggle-status', [\App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('toggle-status');
+        Route::delete('/{id}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('destroy');
     });
     
     // Categories Management
@@ -171,9 +157,7 @@ Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
         return redirect()->route('admin.dashboard');
     })->name('messages');
     
-    Route::get('/profile', function () {
-        return redirect()->route('admin.dashboard');
-    })->name('profile');
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
     
     Route::get('/settings', function () {
         return redirect()->route('admin.dashboard');

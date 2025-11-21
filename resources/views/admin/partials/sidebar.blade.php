@@ -11,27 +11,27 @@
         <li class="divider" data-text="main">Main</li>
         <li class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
             <a href="{{ route('admin.users.index') }}">
-                <i class="fa-solid fa-users-line icon"></i> Quản lý người dùng
+                <i class="fa-solid fa-users-line icon"></i> Người dùng
             </a>
         </li>
         <li class="{{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
             <a href="{{ route('admin.products.index') }}">
-                <i class="fa-solid fa-shirt icon"></i> Quản lý sản phẩm
+                <i class="fa-solid fa-shirt icon"></i> Sản phẩm
             </a>
         </li>
         <li class="{{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
             <a href="{{ route('admin.categories.index') }}">
-                <i class="fa-solid fa-layer-group icon"></i> Quản lý danh mục
+                <i class="fa-solid fa-layer-group icon"></i> Danh mục
             </a>
         </li>
         <li class="{{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
             <a href="{{ route('admin.orders.index') }}">
-                <i class="fa-solid fa-briefcase icon"></i> Quản lý đơn hàng
+                <i class="fa-solid fa-briefcase icon"></i> Đơn hàng
             </a>
         </li>
         <li class="{{ request()->routeIs('admin.suppliers.*') ? 'active' : '' }}">
             <a href="{{ route('admin.suppliers.index') }}">
-                <i class="fa-solid fa-chart-area icon"></i> Quản lý nhà cung cấp
+                <i class="fa-solid fa-chart-area icon"></i> Nhà cung cấp
             </a>
         </li>
         <li class="divider" data-text="settings">Cài đặt</li>

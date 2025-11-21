@@ -38,6 +38,8 @@ class NguoiDung extends Authenticatable implements JWTSubject
         'NgayCapNhat' => 'datetime',
     ];
 
+    // Laravel timestamps - map to Vietnamese column names
+    public $timestamps = true;
     const CREATED_AT = 'NgayTao';
     const UPDATED_AT = 'NgayCapNhat';
 

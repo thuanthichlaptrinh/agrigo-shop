@@ -1,7 +1,7 @@
 <nav>
     <i class="bx bx-menu toggle-sidebar"></i>
     <form action="{{ route('admin.search') }}" method="GET">
-        <div class="form-group">
+        <div class="form-group mb-0">
             <input type="text" name="q" placeholder="Tìm kiếm..." value="{{ request('q') }}" />
             <i class="bx bx-search icon"></i>
         </div>
@@ -16,7 +16,7 @@
     </a>
     <span class="divider"></span>
     <div class="profile">
-        <img src="{{ auth_user()->HinhAnh ?? asset('template/Assets/Images/default-avatar.png') }}" alt="{{ auth_user()->TenNguoiDung }}" />
+        <img src="{{ auth_user()->HinhAnh ? asset(auth_user()->HinhAnh) : asset('template/Assets/Images/default-avatar.png') }}" alt="{{ auth_user()->TenNguoiDung }}" />
         <ul class="profile-link">
             <li>
                 <a href="{{ route('admin.profile') }}">
