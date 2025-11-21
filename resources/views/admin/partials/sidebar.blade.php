@@ -14,6 +14,11 @@
                 <i class="fa-solid fa-users-line icon"></i> Người dùng
             </a>
         </li>
+        <li class="{{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.categories.index') }}">
+                <i class="fa-solid fa-users-line icon"></i> Loại sản phẩm
+            </a>
+        </li>
         <li class="{{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
             <a href="{{ route('admin.products.index') }}">
                 <i class="fa-solid fa-shirt icon"></i> Sản phẩm

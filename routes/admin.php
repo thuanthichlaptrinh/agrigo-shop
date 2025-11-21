@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Admin\LoaiSanPhamController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -73,29 +74,12 @@ Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
     
     // Categories Management
     Route::prefix('categories')->name('categories.')->group(function () {
-        Route::get('/', function () {
-            return view('admin.categories.index');
-        })->name('index');
-        
-        Route::get('/create', function () {
-            return view('admin.categories.create');
-        })->name('create');
-        
-        Route::post('/', function () {
-            return redirect()->route('admin.categories.index');
-        })->name('store');
-        
-        Route::get('/{id}/edit', function ($id) {
-            return view('admin.categories.edit', ['id' => $id]);
-        })->name('edit');
-        
-        Route::put('/{id}', function ($id) {
-            return redirect()->route('admin.categories.index');
-        })->name('update');
-        
-        Route::delete('/{id}', function ($id) {
-            return redirect()->route('admin.categories.index');
-        })->name('destroy');
+        Route::get('/', [LoaiSanPhamController::class, 'index'])->name('index');
+        Route::post('/', [LoaiSanPhamController::class, 'store'])->name('store');
+        Route::post('/bulk', [LoaiSanPhamController::class, 'bulkStore'])->name('bulk-store');
+        Route::put('/{id}', [LoaiSanPhamController::class, 'update'])->name('update');
+        Route::delete('/{id}', [LoaiSanPhamController::class, 'destroy'])->name('destroy');
+        Route::get('/{id}', [LoaiSanPhamController::class, 'show'])->name('show');
     });
     
     // Orders Management
