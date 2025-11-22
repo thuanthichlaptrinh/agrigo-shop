@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\DanhMucController;
 use App\Http\Controllers\Admin\NhaCungCapController;
 use App\Http\Controllers\Admin\VoucherController;
 use App\Http\Controllers\Admin\KhuyenMaiController;
+use App\Http\Controllers\Admin\NhatKyController;
 use App\Http\Controllers\Admin\ThongBaoController;
 use App\Http\Controllers\Admin\VaiTroController;
 use Illuminate\Support\Facades\Route;
@@ -88,7 +89,7 @@ Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
         Route::get('/{id}', [LoaiSanPhamController::class, 'show'])->name('show');
     });
 
-    // Catalog (danh mục cha)
+    // Catalog Management
     Route::prefix('catalog')->name('catalog.')->group(function () {
         Route::get('/', [DanhMucController::class, 'index'])->name('index');
         Route::post('/', [DanhMucController::class, 'store'])->name('store');
@@ -143,6 +144,15 @@ Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
         Route::put('/{id}', [ThongBaoController::class, 'update'])->name('update');
         Route::delete('/{id}', [ThongBaoController::class, 'destroy'])->name('destroy');
         Route::get('/{id}', [ThongBaoController::class, 'show'])->name('show');
+    });
+
+    // Activity Logs Management
+    Route::prefix('logs')->name('logs.')->group(function () {
+        Route::get('/', [NhatKyController::class, 'index'])->name('index');
+        Route::post('/', [NhatKyController::class, 'store'])->name('store');
+        Route::put('/{id}', [NhatKyController::class, 'update'])->name('update');
+        Route::delete('/{id}', [NhatKyController::class, 'destroy'])->name('destroy');
+        Route::get('/{id}', [NhatKyController::class, 'show'])->name('show');
     });
 
     // Roles Management

@@ -19,7 +19,8 @@ class NhatKy extends Model
         'DuLieuMoi',
         'DiaChiIP',
         'TrinhDuyet',
-        'KetQua'
+        'KetQua',
+        'ThoiGian'
     ];
 
     protected $casts = [

@@ -54,6 +54,11 @@
                 <i class="fa-solid fa-bell icon"></i> Thông báo
             </a>
         </li>
+        <li class="{{ request()->routeIs('admin.logs.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.logs.index') }}">
+                <i class="fa-solid fa-scroll icon"></i> Nhật ký
+            </a>
+        </li>
         <li class="{{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">
             <a href="{{ route('admin.roles.index') }}">
                 <i class="fa-solid fa-user-shield icon"></i> Vai trò
