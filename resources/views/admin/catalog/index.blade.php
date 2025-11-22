@@ -130,7 +130,7 @@
         @include('admin.partials.sidebar')
         <section id="content">
             @include('admin.partials.navbar')
-            <main>
+            <main style="margin-top: 64px;">
                 <div class="page-header">
                     <div>
                         <h3>Quản lý Danh mục sản phẩm</h3>

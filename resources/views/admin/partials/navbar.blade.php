@@ -1,10 +1,10 @@
-<nav>
+<nav style="position: fixed; top: 0;left: 260px; right: 0;z-index: 1000;background-color: #fff;  box-shadow: 2px 2px 4px rgba(0,0,0,0.1); ">
     <i class="bx bx-menu toggle-sidebar"></i>
     <form action="{{ route('admin.search') }}" method="GET">
         <div class="form-group mb-0">
             <input type="text" name="q" placeholder="Tìm kiếm..." value="{{ request('q') }}" />
             <i class="bx bx-search icon"></i>
-        </div>
+        </div> 
     </form>
     <a href="{{ route('admin.notifications.index') }}" class="nav-link">
         <i class="bx bxs-bell icon"></i>

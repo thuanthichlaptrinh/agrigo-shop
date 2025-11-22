@@ -116,7 +116,7 @@
         @include('admin.partials.sidebar')
         <section id="content">
             @include('admin.partials.navbar')
-            <main>
+            <main style="margin-top: 64px;">
                 <div class="page-header">
                     <div>
                         <h2>Quản lý Voucher</h2>

@@ -148,7 +148,7 @@
             <!-- NAVBAR -->
 
             <!-- MAIN -->
-            <main>
+            <main style="margin-top: 64px;">
                 <div class="page-header">
                     <div>
                         <h2>Quản lý loại sản phẩm</h2>

@@ -600,7 +600,7 @@
             @include('admin.partials.navbar')
 
             <!-- MAIN -->
-            <main>
+            <main style="margin-top: 64px;">
                 <h1 class="title">Quản lý Người dùng</h1>
                 <ul class="breadcrumbs">
                     <li><a href="{{ route('admin.dashboard') }}">Home</a></li>

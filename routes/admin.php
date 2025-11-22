@@ -27,14 +27,105 @@ Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
     
     // Dashboard
     Route::get('/dashboard', function () {
+        // Tổng số liệu cơ bản
+        $totalOrders = \App\Models\DonHang::count();
+        $totalRevenue = \App\Models\DonHang::whereIn('TrangThai', ['Đã giao', 'Đang giao'])->sum('TongThanhToan');
+        $totalProducts = \App\Models\SanPham::count();
+        $totalUsers = \App\Models\NguoiDung::count();
+        
+        // Tính % tăng trưởng so với tháng trước
+        $lastMonthOrders = \App\Models\DonHang::whereMonth('NgayDat', now()->subMonth()->month)
+            ->whereYear('NgayDat', now()->subMonth()->year)
+            ->count();
+        $currentMonthOrders = \App\Models\DonHang::whereMonth('NgayDat', now()->month)
+            ->whereYear('NgayDat', now()->year)
+            ->count();
+        $orderGrowth = $lastMonthOrders > 0 ? round((($currentMonthOrders - $lastMonthOrders) / $lastMonthOrders) * 100) : 0;
+        
+        $lastMonthRevenue = \App\Models\DonHang::whereMonth('NgayDat', now()->subMonth()->month)
+            ->whereYear('NgayDat', now()->subMonth()->year)
+            ->whereIn('TrangThai', ['Đã giao', 'Đang giao'])
+            ->sum('TongThanhToan');
+        $currentMonthRevenue = \App\Models\DonHang::whereMonth('NgayDat', now()->month)
+            ->whereYear('NgayDat', now()->year)
+            ->whereIn('TrangThai', ['Đã giao', 'Đang giao'])
+            ->sum('TongThanhToan');
+        $revenueGrowth = $lastMonthRevenue > 0 ? round((($currentMonthRevenue - $lastMonthRevenue) / $lastMonthRevenue) * 100) : 0;
+        
+        // Tính tăng trưởng người dùng (sử dụng NgayTao thay vì created_at)
+        $lastMonthUsers = \App\Models\NguoiDung::whereMonth('NgayTao', now()->subMonth()->month)
+            ->whereYear('NgayTao', now()->subMonth()->year)
+            ->count();
+        $currentMonthUsers = \App\Models\NguoiDung::whereMonth('NgayTao', now()->month)
+            ->whereYear('NgayTao', now()->year)
+            ->count();
+        $userGrowth = $lastMonthUsers > 0 ? round((($currentMonthUsers - $lastMonthUsers) / $lastMonthUsers) * 100) : 0;
+        
+        // Recent orders (last 10)
+        $recentOrders = \App\Models\DonHang::with('nguoiDung')
+            ->latest('NgayDat')
+            ->limit(10)
+            ->get();
+        
+        // Chart data for last 7 days
+        $chartData = [];
+        $chartLabels = [];
+        
+        for ($i = 6; $i >= 0; $i--) {
+            $date = now()->subDays($i);
+            $chartLabels[] = $date->format('d/m');
+            
+            $dayRevenue = \App\Models\DonHang::whereDate('NgayDat', $date)
+                ->whereIn('TrangThai', ['Đã giao', 'Đang giao'])
+                ->sum('TongThanhToan');
+            
+            $chartData[] = (int) $dayRevenue;
+        }
+        
+        // Top 5 sản phẩm bán chạy
+        $topProducts = \App\Models\ChiTietDonHang::select('IDSanPham', \DB::raw('SUM(SoLuong) as total_sold'), \DB::raw('SUM(SoLuong * DonGia) as total_revenue'))
+            ->with('sanPham')
+            ->groupBy('IDSanPham')
+            ->orderBy('total_sold', 'desc')
+            ->limit(5)
+            ->get()
+            ->map(function($item) {
+                return [
+                    'name' => $item->sanPham->TenSanPham ?? 'N/A',
+                    'sold' => $item->total_sold,
+                    'revenue' => $item->total_revenue
+                ];
+            });
+        
+        // Thống kê trạng thái đơn hàng
+        $orderStatusStats = [
+            'delivered' => \App\Models\DonHang::where('TrangThai', 'Đã giao')->count(),
+            'shipping' => \App\Models\DonHang::where('TrangThai', 'Đang giao')->count(),
+            'pending' => \App\Models\DonHang::where('TrangThai', 'Chờ xác nhận')->count(),
+            'cancelled' => \App\Models\DonHang::where('TrangThai', 'Đã hủy')->count(),
+        ];
+        
+        // Thống kê cảnh báo
+        $lowStockProducts = \App\Models\SanPham::where('SoLuongTon', '<', 10)->count();
+        $pendingOrders = \App\Models\DonHang::where('TrangThai', 'Chờ xác nhận')->count();
+        $todayNewUsers = \App\Models\NguoiDung::whereDate('NgayTao', today())->count();
+        
         return view('admin.dashboard', [
-            'totalOrders' => 0,
-            'totalRevenue' => 0,
-            'totalProducts' => 0,
-            'totalUsers' => 0,
-            'recentOrders' => [],
-            'chartData' => [],
-            'chartLabels' => []
+            'totalOrders' => $totalOrders,
+            'totalRevenue' => $totalRevenue,
+            'totalProducts' => $totalProducts,
+            'totalUsers' => $totalUsers,
+            'orderGrowth' => $orderGrowth,
+            'revenueGrowth' => $revenueGrowth,
+            'userGrowth' => $userGrowth,
+            'recentOrders' => $recentOrders,
+            'chartData' => $chartData,
+            'chartLabels' => $chartLabels,
+            'topProducts' => $topProducts,
+            'orderStatusStats' => $orderStatusStats,
+            'lowStockProducts' => $lowStockProducts,
+            'pendingOrders' => $pendingOrders,
+            'todayNewUsers' => $todayNewUsers,
         ]);
     })->name('dashboard');
     
@@ -82,21 +173,14 @@ Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
     
     // Orders Management
     Route::prefix('orders')->name('orders.')->group(function () {
-        Route::get('/', function () {
-            return view('admin.orders.index');
-        })->name('index');
-        
-        Route::get('/{id}', function ($id) {
-            return view('admin.orders.show', ['id' => $id]);
-        })->name('show');
-        
-        Route::put('/{id}/status', function ($id) {
-            return redirect()->route('admin.orders.index');
-        })->name('updateStatus');
-        
-        Route::delete('/{id}', function ($id) {
-            return redirect()->route('admin.orders.index');
-        })->name('destroy');
+        Route::get('/', [\App\Http\Controllers\Admin\OrderController::class, 'index'])->name('index');
+        Route::post('/', [\App\Http\Controllers\Admin\OrderController::class, 'store'])->name('store');
+        Route::post('/bulk', [\App\Http\Controllers\Admin\OrderController::class, 'bulkStore'])->name('bulk-store');
+        Route::post('/{id}/approve', [\App\Http\Controllers\Admin\OrderController::class, 'approve'])->name('approve');
+        Route::post('/{id}/cancel', [\App\Http\Controllers\Admin\OrderController::class, 'cancel'])->name('cancel');
+        Route::put('/{id}', [\App\Http\Controllers\Admin\OrderController::class, 'update'])->name('update');
+        Route::delete('/{id}', [\App\Http\Controllers\Admin\OrderController::class, 'destroy'])->name('destroy');
+        Route::get('/{id}', [\App\Http\Controllers\Admin\OrderController::class, 'show'])->name('show');
     });
     
     // Suppliers Management

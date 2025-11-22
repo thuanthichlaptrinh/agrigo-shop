@@ -1,4 +1,4 @@
-<section id="sidebar">
+<section id="sidebar" style=" box-shadow: 2px 2px 4px rgba(0,0,0,0.1); ">
     <a href="{{ route('admin.dashboard') }}" class="brand">
         <i class="bx bxs-smile icon"></i> ADMIN
     </a>
