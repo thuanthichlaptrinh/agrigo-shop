@@ -11,7 +11,7 @@
         <li class="divider" data-text="main">Main</li>
         <li class="{{ request()->routeIs('admin.banners.*') ? 'active' : '' }}">
             <a href="{{ route('admin.banners.index') }}">
-                <i class="fa-solid fa-users-line icon"></i> Banner
+                <i class="fa-solid fa-image icon"></i> Banner
             </a>
         </li>
         <li class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
@@ -26,7 +26,7 @@
         </li>
         <li class="{{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
             <a href="{{ route('admin.categories.index') }}">
-                <i class="fa-solid fa-users-line icon"></i> Loại sản phẩm
+                <i class="fa-solid fa-tags icon"></i> Loại sản phẩm
             </a>
         </li>
         <li class="{{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
@@ -52,6 +52,11 @@
         <li class="{{ request()->routeIs('admin.promotions.*') ? 'active' : '' }}">
             <a href="{{ route('admin.promotions.index') }}">
                 <i class="fa-solid fa-bullhorn icon"></i> Khuyến mãi
+            </a>
+        </li>
+        <li class="{{ request()->routeIs('admin.product-promotions.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.product-promotions.index') }}">
+                <i class="fa-solid fa-fire icon"></i> Sản phẩm khuyến mãi
             </a>
         </li>
         <li class="{{ request()->routeIs('admin.notifications.*') ? 'active' : '' }}">

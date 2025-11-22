@@ -22,6 +22,16 @@ class SanPhamKhuyenMai extends Model
         'NgayTao' => 'datetime'
     ];
 
+    public function sanPham()
+    {
+        return $this->belongsTo(SanPham::class, 'IDSanPham', 'ID');
+    }
+
+    public function khuyenMai()
+    {
+        return $this->belongsTo(KhuyenMai::class, 'IDKhuyenMai', 'ID');
+    }
+
     // Override getKeyName for composite key
     protected function setKeysForSaveQuery($query)
     {

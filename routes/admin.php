@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\DanhMucController;
 use App\Http\Controllers\Admin\NhaCungCapController;
 use App\Http\Controllers\Admin\VoucherController;
 use App\Http\Controllers\Admin\KhuyenMaiController;
+use App\Http\Controllers\Admin\ProductPromotionController;
 use App\Http\Controllers\Admin\NhatKyController;
 use App\Http\Controllers\Admin\ThongBaoController;
 use App\Http\Controllers\Admin\VaiTroController;
@@ -210,6 +211,16 @@ Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
         Route::put('/{id}', [KhuyenMaiController::class, 'update'])->name('update');
         Route::delete('/{id}', [KhuyenMaiController::class, 'destroy'])->name('destroy');
         Route::get('/{id}', [KhuyenMaiController::class, 'show'])->name('show');
+    });
+
+    // Product Promotions (Product - Promotion pivot)
+    Route::prefix('product-promotions')->name('product-promotions.')->group(function () {
+        Route::get('/', [ProductPromotionController::class, 'index'])->name('index');
+        Route::post('/', [ProductPromotionController::class, 'store'])->name('store');
+        Route::post('/bulk', [ProductPromotionController::class, 'bulkStore'])->name('bulk-store');
+        Route::get('/{product}/{promotion}', [ProductPromotionController::class, 'show'])->name('show');
+        Route::put('/{product}/{promotion}', [ProductPromotionController::class, 'update'])->name('update');
+        Route::delete('/{product}/{promotion}', [ProductPromotionController::class, 'destroy'])->name('destroy');
     });
 
     // Notifications Management
