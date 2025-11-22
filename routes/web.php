@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Banner;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,7 +14,12 @@ use Illuminate\Support\Facades\Route;
 
 // Trang chủ
 Route::get('/', function () {
-    return view('user.home');
+    $homeBanners = Banner::where('ViTri', 'Trang chủ')
+        ->where('TrangThai', 1)
+        ->orderBy('ThuTu')
+        ->get();
+
+    return view('user.home', compact('homeBanners'));
 })->name('user.home');
 
 // Trang không có quyền truy cập

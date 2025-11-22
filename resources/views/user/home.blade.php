@@ -13,6 +13,79 @@
     .category-menu-trigger {
         cursor: default !important;
     }
+
+    /* Home banner carousel tweaks */
+    .home-carousel .carousel-indicators [data-bs-target] {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.6);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        margin: 0 6px;
+        transition: transform 0.25s ease, background-color 0.25s ease;
+    }
+
+    .home-carousel .carousel-indicators .active {
+        background-color: #00a86b;
+        transform: scale(1.2);
+    }
+
+    .home-carousel {
+        position: relative;
+    }
+
+    .home-carousel .carousel-control-prev,
+    .home-carousel .carousel-control-next {
+        width: 46px;
+        height: 46px;
+        top: 50%;
+        transform: translateY(-50%);
+        opacity: 0;
+        transition: opacity 0.25s ease;
+    }
+
+    .home-carousel .carousel-control-prev {
+        left: 18px;
+    }
+
+    .home-carousel .carousel-control-next {
+        right: 18px;
+    }
+
+    .home-carousel .carousel-control-prev::after,
+    .home-carousel .carousel-control-next::after {
+        display: none;
+    }
+
+    .home-carousel:hover .carousel-control-prev,
+    .home-carousel:hover .carousel-control-next {
+        opacity: 1;
+    }
+
+    .home-carousel .carousel-control-icon {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: #ffffff;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #1f2937;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.18);
+        transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    }
+
+    .home-carousel .carousel-control-prev:hover .carousel-control-icon,
+    .home-carousel .carousel-control-next:hover .carousel-control-icon {
+        background: #00a86b;
+        color: #ffffff;
+        transform: scale(1.05);
+    }
+
+    .home-carousel .carousel-item img {
+        box-shadow: 0 20px 35px rgba(15, 23, 42, 0.25);
+    }
 </style>
 @endpush
 
@@ -103,14 +176,39 @@
 
         <!-- Banner Carousel -->
         <div class="row mt-2" style="margin-left: -34px; margin-right: -24px">
-            <div id="demo" class="carousel slide" data-bs-ride="carousel">
+            <div id="demo" class="carousel slide carousel-fade home-carousel" data-bs-ride="carousel" data-bs-touch="true" data-bs-interval="2500">
                 <div class="carousel-indicators">
-                    <button type="button" data-bs-target="#demo" data-bs-slide-to="0" class="active"></button>
-                    <button type="button" data-bs-target="#demo" data-bs-slide-to="1"></button>
-                    <button type="button" data-bs-target="#demo" data-bs-slide-to="2"></button>
+                    @forelse(($homeBanners ?? collect()) as $banner)
+                        <button type="button"
+                                data-bs-target="#demo"
+                                data-bs-slide-to="{{ $loop->index }}"
+                                class="{{ $loop->first ? 'active' : '' }}"
+                                aria-label="Banner {{ $loop->iteration }}" style="width: 8px; height: 8px; margin: 0 4px;"></button>
+                    @empty
+                        <button type="button" data-bs-target="#demo" data-bs-slide-to="0" class="active"></button>
+                        <button type="button" data-bs-target="#demo" data-bs-slide-to="1"></button>
+                        <button type="button" data-bs-target="#demo" data-bs-slide-to="2"></button>
+                    @endforelse
                 </div>
 
                 <div class="carousel-inner">
+                    @forelse(($homeBanners ?? collect()) as $banner)
+                    <div class="carousel-item {{ $loop->first ? 'active' : '' }}">
+                        @if($banner->LienKet)
+                            <a href="{{ $banner->LienKet }}" target="_blank" rel="noopener">
+                                <img src="{{ asset('uploads/banners/' . $banner->HinhAnh) }}"
+                                     alt="{{ $banner->TieuDe ?? 'Banner ' . $loop->iteration }}"
+                                     class="d-block w-100"
+                                     style="height: 255px; object-fit: cover;" />
+                            </a>
+                        @else
+                            <img src="{{ asset('uploads/banners/' . $banner->HinhAnh) }}"
+                                 alt="{{ $banner->TieuDe ?? 'Banner ' . $loop->iteration }}"
+                                 class="d-block w-100"
+                                 style="height: 255px; object-fit: cover;" />
+                        @endif
+                    </div>
+                    @empty
                     <div class="carousel-item">
                         <img src="{{ asset('template/Assets/Images/hoa-don-maggi-50k.jpg') }}" alt="Banner 1" class="d-block w-100" />
                     </div>
@@ -120,13 +218,22 @@
                     <div class="carousel-item">
                         <img src="{{ asset('template/Assets/Images/s-4395-hinh.png') }}" style="width: 1000.01px; height: 255.01px; object-fit: cover" alt="Banner 3" class="d-block w-100" />
                     </div>
+                    @endforelse
                 </div>
 
-                <button class="carousel-control-prev" type="button" data-bs-target="#demo" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon"></span>
+                <button class="carousel-control-prev" type="button" data-bs-target="#demo" data-bs-slide="prev" aria-label="Banner trước">
+                    <span class="carousel-control-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="15 18 9 12 15 6" />
+                        </svg>
+                    </span>
                 </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#demo" data-bs-slide="next">
-                    <span class="carousel-control-next-icon"></span>
+                <button class="carousel-control-next" type="button" data-bs-target="#demo" data-bs-slide="next" aria-label="Banner kế tiếp">
+                    <span class="carousel-control-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 6 15 12 9 18" />
+                        </svg>
+                    </span>
                 </button>
             </div>
         </div>

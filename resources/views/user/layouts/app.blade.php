@@ -8,7 +8,13 @@
     
     <!-- Bootstrap 5 CSS -->
     <link rel="stylesheet" href="{{ asset('template/Assets/Bootstrap5/css/bootstrap.min.css') }}" />
-    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6 Free CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <!-- Boxicons CDN (Backup) -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+        
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ asset('template/Assets/css/base.css') }}" />
     <link rel="stylesheet" href="{{ asset('template/Assets/css/animation.css') }}" />
