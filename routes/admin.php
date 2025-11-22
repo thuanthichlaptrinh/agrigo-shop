@@ -171,6 +171,16 @@ Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
         Route::get('/{id}', [DanhMucController::class, 'show'])->name('show');
     });
     
+    // Banners Management
+    Route::prefix('banners')->name('banners.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\BannerController::class, 'index'])->name('index');
+        Route::post('/', [\App\Http\Controllers\Admin\BannerController::class, 'store'])->name('store');
+        Route::get('/{id}', [\App\Http\Controllers\Admin\BannerController::class, 'show'])->name('show');
+        Route::put('/{id}', [\App\Http\Controllers\Admin\BannerController::class, 'update'])->name('update');
+        Route::delete('/{id}', [\App\Http\Controllers\Admin\BannerController::class, 'destroy'])->name('destroy');
+        Route::patch('/{id}/toggle-status', [\App\Http\Controllers\Admin\BannerController::class, 'toggleStatus'])->name('toggle-status');
+    });
+    
     // Orders Management
     Route::prefix('orders')->name('orders.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\OrderController::class, 'index'])->name('index');

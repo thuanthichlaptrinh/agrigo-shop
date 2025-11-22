@@ -9,6 +9,11 @@
             </a>
         </li>
         <li class="divider" data-text="main">Main</li>
+        <li class="{{ request()->routeIs('admin.banners.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.banners.index') }}">
+                <i class="fa-solid fa-users-line icon"></i> Banner
+            </a>
+        </li>
         <li class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
             <a href="{{ route('admin.users.index') }}">
                 <i class="fa-solid fa-users-line icon"></i> Người dùng
@@ -33,7 +38,7 @@
             <a href="{{ route('admin.orders.index') }}">
                 <i class="fa-solid fa-briefcase icon"></i> Đơn hàng
             </a>
-        </li>
+        </li> 
         <li class="{{ request()->routeIs('admin.suppliers.*') ? 'active' : '' }}">
             <a href="{{ route('admin.suppliers.index') }}">
                 <i class="fa-solid fa-chart-area icon"></i> Nhà cung cấp
