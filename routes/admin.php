@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\KhuyenMaiController;
 use App\Http\Controllers\Admin\NhatKyController;
 use App\Http\Controllers\Admin\ThongBaoController;
 use App\Http\Controllers\Admin\VaiTroController;
+use App\Http\Controllers\Admin\ProductController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -39,32 +40,12 @@ Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
     
     // Products Management
     Route::prefix('products')->name('products.')->group(function () {
-        Route::get('/', function () {
-            return view('admin.products.index', [
-                'products' => [],
-                'categories' => []
-            ]);
-        })->name('index');
-        
-        Route::get('/create', function () {
-            return view('admin.products.create');
-        })->name('create');
-        
-        Route::post('/', function () {
-            return redirect()->route('admin.products.index');
-        })->name('store');
-        
-        Route::get('/{id}/edit', function ($id) {
-            return view('admin.products.edit', ['id' => $id]);
-        })->name('edit');
-        
-        Route::put('/{id}', function ($id) {
-            return redirect()->route('admin.products.index');
-        })->name('update');
-        
-        Route::delete('/{id}', function ($id) {
-            return redirect()->route('admin.products.index');
-        })->name('destroy');
+        Route::get('/', [ProductController::class, 'index'])->name('index');
+        Route::post('/', [ProductController::class, 'store'])->name('store');
+        Route::post('/bulk', [ProductController::class, 'bulkStore'])->name('bulk-store');
+        Route::put('/{id}', [ProductController::class, 'update'])->name('update');
+        Route::delete('/{id}', [ProductController::class, 'destroy'])->name('destroy');
+        Route::get('/{id}', [ProductController::class, 'show'])->name('show');
     });
     
     // Users Management
