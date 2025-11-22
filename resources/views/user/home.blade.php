@@ -242,34 +242,47 @@
         <div class="row mt-3" style="background-color: #effff2; margin-left: -23px; padding-left: 10px">
             <div class="d-flex justify-content-between mt-2 pl-22-t">
                 <h5 style="color: var(--text-primary); margin-top: 8px" class="fw-700">KHUYẾN MÃI SỐC</h5>
-                <a href="#" class="fs-14-t d-flex align-items-center" style="text-decoration: none">
+                <a href="{{ route('user.products.index') }}" class="fs-14-t d-flex align-items-center" style="text-decoration: none">
                     Xem thêm khuyến mãi
                     <i class="ri-arrow-right-s-line fs-20-t mt-3-t fw-700"></i>
                 </a>
             </div>
 
+            @php
+                $flashItems = collect($flashSaleProducts ?? [])->take(4);
+            @endphp
+
             <div class="row pl-22-t" style="padding-right: 0; margin-bottom: 13px; margin-top: 6px">
                 @for($i = 0; $i < 4; $i++)
-                <div class="col-km col-lg-3 col-md-4 col-sm-12 mb-2" @if($i === 0) style="position: relative" @endif>
-                    @if($i === 0)
+                @php
+                    $product = $flashItems[$i] ?? null;
+                    $image = $product ? product_image_url($product['image'] ?? null) : asset('template/Assets/Images/thumb-2024-26_202410171658026192.jpg');
+                    $finalPrice = $product['final_price'] ?? 25500;
+                    $originalPrice = $product['original_price'] ?? 28000;
+                    $detailUrl = $product ? route('user.products.detail', $product['id']) : '#';
+                    $badgeText = $product['promotion_name'] ?? 'Còn 25 suất';
+                @endphp
+                <div class="col-km col-lg-3 col-md-4 col-sm-12 mb-2 position-relative">
+                    @if($product)
                     <div class="d-flex align-items-center justify-content-center box-flash">
                         <i class="ri-flashlight-line"></i>
-                        <span style="font-weight: 700">-34%</span>
+                        <span style="font-weight: 700">-{{ (int) round($product['discount_percent'] ?? 0) }}%</span>
                     </div>
                     @endif
 
                     <div class="p-1" style="border-radius: 4px; background: linear-gradient(180deg, #8eca51, #2c8e5f 84.5%, #5e9329)">
-                        <a href="#">
-                            <img src="{{ asset('template/Assets/Images/thumb-2024-26_202410171658026192.jpg') }}" class="w-100" alt="" />
+                        <a href="{{ $detailUrl }}">
+                            <img src="{{ $image }}" class="w-100" alt="{{ $product['name'] ?? 'Flash Sale' }}" />
                         </a>
                         <div>
-                            <p class="bg-white w-100 mt-1 text-center text-secondary m-0" style="border-radius: 20px; padding: 0px; font-size: 12px; font-weight: 500">Còn 25 suất</p>
+                            <p class="bg-white w-100 text-center text-secondary mt-1" 
+                            style="border-radius: 20px; padding: 0px; font-size: 11px; font-weight: 500">{{ $badgeText }}</p>
                             <div class="d-flex justify-content-between px-2 py-2">
                                 <div>
-                                    <p class="txt-yellow m-0" style="font-weight: 700">25.500đ</p>
-                                    <p class="text-white m-0 fw-500 fs-13-t" style="text-decoration: line-through">28.000đ</p>
+                                    <p class="txt-yellow m-0" style="font-weight: 700">{{ number_format($finalPrice, 0, ',', '.') }}đ</p>
+                                    <p class="text-white m-0 fw-500 fs-13-t" style="text-decoration: line-through">{{ number_format($originalPrice, 0, ',', '.') }}đ</p>
                                 </div>
-                                <a href="#" class="btn btn-buy bg-white d-block float-end txt-primary mt-2" style="width: 100px; height: 40px">
+                                <a href="{{ $detailUrl }}" class="btn btn-buy bg-white d-block float-end txt-primary mt-2" style="width: 100px; height: 40px">
                                     <b>MUA</b>
                                 </a>
                             </div>
@@ -310,7 +323,52 @@
             </div>
         </div>
 
+        <!-- Favorite Products Section -->
+        @php
+            $favoriteItems = collect($favoriteProducts ?? [])->take(4);
+        @endphp
+        <div class="row mt-3 bg-white mb-13-t pb-12-t row-km" style="margin-left: -23px">
+            <div class="title-banner-wrapper">
+                <div class="triangle-left"></div>
+                <a class="title-banner">
+                    <span>SẢN PHẨM YÊU THÍCH</span>
+                </a>
+                <div class="triangle-right"></div>
+            </div>
+
+            @for($i = 0; $i < 4; $i++)
+            @php
+                $product = $favoriteItems[$i] ?? null;
+                $image = $product ? product_image_url($product['image'] ?? null) : asset('template/Assets/Images/tao_gala_phap_size_100_8aef2b9571944ed0b7a6ee52ea416e3d_large.webp');
+                $price = $product['price'] ?? 28350;
+                $detailUrl = $product ? route('user.products.detail', $product['id']) : '#';
+            @endphp
+            <div class="col-lg-3 col-md-4 col-sm-12">
+                <div class="card" style="border: 1px solid #d8e1f9">
+                    <a href="{{ $detailUrl }}">
+                        <img src="{{ $image }}" class="w-100" alt="{{ $product['name'] ?? 'Ức gà có xương' }}" />
+                    </a>
+                    <div class="card-body">
+                        <p class="card-title fw-400 txt-gray">{{ $product['name'] ?? 'Ức gà có xương' }}</p>
+                        <p class="card-title">
+                            <span class="fw-700">{{ number_format($price, 0, ',', '.') }}đ</span>
+                            <span class="txt-gray fs-13-t">/{{ $product['unit'] ?? '300g' }}</span>
+                        </p>
+                        <div class="container-ThemVGio">
+                            <a href="#" class="btn btn-ThemVaoGio text-white mx-auto fw-500 d-block">Thêm vào giỏ</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endfor
+
+            <a href="#" class="text-center mt-2">Xem thêm</a>
+        </div>
+
         <!-- Products Section -->
+        @php
+            $regularItems = collect($regularProducts ?? [])->take(4);
+        @endphp
         <div class="row mt-3 bg-white mb-13-t pb-12-t row-km" style="margin-left: -23px">
             <div class="title-banner-wrapper">
                 <div class="triangle-left"></div>
@@ -321,16 +379,22 @@
             </div>
 
             @for($i = 0; $i < 4; $i++)
+            @php
+                $product = $regularItems[$i] ?? null;
+                $image = $product ? product_image_url($product['image'] ?? null) : asset('template/Assets/Images/tao_gala_phap_size_100_8aef2b9571944ed0b7a6ee52ea416e3d_large.webp');
+                $price = $product['price'] ?? 28350;
+                $detailUrl = $product ? route('user.products.detail', $product['id']) : '#';
+            @endphp
             <div class="col-lg-3 col-md-4 col-sm-12">
                 <div class="card" style="border: 1px solid #d8e1f9">
-                    <a href="#">
-                        <img src="{{ asset('template/Assets/Images/tao_gala_phap_size_100_8aef2b9571944ed0b7a6ee52ea416e3d_large.webp') }}" class="w-100" alt="" />
+                    <a href="{{ $detailUrl }}">
+                        <img src="{{ $image }}" class="w-100" alt="{{ $product['name'] ?? 'Ức gà có xương' }}" />
                     </a>
                     <div class="card-body">
-                        <p class="card-title fw-400 txt-gray">Ức gà có xương</p>
+                        <p class="card-title fw-400 txt-gray">{{ $product['name'] ?? 'Ức gà có xương' }}</p>
                         <p class="card-title">
-                            <span class="fw-700">28.350đ</span>
-                            <span class="txt-gray fs-13-t">/300g</span>
+                            <span class="fw-700">{{ number_format($price, 0, ',', '.') }}đ</span>
+                            <span class="txt-gray fs-13-t">/{{ $product['unit'] ?? '300g' }}</span>
                         </p>
                         <div class="container-ThemVGio">
                             <a href="#" class="btn btn-ThemVaoGio text-white mx-auto fw-500 d-block">Thêm vào giỏ</a>

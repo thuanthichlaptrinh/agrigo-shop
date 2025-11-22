@@ -1,6 +1,10 @@
 <?php
 
 use App\Models\NguoiDung;
+use App\Models\SanPham;
+use App\Models\KhuyenMai;
+use App\Models\SanPhamKhuyenMai;
+use Illuminate\Support\Str;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 if (!function_exists('auth_user')) {
@@ -85,5 +89,89 @@ if (!function_exists('can_access_admin')) {
     function can_access_admin()
     {
         return is_admin() || is_product_manager() || is_order_manager();
+    }
+}
+
+if (!function_exists('calculate_promotion_pricing')) {
+    function calculate_promotion_pricing(?SanPham $product, ?KhuyenMai $promotion): ?array
+    {
+        if (!$product || !$promotion) {
+            return null;
+        }
+
+        $original = (float) ($product->Gia ?? 0);
+        $typeKey = Str::lower(Str::ascii((string) $promotion->LoaiKhuyenMai));
+        $isPercent = Str::contains($typeKey, 'phan tram');
+
+        $discount = 0;
+        if ($isPercent) {
+            $discount = $original * ((float) $promotion->GiaTriGiam / 100);
+            if ($promotion->GiamToiDa) {
+                $discount = min($discount, (float) $promotion->GiamToiDa);
+            }
+        } else {
+            $discount = (float) $promotion->GiaTriGiam;
+        }
+
+        $final = max(0, $original - $discount);
+        $percent = $original > 0 ? round(($discount / $original) * 100, 1) : 0;
+
+        $discountText = $isPercent
+            ? ('Giảm ' . rtrim(rtrim(number_format((float) $promotion->GiaTriGiam, 2, '.', ''), '0'), '.') . '%'
+                . ($promotion->GiamToiDa ? ' (tối đa ' . number_format((float) $promotion->GiamToiDa, 0, ',', '.') . ' đ)' : ''))
+            : 'Giảm ' . number_format((float) $promotion->GiaTriGiam, 0, ',', '.') . ' đ';
+
+        return [
+            'original_price' => round($original, 2),
+            'final_price' => round($final, 2),
+            'discount_amount' => round($discount, 2),
+            'discount_percent' => $percent,
+            'discount_text' => $discountText,
+            'is_percent' => $isPercent,
+        ];
+    }
+}
+
+if (!function_exists('format_promoted_product')) {
+    function format_promoted_product(SanPhamKhuyenMai $pivot): ?array
+    {
+        $product = $pivot->sanPham;
+        $promotion = $pivot->khuyenMai;
+
+        if (!$product || !$promotion || !$product->TrangThai) {
+            return null;
+        }
+
+        $pricing = calculate_promotion_pricing($product, $promotion);
+        if (!$pricing) {
+            return null;
+        }
+
+        return array_merge($pricing, [
+            'id' => $product->ID,
+            'name' => $product->TenSanPham,
+            'image' => $product->HinhAnh,
+            'unit' => $product->DonViTinh ?? 'Gói',
+            'promotion_name' => $promotion->TenKhuyenMai,
+            'promotion_note' => $pivot->GhiChu,
+            'promotion_start' => optional($promotion->NgayBatDau)->toDateTimeString(),
+            'promotion_end' => optional($promotion->NgayKetThuc)->toDateTimeString(),
+            'stock' => $product->SoLuongTon,
+        ]);
+    }
+}
+
+if (!function_exists('product_image_url')) {
+    function product_image_url(?string $path): string
+    {
+        if (empty($path)) {
+            return asset('template/Assets/Images/tao_gala_phap_size_100_8aef2b9571944ed0b7a6ee52ea416e3d_large.webp');
+        }
+
+        if (filter_var($path, FILTER_VALIDATE_URL)) {
+            return $path;
+        }
+
+        return asset(ltrim($path, '/'));
     }
 }

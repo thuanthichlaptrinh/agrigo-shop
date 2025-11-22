@@ -80,6 +80,11 @@
                 <i class="fa-solid fa-right-from-bracket icon"></i> Đăng xuất
             </a>
         </li>
+        <li>
+            <a href="{{ url('/')  }}">
+                <i class="fa-solid fa-right-from-bracket icon"></i> Trang chủ
+            </a>
+        </li>
     </ul>
     
     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">

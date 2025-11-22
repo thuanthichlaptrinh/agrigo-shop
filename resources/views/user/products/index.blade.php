@@ -96,12 +96,12 @@
             <div class="col-lg-3 col-md-4 col-sm-12 mb-3">
                 <div class="card" style="border: 1px solid #d8e1f9">
                     <a href="{{ route('user.products.detail', $product['id'] ?? 1) }}">
-                        <img src="{{ asset($product['image'] ?? 'template/Assets/Images/tao_gala_phap_size_100_8aef2b9571944ed0b7a6ee52ea416e3d_large.webp') }}" class="w-100" alt="" />
+                        <img src="{{ product_image_url($product['image'] ?? null) }}" class="w-100" alt="" />
                     </a>
                     <div class="card-body">
                         <p class="card-title fw-400 txt-gray">{{ $product['name'] ?? 'Ức gà có xương' }}</p>
                         <p class="card-title">
-                            <span class="fw-700">{{ number_format($product['price'] ?? 28350) }}đ</span>
+                            <span class="fw-700">{{ number_format($product['final_price'] ?? ($product['price'] ?? 28350), 0, ',', '.') }}đ</span>
                             <span class="txt-gray fs-13-t">/{{ $product['unit'] ?? '300g' }}</span>
                         </p>
                         <div class="container-ThemVGio">
