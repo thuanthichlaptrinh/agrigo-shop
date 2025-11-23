@@ -400,7 +400,7 @@
                 $price = $product['final_price'] ?? 28350;
                 $hasDiscount = (bool) ($product['has_discount'] ?? false);
                 $discountPercent = (int) round($product['discount_percent'] ?? 0);
-                $detailUrl = $product ? route('user.products.detail', $product['id']) : '#';
+                $detailUrl = $product && !empty($product['id']) ? route('user.products.detail', $product['id']) : '#';
             @endphp
             <div class="col-lg-3 col-md-4 col-sm-12">
                 <div class="card home-product-card">
@@ -489,7 +489,7 @@
                         $image = product_image_url($product['image'] ?? null);
                         $price = $product['final_price'] ?? 0;
                         $unit = $product['unit'] ?? 'Gói';
-                        $detailUrl = $product['id'] ? route('user.products.detail', $product['id']) : '#';
+                        $detailUrl = !empty($product['id']) ? route('user.products.detail', $product['id']) : '#';
                         $hasDiscount = (bool) ($product['has_discount'] ?? false);
                         $discountPercent = (int) round($product['discount_percent'] ?? 0);
                     @endphp
