@@ -85,11 +85,20 @@
             </div>
 
             <div class="d-flex gap-3">
-                <button class="btn btn-primary btn-lg flex-grow-1" onclick="addToCart()">
+                <button type="button"
+                    class="btn btn-primary btn-lg flex-grow-1"
+                    data-add-to-cart="true"
+                    data-product-id="{{ $product['id'] ?? '' }}"
+                    data-quantity-field="#quantity">
                     <i class="ri-shopping-cart-line me-2"></i>
                     Thêm vào giỏ hàng
                 </button>
-                <a href="{{ route('user.checkout.index') }}" class="btn btn-success btn-lg flex-grow-1">
+                <a href="{{ route('user.cart.index') }}"
+                    class="btn btn-success btn-lg flex-grow-1"
+                    data-add-to-cart="true"
+                    data-product-id="{{ $product['id'] ?? '' }}"
+                    data-quantity-field="#quantity"
+                    data-redirect-url="{{ route('user.cart.index') }}">
                     Mua ngay
                 </a>
             </div>
@@ -474,10 +483,5 @@ function decreaseQuantity() {
     }
 }
 
-function addToCart() {
-    const quantity = document.getElementById('quantity').value;
-    alert('Đã thêm ' + quantity + ' sản phẩm vào giỏ hàng!');
-    // Add AJAX call here to add to cart
-}
 </script>
 @endpush

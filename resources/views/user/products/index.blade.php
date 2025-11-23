@@ -196,7 +196,11 @@
                             </span>
                         @endif --}}
                         <div class="container-ThemVGio">
-                            <a href="#" class="btn btn-ThemVaoGio text-white mx-auto fw-500 d-block">Thêm vào giỏ</a>
+                            <a href="#" class="btn btn-ThemVaoGio text-white mx-auto fw-500 d-block"
+                                data-add-to-cart="true"
+                                data-product-id="{{ $product['id'] ?? '' }}">
+                                Thêm vào giỏ
+                            </a>
                         </div>
                     </div>
                 </div>

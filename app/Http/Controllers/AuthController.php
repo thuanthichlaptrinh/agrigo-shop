@@ -6,6 +6,7 @@ use App\Models\NguoiDung;
 use App\Models\VaiTro;
 use App\Models\Token;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -61,6 +62,10 @@ class AuthController extends Controller
         }
 
         try {
+            // Đăng nhập qua session guard để middleware auth nhận diện
+            Auth::login($user);
+            $request->session()->regenerate();
+
             // Tạo JWT token
             $token = JWTAuth::fromUser($user);
             
@@ -172,6 +177,10 @@ class AuthController extends Controller
                 'TrangThai' => 1,
                 'IDVaiTro' => $userRole->ID
             ]);
+
+            // Đăng nhập luôn sau khi đăng ký
+            Auth::login($user);
+            $request->session()->regenerate();
 
             // Tạo JWT token
             $token = JWTAuth::fromUser($user);

@@ -4,8 +4,8 @@ use App\Models\NguoiDung;
 use App\Models\SanPham;
 use App\Models\KhuyenMai;
 use App\Models\SanPhamKhuyenMai;
+use App\Support\Auth\JwtSessionManager;
 use Illuminate\Support\Str;
-use Tymon\JWTAuth\Facades\JWTAuth;
 
 if (!function_exists('auth_user')) {
     /**
@@ -15,17 +15,38 @@ if (!function_exists('auth_user')) {
      */
     function auth_user()
     {
-        try {
-            $token = session('jwt_token');
-            
-            if (!$token) {
-                return null;
-            }
+        static $cachedUser = null;
+        static $cachedToken = null;
 
-            return JWTAuth::setToken($token)->toUser();
-        } catch (\Exception $e) {
+        $token = session('jwt_token');
+
+        if (!$token) {
+            $cachedUser = null;
+            $cachedToken = null;
             return null;
         }
+
+        if ($cachedUser && $cachedToken === $token) {
+            return $cachedUser;
+        }
+
+        try {
+            /** @var JwtSessionManager $manager */
+            $manager = app(JwtSessionManager::class);
+            $user = $manager->resolveUser($token);
+        } catch (\Exception $e) {
+            $user = null;
+        }
+
+        if ($user) {
+            $cachedUser = $user;
+            $cachedToken = session('jwt_token');
+        } else {
+            $cachedUser = null;
+            $cachedToken = null;
+        }
+
+        return $user;
     }
 }
 

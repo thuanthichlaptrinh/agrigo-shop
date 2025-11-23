@@ -124,6 +124,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Auto refresh threshold (minutes)
+    |--------------------------------------------------------------------------
+    |
+    | Khi token chỉ còn lại dưới ngưỡng thời gian này (tính bằng phút), hệ
+    | thống sẽ tự động làm mới token để người dùng không bị đăng xuất giữa
+    | chừng khi vẫn đang hoạt động trên website.
+    |
+    */
+
+    'auto_refresh_threshold' => env('JWT_AUTO_REFRESH_THRESHOLD', 5),
+
+    /*
+    |--------------------------------------------------------------------------
     | JWT hashing algorithm
     |--------------------------------------------------------------------------
     |

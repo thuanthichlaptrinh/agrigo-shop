@@ -17,7 +17,7 @@
                         <input type="search" name="q" class="form-control w-100 header-search" style="padding-left: 42px" placeholder="Bạn tìm gì ở Agrigo Shop" />
                         <a href="{{ route('user.cart.index') }}" class="nav-link text-white align-items-centers cart">
                             <i class="ri-shopping-cart-line d-flex align-content-center justify-content-center"></i>
-                            <span>{{ session('cart_count', 0) }}</span>
+                            <span data-cart-count-target="true" style="top: 0; text-align: center;">{{ session('cart_count', 0) }}</span>
                         </a>
                     </form>
 

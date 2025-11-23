@@ -19,6 +19,17 @@
     @stack('styles')
 </head>
 <body>
+    @php
+        $sharedAlerts = collect([
+            ['message' => session('status'), 'type' => session('status_type', 'info')],
+            ['message' => session('success'), 'type' => 'success'],
+            ['message' => session('error'), 'type' => 'error'],
+            ['message' => session('warning'), 'type' => 'warning'],
+        ])->filter(fn ($alert) => filled($alert['message'] ?? null))->values()->all();
+    @endphp
+
+    <x-alert-stack :messages="$sharedAlerts" />
+
     <!-- SIDEBAR -->
     @include('admin.partials.sidebar')
 

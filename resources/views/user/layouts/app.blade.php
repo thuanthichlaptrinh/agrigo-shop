@@ -36,6 +36,17 @@
     @stack('styles')
 </head>
 <body>
+    @php
+        $sharedAlerts = collect([
+            ['message' => session('status'), 'type' => session('status_type', 'info')],
+            ['message' => session('success'), 'type' => 'success'],
+            ['message' => session('error'), 'type' => 'error'],
+            ['message' => session('warning'), 'type' => 'warning'],
+        ])->filter(fn ($alert) => filled($alert['message'] ?? null))->values()->all();
+    @endphp
+
+    <x-alert-stack :messages="$sharedAlerts" />
+
     <!-- Header -->
     @include('user.partials.header')
 
@@ -53,12 +64,157 @@
 
     <!-- Bootstrap 5 JS -->
     <script src="{{ asset('template/Assets/Bootstrap5/js/bootstrap.min.js') }}"></script>
-    
     <!-- Custom JS -->
     <script src="{{ asset('template/Assets/js/main.js') }}"></script>
-    
     <!-- Chatbot JS -->
     <script src="{{ asset('template/Assets/js/chatbot.js') }}"></script>
+
+    <script>
+        (function () {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            if (!csrfToken) {
+                return;
+            }
+
+            const endpoints = {
+                add: "{{ route('user.cart.add', [], false) }}",
+                cart: "{{ route('user.cart.index', [], false) }}"
+            };
+
+            const updateCartBadges = (count) => {
+                document.querySelectorAll('[data-cart-count-target], [data-cart-count]').forEach(el => {
+                    if (typeof count !== 'undefined' && count !== null) {
+                        el.textContent = count;
+                    }
+                });
+            };
+
+            const notify = (message, type = 'success') => {
+                if (!message) {
+                    return;
+                }
+
+                let resolvedType = type;
+                if (typeof resolvedType === 'boolean') {
+                    resolvedType = resolvedType ? 'error' : 'success';
+                }
+                if (typeof resolvedType !== 'string') {
+                    resolvedType = 'success';
+                }
+
+                if (window.AppAlert && typeof window.AppAlert.show === 'function') {
+                    window.AppAlert.show(message, { type: resolvedType });
+                } else {
+                    alert(message);
+                }
+
+                if (resolvedType === 'error') {
+                    console.error(message);
+                }
+            };
+
+            const parseQuantity = (trigger) => {
+                if (trigger.dataset.quantityField) {
+                    const field = document.querySelector(trigger.dataset.quantityField);
+                    if (field) {
+                        const value = parseInt(field.value || field.textContent || '1', 10);
+                        if (!Number.isNaN(value) && value > 0) {
+                            return value;
+                        }
+                    }
+                }
+                const fallback = parseInt(trigger.dataset.quantity || '1', 10);
+                return Number.isNaN(fallback) || fallback < 1 ? 1 : fallback;
+            };
+
+            const setLoading = (el, isLoading) => {
+                if (isLoading) {
+                    el.setAttribute('data-loading', 'true');
+                    el.classList.add('is-loading');
+                } else {
+                    el.removeAttribute('data-loading');
+                    el.classList.remove('is-loading');
+                }
+            };
+
+            const handleResponse = (trigger, data) => {
+                if (typeof data?.count !== 'undefined') {
+                    updateCartBadges(data.count);
+                }
+
+                const redirectUrl = trigger.dataset.redirectUrl || (trigger.dataset.goCart === 'true' ? endpoints.cart : null);
+                if (redirectUrl) {
+                    window.location.href = redirectUrl;
+                    return;
+                }
+
+                const responseType = typeof data?.type === 'string' ? data.type : 'success';
+                notify(data?.message || 'Đã thêm sản phẩm vào giỏ hàng.', responseType);
+            };
+
+            document.addEventListener('click', (event) => {
+                const trigger = event.target.closest('[data-add-to-cart]');
+                if (!trigger) {
+                    return;
+                }
+
+                event.preventDefault();
+
+                if (trigger.getAttribute('data-loading') === 'true') {
+                    return;
+                }
+
+                const productId = trigger.dataset.productId;
+                if (!productId) {
+                    console.warn('Missing product id for cart action.');
+                    return;
+                }
+
+                const quantity = parseQuantity(trigger);
+                const body = new URLSearchParams({ product_id: productId, quantity: quantity });
+
+                setLoading(trigger, true);
+
+                fetch(endpoints.add, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+                    },
+                    body
+                })
+                    .then(async (response) => {
+                        if (response.status === 401) {
+                            notify('Vui lòng đăng nhập để tiếp tục mua sắm.', 'warning');
+                            throw new Error('unauthenticated');
+                        }
+
+                        if (!response.ok) {
+                            throw new Error('request-failed');
+                        }
+                        try {
+                            return await response.json();
+                        } catch (error) {
+                            return {};
+                        }
+                    })
+                    .then((data) => handleResponse(trigger, data))
+                    .catch((error) => {
+                        if (error?.message === 'unauthenticated') {
+                            return;
+                        }
+                        notify('Không thể thêm sản phẩm vào giỏ hàng.', 'error');
+                    })
+                    .finally(() => setLoading(trigger, false));
+            });
+
+            window.CartUI = window.CartUI || {};
+            window.CartUI.updateCount = updateCartBadges;
+            window.CartUI.notify = notify;
+        })();
+    </script>
     
     @stack('scripts')
 </body>

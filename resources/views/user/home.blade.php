@@ -339,7 +339,13 @@
                                     <p class="txt-yellow m-0" style="font-weight: 700">{{ number_format($finalPrice, 0, ',', '.') }}đ</p>
                                     <p class="text-white m-0 fw-500 fs-13-t" style="text-decoration: line-through">{{ number_format($originalPrice, 0, ',', '.') }}đ</p>
                                 </div>
-                                <a href="{{ $detailUrl }}" class="btn btn-buy bg-white d-block float-end txt-primary mt-2" style="width: 100px; height: 40px">
+                                <a href="{{ $detailUrl }}"
+                                    class="btn btn-buy bg-white d-block float-end txt-primary mt-2"
+                                    style="width: 100px; height: 40px"
+                                    @if($product)
+                                        data-add-to-cart="true"
+                                        data-product-id="{{ $product['id'] }}"
+                                    @endif>
                                     <b>MUA</b>
                                 </a>
                             </div>
@@ -350,7 +356,7 @@
             </div>
         </div>
 
-        <!-- Category Banner Carousel 1 -->
+        {{-- <!-- Category Banner Carousel 1 -->
         <div class="row mt-3" style="margin-left: -34px; margin-right: -24px; margin-bottom: 25px">
             <div id="thi-ca-trung" class="carousel slide" data-bs-ride="carousel">
                 <div class="carousel-indicators">
@@ -378,10 +384,10 @@
                     <span class="carousel-control-next-icon"></span>
                 </button>
             </div>
-        </div>
+        </div> --}}
 
         <!-- Favorite Products Section -->
-        @php
+        {{-- @php
             $favoriteItems = collect($favoriteProducts ?? [])->take(4);
         @endphp
         <div class="row mt-3 bg-white mb-13-t pb-12-t row-km" style="margin-left: -23px">
@@ -420,7 +426,13 @@
                             <span class="txt-gray fs-13-t">/{{ $product['unit'] ?? '300g' }}</span>
                         </p>
                         <div class="container-ThemVGio">
-                            <a href="#" class="btn btn-ThemVaoGio text-white mx-auto fw-500 d-block">Thêm vào giỏ</a>
+                            <a href="#" class="btn btn-ThemVaoGio text-white mx-auto fw-500 d-block"
+                                @if($product)
+                                    data-add-to-cart="true"
+                                    data-product-id="{{ $product['id'] }}"
+                                @endif>
+                                Thêm vào giỏ
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -428,7 +440,7 @@
             @endfor
 
             <a href="#" class="text-center mt-2">Xem thêm</a>
-        </div>
+        </div> --}}
 
         <!-- Products Section -->
         @php
@@ -511,7 +523,13 @@
                                     <span class="txt-gray fs-13-t">/{{ $unit }}</span>
                                 </p>
                                 <div class="container-ThemVGio">
-                                    <a href="{{ $detailUrl }}" class="btn btn-ThemVaoGio text-white mx-auto fw-500 d-block">Thêm vào giỏ</a>
+                                    <a href="{{ $detailUrl }}" class="btn btn-ThemVaoGio text-white mx-auto fw-500 d-block"
+                                        @if($product)
+                                            data-add-to-cart="true"
+                                            data-product-id="{{ $product['id'] }}"
+                                        @endif>
+                                        Thêm vào giỏ
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -543,7 +561,7 @@
                         <div class="col-lg-3 col-md-6 col-sm-12">
                             <div class="promo-banner-card" style="position: relative; overflow: hidden; border-radius: 8px; height: 100%;">
                                 <a href="#">
-                                    <img src="{{ asset('template/Assets/Images/promo-banner-1.jpg') }}"
+                                    <img src=""
                                         class="w-100"
                                         style="height: 320px; object-fit: cover; display: block;"
                                         alt="Tích lũy mua sắm nhận quà ưu đãi" />
@@ -555,7 +573,7 @@
                         <div class="col-lg-3 col-md-6 col-sm-12">
                             <div class="promo-banner-card" style="position: relative; overflow: hidden; border-radius: 8px; height: 100%;">
                                 <a href="#">
-                                    <img src="{{ asset('template/Assets/Images/promo-banner-2.jpg') }}"
+                                    <img src=""
                                         class="w-100"
                                         style="height: 320px; object-fit: cover; display: block;"
                                         alt="Tích lũy mua sắm nhận phiếu mua hàng" />
@@ -567,7 +585,7 @@
                         <div class="col-lg-3 col-md-6 col-sm-12">
                             <div class="promo-banner-card" style="position: relative; overflow: hidden; border-radius: 8px; height: 100%;">
                                 <a href="#">
-                                    <img src="{{ asset('template/Assets/Images/promo-banner-3.jpg') }}"
+                                    <img src=""
                                         class="w-100"
                                         style="height: 320px; object-fit: cover; display: block;"
                                         alt="P&G Giặt Xả Gia Tốt" />
@@ -579,7 +597,7 @@
                         <div class="col-lg-3 col-md-6 col-sm-12">
                             <div class="promo-banner-card" style="position: relative; overflow: hidden; border-radius: 8px; height: 100%;">
                                 <a href="#">
-                                    <img src="{{ asset('template/Assets/Images/promo-banner-4.jpg') }}"
+                                    <img src=""
                                         class="w-100"
                                         style="height: 320px; object-fit: cover; display: block;"
                                         alt="Cô Sprite Mát Lành Cực Đã" />
@@ -611,19 +629,19 @@
                                 <!-- Hình ảnh lớn với 2 hàng 3 cột -->
                                 <div class="article-images" style="display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); gap: 2px; height: 280px;">
                                     <div style="grid-column: 1 / 2; grid-row: 1 / 2;">
-                                        <img src="{{ asset('template/Assets/Images/article-fish-1.jpg') }}" style="width: 100%; height: 100%; object-fit: cover;" alt="Cá song biển 1" />
+                                        <img src="" style="width: 100%; height: 100%; object-fit: cover;" alt="Cá song biển 1" />
                                     </div>
                                     <div style="grid-column: 2 / 3; grid-row: 1 / 2;">
-                                        <img src="{{ asset('template/Assets/Images/article-fish-2.jpg') }}" style="width: 100%; height: 100%; object-fit: cover;" alt="Cá song biển 2" />
+                                        <img src="" style="width: 100%; height: 100%; object-fit: cover;" alt="Cá song biển 2" />
                                     </div>
                                     <div style="grid-column: 3 / 4; grid-row: 1 / 2;">
-                                        <img src="{{ asset('template/Assets/Images/article-fish-3.jpg') }}" style="width: 100%; height: 100%; object-fit: cover;" alt="Cá song biển 3" />
+                                        <img src="" style="width: 100%; height: 100%; object-fit: cover;" alt="Cá song biển 3" />
                                     </div>
                                     <div style="grid-column: 1 / 2; grid-row: 2 / 3;">
-                                        <img src="{{ asset('template/Assets/Images/article-fish-4.jpg') }}" style="width: 100%; height: 100%; object-fit: cover;" alt="Cá song biển 4" />
+                                        <img src="" style="width: 100%; height: 100%; object-fit: cover;" alt="Cá song biển 4" />
                                     </div>
                                     <div style="grid-column: 2 / 4; grid-row: 2 / 3;">
-                                        <img src="{{ asset('template/Assets/Images/article-fish-5.jpg') }}" style="width: 100%; height: 100%; object-fit: cover;" alt="Cá song biển 5" />
+                                        <img src="" style="width: 100%; height: 100%; object-fit: cover;" alt="Cá song biển 5" />
                                     </div>
                                 </div>
                                 <!-- Nội dung -->
@@ -644,7 +662,7 @@
                             <div class="col-12">
                                 <div class="article-card-small" style="border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                                     <a href="#" class="text-decoration-none d-flex">
-                                        <img src="{{ asset('template/Assets/Images/article-goldfish.jpg') }}"
+                                        <img src=""
                                              style="width: 180px; height: 130px; object-fit: cover;"
                                              alt="Cá vàng dưới công" />
                                         <div style="padding: 12px; flex: 1; background: white;">
@@ -661,7 +679,7 @@
                             <div class="col-12">
                                 <div class="article-card-small" style="border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                                     <a href="#" class="text-decoration-none d-flex">
-                                        <img src="{{ asset('template/Assets/Images/article-cream.jpg') }}"
+                                        <img src=""
                                              style="width: 180px; height: 130px; object-fit: cover;"
                                              alt="Kem lạnh Carslam" />
                                         <div style="padding: 12px; flex: 1; background: white;">
@@ -678,7 +696,7 @@
                             <div class="col-6">
                                 <div class="article-card-mini" style="border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); height: 100%;">
                                     <a href="#" class="text-decoration-none">
-                                        <img src="{{ asset('template/Assets/Images/article-jelly.jpg') }}"
+                                        <img src=""
                                              style="width: 100%; height: 140px; object-fit: cover;"
                                              alt="Thạch rau câu" />
                                         <div style="padding: 10px; background: white;">
@@ -695,7 +713,7 @@
                             <div class="col-6">
                                 <div class="article-card-mini" style="border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); height: 100%;">
                                     <a href="#" class="text-decoration-none">
-                                        <img src="{{ asset('template/Assets/Images/article-movie.jpg') }}"
+                                        <img src=""
                                              style="width: 100%; height: 140px; object-fit: cover;"
                                              alt="Review phim" />
                                         <div style="padding: 10px; background: white;">
