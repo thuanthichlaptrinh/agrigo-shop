@@ -77,7 +77,7 @@ Route::get('/unauthorized', function () {
 | Include Route Files
 |--------------------------------------------------------------------------
 */
-    
+
 // Authentication routes
 require __DIR__.'/auth.php';
 

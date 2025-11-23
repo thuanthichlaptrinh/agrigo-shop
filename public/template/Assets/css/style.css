@@ -74,7 +74,13 @@
     position: relative;
     overflow: hidden; /* Đảm bảo hiệu ứng không bị tràn */
     border-radius: 4px;
-    background: radial-gradient(circle, #98c230 0%, #59a646 49%, #22994f 75%, #007e42 100%);
+    background: radial-gradient(
+        circle,
+        #98c230 0%,
+        #59a646 49%,
+        #22994f 75%,
+        #007e42 100%
+    );
     background-size: 300% 100%; /* Mở rộng gradient theo chiều ngang */
     animation: bg-move-fade 3s infinite linear; /* Tạo hiệu ứng chuyển động */
 }
@@ -262,7 +268,13 @@
     border-radius: 6px;
     border: none;
     overflow: hidden; /* Đảm bảo gradient không tràn */
-    background: radial-gradient(circle, #98c230 0%, #59a646 49%, #22994f 75%, #007e42 100%);
+    background: radial-gradient(
+        circle,
+        #98c230 0%,
+        #59a646 49%,
+        #22994f 75%,
+        #007e42 100%
+    );
     background-size: 300% 100%; /* Tăng kích thước ngang để hiệu ứng rõ ràng */
     animation: bg-move-fade 3s infinite linear; /* Chạy từ trái qua và biến mất */
     z-index: 1;
@@ -442,7 +454,9 @@
 
 .dropdown-menu {
     width: 216px;
-    box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+    box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px,
+        rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px,
+        rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
 }
 
 .box-flash {

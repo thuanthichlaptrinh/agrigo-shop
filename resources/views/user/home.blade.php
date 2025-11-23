@@ -6,9 +6,9 @@
 <style>
     /* Hide header dropdown on home page since sidebar is already visible */
     .col-3:hover .category-dropdown {
-        display: none !important; 
+        display: none !important;
     }
-    
+
     /* Disable hover effect on category menu trigger */
     .category-menu-trigger {
         cursor: default !important;
@@ -275,7 +275,7 @@
                             <img src="{{ $image }}" class="w-100" alt="{{ $product['name'] ?? 'Flash Sale' }}" />
                         </a>
                         <div>
-                            <p class="bg-white w-100 text-center text-secondary mt-1" 
+                            <p class="bg-white w-100 text-center text-secondary mt-1"
                             style="border-radius: 20px; padding: 0px; font-size: 11px; font-weight: 500">{{ $badgeText }}</p>
                             <div class="d-flex justify-content-between px-2 py-2">
                                 <div>
@@ -293,7 +293,7 @@
             </div>
         </div>
 
-        <!-- Category Banner Carousel -->
+        <!-- Category Banner Carousel 1 -->
         <div class="row mt-3" style="margin-left: -34px; margin-right: -24px; margin-bottom: 25px">
             <div id="thi-ca-trung" class="carousel slide" data-bs-ride="carousel">
                 <div class="carousel-indicators">
@@ -365,7 +365,37 @@
             <a href="#" class="text-center mt-2">Xem thêm</a>
         </div>
 
-        <!-- Products Section -->
+        <!-- Category Banner Carousel 2 -->
+        <div class="row mt-3" style="margin-left: -34px; margin-right: -24px; margin-bottom: 25px">
+            <div id="thi-ca-trung" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-indicators">
+                    <button type="button" data-bs-target="#thi-ca-trung" data-bs-slide-to="0" class="active"></button>
+                    <button type="button" data-bs-target="#thi-ca-trung" data-bs-slide-to="1"></button>
+                    <button type="button" data-bs-target="#thi-ca-trung" data-bs-slide-to="2"></button>
+                </div>
+
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <img src="{{ asset('template/Assets/Images/cate-pc-54_202410191139488622.jpg') }}" alt="Category 1" class="d-block w-100" />
+                    </div>
+                    <div class="carousel-item">
+                        <img src="{{ asset('template/Assets/Images/cate-pc-48_202410142214151821.jpg') }}" alt="Category 2" class="d-block w-100" />
+                    </div>
+                    <div class="carousel-item">
+                        <img src="{{ asset('template/Assets/Images/cate-pc-54_202410191139488622.jpg') }}" alt="Category 3" class="d-block w-100" />
+                    </div>
+                </div>
+
+                <button class="carousel-control-prev" type="button" data-bs-target="#thi-ca-trung" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon"></span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#thi-ca-trung" data-bs-slide="next">
+                    <span class="carousel-control-next-icon"></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Products Section 1 -->
         @php
             $regularItems = collect($regularProducts ?? [])->take(4);
         @endphp
@@ -407,6 +437,8 @@
             <a href="#" class="text-center mt-2">Xem thêm</a>
         </div>
 
+        <!-- Products Section 2 -->
+
         <!-- Gian hàng và ưu đãi từ hãng -->
         <div class="row mt-2 mb-3" style="margin-left: -23px; margin-right: -24px;">
             <div class="col-12 px-0">
@@ -428,8 +460,8 @@
                         <div class="col-lg-3 col-md-6 col-sm-12">
                             <div class="promo-banner-card" style="position: relative; overflow: hidden; border-radius: 8px; height: 100%;">
                                 <a href="#">
-                                    <img src="{{ asset('template/Assets/Images/promo-banner-1.jpg') }}" 
-                                        class="w-100" 
+                                    <img src="{{ asset('template/Assets/Images/promo-banner-1.jpg') }}"
+                                        class="w-100"
                                         style="height: 320px; object-fit: cover; display: block;"
                                         alt="Tích lũy mua sắm nhận quà ưu đãi" />
                                 </a>
@@ -440,8 +472,8 @@
                         <div class="col-lg-3 col-md-6 col-sm-12">
                             <div class="promo-banner-card" style="position: relative; overflow: hidden; border-radius: 8px; height: 100%;">
                                 <a href="#">
-                                    <img src="{{ asset('template/Assets/Images/promo-banner-2.jpg') }}" 
-                                        class="w-100" 
+                                    <img src="{{ asset('template/Assets/Images/promo-banner-2.jpg') }}"
+                                        class="w-100"
                                         style="height: 320px; object-fit: cover; display: block;"
                                         alt="Tích lũy mua sắm nhận phiếu mua hàng" />
                                 </a>
@@ -452,8 +484,8 @@
                         <div class="col-lg-3 col-md-6 col-sm-12">
                             <div class="promo-banner-card" style="position: relative; overflow: hidden; border-radius: 8px; height: 100%;">
                                 <a href="#">
-                                    <img src="{{ asset('template/Assets/Images/promo-banner-3.jpg') }}" 
-                                        class="w-100" 
+                                    <img src="{{ asset('template/Assets/Images/promo-banner-3.jpg') }}"
+                                        class="w-100"
                                         style="height: 320px; object-fit: cover; display: block;"
                                         alt="P&G Giặt Xả Gia Tốt" />
                                 </a>
@@ -464,8 +496,8 @@
                         <div class="col-lg-3 col-md-6 col-sm-12">
                             <div class="promo-banner-card" style="position: relative; overflow: hidden; border-radius: 8px; height: 100%;">
                                 <a href="#">
-                                    <img src="{{ asset('template/Assets/Images/promo-banner-4.jpg') }}" 
-                                        class="w-100" 
+                                    <img src="{{ asset('template/Assets/Images/promo-banner-4.jpg') }}"
+                                        class="w-100"
                                         style="height: 320px; object-fit: cover; display: block;"
                                         alt="Cô Sprite Mát Lành Cực Đã" />
                                 </a>
@@ -529,8 +561,8 @@
                             <div class="col-12">
                                 <div class="article-card-small" style="border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                                     <a href="#" class="text-decoration-none d-flex">
-                                        <img src="{{ asset('template/Assets/Images/article-goldfish.jpg') }}" 
-                                             style="width: 180px; height: 130px; object-fit: cover;" 
+                                        <img src="{{ asset('template/Assets/Images/article-goldfish.jpg') }}"
+                                             style="width: 180px; height: 130px; object-fit: cover;"
                                              alt="Cá vàng dưới công" />
                                         <div style="padding: 12px; flex: 1; background: white;">
                                             <h6 class="fw-600 mb-2" style="color: #333; font-size: 15px; line-height: 1.4;">Cá vàng dưới công là gì? Đặc điểm của cá vàng dưới công</h6>
@@ -546,8 +578,8 @@
                             <div class="col-12">
                                 <div class="article-card-small" style="border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                                     <a href="#" class="text-decoration-none d-flex">
-                                        <img src="{{ asset('template/Assets/Images/article-cream.jpg') }}" 
-                                             style="width: 180px; height: 130px; object-fit: cover;" 
+                                        <img src="{{ asset('template/Assets/Images/article-cream.jpg') }}"
+                                             style="width: 180px; height: 130px; object-fit: cover;"
                                              alt="Kem lạnh Carslam" />
                                         <div style="padding: 12px; flex: 1; background: white;">
                                             <h6 class="fw-600 mb-2" style="color: #333; font-size: 15px; line-height: 1.4;">Kem lạnh Carslam: Review, công dụng, cách sử dụng</h6>
@@ -563,8 +595,8 @@
                             <div class="col-6">
                                 <div class="article-card-mini" style="border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); height: 100%;">
                                     <a href="#" class="text-decoration-none">
-                                        <img src="{{ asset('template/Assets/Images/article-jelly.jpg') }}" 
-                                             style="width: 100%; height: 140px; object-fit: cover;" 
+                                        <img src="{{ asset('template/Assets/Images/article-jelly.jpg') }}"
+                                             style="width: 100%; height: 140px; object-fit: cover;"
                                              alt="Thạch rau câu" />
                                         <div style="padding: 10px; background: white;">
                                             <h6 class="fw-600 mb-1" style="color: #333; font-size: 14px; line-height: 1.3;">Tham khảo 2 cách làm dâu dứa dưỡng lỗ chỉ lỗ Tết Ôn ngon mát</h6>
@@ -580,8 +612,8 @@
                             <div class="col-6">
                                 <div class="article-card-mini" style="border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); height: 100%;">
                                     <a href="#" class="text-decoration-none">
-                                        <img src="{{ asset('template/Assets/Images/article-movie.jpg') }}" 
-                                             style="width: 100%; height: 140px; object-fit: cover;" 
+                                        <img src="{{ asset('template/Assets/Images/article-movie.jpg') }}"
+                                             style="width: 100%; height: 140px; object-fit: cover;"
                                              alt="Review phim" />
                                         <div style="padding: 10px; background: white;">
                                             <h6 class="fw-600 mb-1" style="color: #333; font-size: 14px; line-height: 1.3;">Review phim Cách Em 1 Milimet – Phim Việt VTV đang hot</h6>
@@ -605,8 +637,8 @@
             </div>
         </div>
 
-        <!-- Footer --> 
-        <div class="mt-3" > 
+        <!-- Footer -->
+        <div class="mt-3" >
             @include('user.partials.footer')
         </div>
     </div>
