@@ -65,4 +65,15 @@ class DonHang extends Model
     {
         return in_array($this->TrangThai, ['Chờ xác nhận', 'Đã xác nhận']);
     }
+
+    public function restoreStock(): void
+    {
+        $this->loadMissing('chiTiet.sanPham');
+
+        foreach ($this->chiTiet as $detail) {
+            if ($detail->sanPham) {
+                $detail->sanPham->increment('SoLuongTon', $detail->SoLuong);
+            }
+        }
+    }
 }

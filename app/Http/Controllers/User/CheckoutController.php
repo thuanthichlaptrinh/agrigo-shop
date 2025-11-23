@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\ChiTietDonHang;
 use App\Models\DonHang;
+use App\Models\SanPham;
 use App\Models\ThanhToan;
 use App\Models\Voucher;
 use App\Support\Cart\CartService;
@@ -12,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class CheckoutController extends Controller
 {
@@ -195,11 +197,18 @@ class CheckoutController extends Controller
             ]);
 
             foreach ($items as $item) {
+                $productId = isset($item['id']) ? (int) $item['id'] : null;
+                $quantity = $this->extractItemQuantity($item);
+
+                if ($productId) {
+                    $this->reserveProductStock($productId, $quantity);
+                }
+
                 ChiTietDonHang::create([
                     'IDDonHang' => $order->ID,
-                    'IDSanPham' => isset($item['id']) ? (int) $item['id'] : null,
+                    'IDSanPham' => $productId,
                     'TenSanPham' => $item['name'] ?? 'Sản phẩm',
-                    'SoLuong' => (int) ($item['quantity'] ?? 1),
+                    'SoLuong' => $quantity,
                     'DonGia' => (float) ($item['price'] ?? 0),
                 ]);
             }
@@ -286,6 +295,7 @@ class CheckoutController extends Controller
         }
 
         DB::transaction(function () use ($order) {
+            $order->restoreStock();
             $order->TrangThai = 'Đã hủy';
             $order->GhiChu = trim(($order->GhiChu ? $order->GhiChu . PHP_EOL : '') . '[Khách yêu cầu hủy đơn từ trang xác nhận]');
             $order->NgayCapNhat = now();
@@ -379,6 +389,31 @@ class CheckoutController extends Controller
         session(['checkout_completed' => $summary]);
 
         return redirect()->route('user.checkout.index')->with('status', 'Đã cập nhật thông tin đơn hàng.');
+    }
+
+    protected function reserveProductStock(int $productId, int $quantity): void
+    {
+        $product = SanPham::where('ID', $productId)->lockForUpdate()->first();
+
+        if (!$product) {
+            throw ValidationException::withMessages([
+                'cart' => 'Một sản phẩm trong giỏ hàng không còn tồn tại, vui lòng tải lại giỏ hàng.',
+            ]);
+        }
+
+        if ($product->SoLuongTon < $quantity) {
+            throw ValidationException::withMessages([
+                'cart' => 'Sản phẩm ' . $product->TenSanPham . ' hiện chỉ còn ' . $product->SoLuongTon . ' sản phẩm trong kho.',
+            ]);
+        }
+
+        $product->SoLuongTon -= $quantity;
+        $product->save();
+    }
+
+    protected function extractItemQuantity(array $item): int
+    {
+        return max(1, (int) ($item['quantity'] ?? 1));
     }
 
     protected function mapPaymentChannel(string $method): string

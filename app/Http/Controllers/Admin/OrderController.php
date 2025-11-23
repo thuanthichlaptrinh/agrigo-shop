@@ -9,6 +9,7 @@ use App\Models\NguoiDung;
 use App\Models\SanPham;
 use App\Models\Voucher;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class OrderController extends Controller
@@ -357,15 +358,6 @@ class OrderController extends Controller
         $order->update([
             'TrangThai' => $validated['trang_thai'],
         ]);
-        
-        // Nếu cập nhật thành "Đã giao", trừ số lượng tồn kho
-        if ($validated['trang_thai'] === 'Đã giao') {
-            foreach ($order->chiTiet as $detail) {
-                if ($detail->sanPham) {
-                    $detail->sanPham->decrement('SoLuongTon', $detail->SoLuong);
-                }
-            }
-        }
 
         $message = $order->TrangThai === 'Đã giao' ? 'Đã xác nhận giao hàng thành công!' : 'Đã duyệt đơn hàng thành công!';
         return redirect()->route('admin.orders.index')->with('success', $message);
@@ -389,10 +381,14 @@ class OrderController extends Controller
             $ghiChu .= "\n[Lý do hủy: {$validated['ly_do_huy']}]";
         }
 
-        $order->update([
-            'TrangThai' => 'Đã hủy',
-            'GhiChu' => $ghiChu,
-        ]);
+        DB::transaction(function () use ($order, $ghiChu) {
+            $order->restoreStock();
+
+            $order->update([
+                'TrangThai' => 'Đã hủy',
+                'GhiChu' => $ghiChu,
+            ]);
+        });
 
         return redirect()->route('admin.orders.index')->with('success', 'Đã hủy đơn hàng.');
     }

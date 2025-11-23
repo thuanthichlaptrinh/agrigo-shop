@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\NguoiDung;
 use App\Models\VaiTro;
 use App\Models\Token;
+use App\Support\Cart\CartService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -80,6 +81,8 @@ class AuthController extends Controller
             // Lưu token vào session
             session(['jwt_token' => $token]);
             session(['user_id' => $user->ID]);
+
+            app(CartService::class)->count();
 
             // Redirect theo vai trò
             $vaiTro = $user->vaiTro->TenVaiTro ?? 'User';
@@ -190,6 +193,8 @@ class AuthController extends Controller
             
             session(['jwt_token' => $token]);
             session(['user_id' => $user->ID]);
+
+            app(CartService::class)->count();
 
             return redirect()->route('user.home')->with('success', 'Đăng ký thành công!');
 
