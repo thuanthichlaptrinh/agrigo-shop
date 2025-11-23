@@ -86,6 +86,63 @@
     .home-carousel .carousel-item img {
         box-shadow: 0 20px 35px rgba(15, 23, 42, 0.25);
     }
+
+    .product-name-single-line {
+        display: block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .home-product-card {
+        border: 1px solid rgba(44, 159, 69, 0.15);
+        border-radius: 14px;
+        padding: 14px;
+        background: linear-gradient(180deg, #ffffff 0%, #f5fff8 100%);
+        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        position: relative;
+        height: 100%;
+    }
+
+    .home-product-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 18px 35px rgba(15, 23, 42, 0.15);
+    }
+
+    .home-product-card img {
+        border-radius: 10px;
+        background: #f3f8f2;
+        transition: transform 0.25s ease;
+    }
+
+    .home-product-card:hover img {
+        transform: scale(1.02);
+    }
+
+    .home-product-card .card-body {
+        padding: 14px 4px 0;
+    }
+
+    .home-product-card .card-title {
+        margin-bottom: 6px;
+        color: #1f2937;
+    }
+
+    .home-product-card .product-price span:first-child {
+        font-size: 18px;
+        color: #00a86b;
+    }
+
+    .home-product-card .btn-ThemVaoGio {
+        border-radius: 999px;
+        box-shadow: 0 8px 18px rgba(0, 168, 107, 0.25);
+    }
+
+    .home-product-card .box-flash {
+        right: 16px;
+        top: 16px;
+    }
 </style>
 @endpush
 
@@ -340,17 +397,25 @@
             @php
                 $product = $favoriteItems[$i] ?? null;
                 $image = $product ? product_image_url($product['image'] ?? null) : asset('template/Assets/Images/tao_gala_phap_size_100_8aef2b9571944ed0b7a6ee52ea416e3d_large.webp');
-                $price = $product['price'] ?? 28350;
+                $price = $product['final_price'] ?? 28350;
+                $hasDiscount = (bool) ($product['has_discount'] ?? false);
+                $discountPercent = (int) round($product['discount_percent'] ?? 0);
                 $detailUrl = $product ? route('user.products.detail', $product['id']) : '#';
             @endphp
             <div class="col-lg-3 col-md-4 col-sm-12">
-                <div class="card" style="border: 1px solid #d8e1f9">
+                <div class="card home-product-card">
+                    @if($product && $hasDiscount)
+                        <div class="d-flex align-items-center justify-content-center box-flash">
+                            <i class="ri-flashlight-line"></i>
+                            <span style="font-weight: 700">-{{ $discountPercent }}%</span>
+                        </div>
+                    @endif
                     <a href="{{ $detailUrl }}">
                         <img src="{{ $image }}" class="w-100" alt="{{ $product['name'] ?? 'Ức gà có xương' }}" />
                     </a>
                     <div class="card-body">
-                        <p class="card-title fw-400 txt-gray">{{ $product['name'] ?? 'Ức gà có xương' }}</p>
-                        <p class="card-title">
+                        <p class="card-title fw-400 txt-gray product-name-single-line">{{ $product['name'] ?? 'Ức gà có xương' }}</p>
+                        <p class="card-title product-price">
                             <span class="fw-700">{{ number_format($price, 0, ',', '.') }}đ</span>
                             <span class="txt-gray fs-13-t">/{{ $product['unit'] ?? '300g' }}</span>
                         </p>
@@ -365,79 +430,97 @@
             <a href="#" class="text-center mt-2">Xem thêm</a>
         </div>
 
-        <!-- Category Banner Carousel 2 -->
-        <div class="row mt-3" style="margin-left: -34px; margin-right: -24px; margin-bottom: 25px">
-            <div id="thi-ca-trung" class="carousel slide" data-bs-ride="carousel">
-                <div class="carousel-indicators">
-                    <button type="button" data-bs-target="#thi-ca-trung" data-bs-slide-to="0" class="active"></button>
-                    <button type="button" data-bs-target="#thi-ca-trung" data-bs-slide-to="1"></button>
-                    <button type="button" data-bs-target="#thi-ca-trung" data-bs-slide-to="2"></button>
-                </div>
-
-                <div class="carousel-inner">
-                    <div class="carousel-item active">
-                        <img src="{{ asset('template/Assets/Images/cate-pc-54_202410191139488622.jpg') }}" alt="Category 1" class="d-block w-100" />
-                    </div>
-                    <div class="carousel-item">
-                        <img src="{{ asset('template/Assets/Images/cate-pc-48_202410142214151821.jpg') }}" alt="Category 2" class="d-block w-100" />
-                    </div>
-                    <div class="carousel-item">
-                        <img src="{{ asset('template/Assets/Images/cate-pc-54_202410191139488622.jpg') }}" alt="Category 3" class="d-block w-100" />
-                    </div>
-                </div>
-
-                <button class="carousel-control-prev" type="button" data-bs-target="#thi-ca-trung" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon"></span>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#thi-ca-trung" data-bs-slide="next">
-                    <span class="carousel-control-next-icon"></span>
-                </button>
-            </div>
-        </div>
-
-        <!-- Products Section 1 -->
+        <!-- Products Section -->
         @php
-            $regularItems = collect($regularProducts ?? [])->take(4);
-        @endphp
-        <div class="row mt-3 bg-white mb-13-t pb-12-t row-km" style="margin-left: -23px">
-            <div class="title-banner-wrapper">
-                <div class="triangle-left"></div>
-                <a class="title-banner">
-                    <span>RAU, CỦ, NẤM</span>
-                </a>
-                <div class="triangle-right"></div>
-            </div>
+            $categorySections = collect($categoryProductSections ?? []);
+        @endphp 
 
-            @for($i = 0; $i < 4; $i++)
+        @foreach($categorySections as $section)
             @php
-                $product = $regularItems[$i] ?? null;
-                $image = $product ? product_image_url($product['image'] ?? null) : asset('template/Assets/Images/tao_gala_phap_size_100_8aef2b9571944ed0b7a6ee52ea416e3d_large.webp');
-                $price = $product['price'] ?? 28350;
-                $detailUrl = $product ? route('user.products.detail', $product['id']) : '#';
+                $products = collect($section['products'] ?? []);
             @endphp
-            <div class="col-lg-3 col-md-4 col-sm-12">
-                <div class="card" style="border: 1px solid #d8e1f9">
-                    <a href="{{ $detailUrl }}">
-                        <img src="{{ $image }}" class="w-100" alt="{{ $product['name'] ?? 'Ức gà có xương' }}" />
-                    </a>
-                    <div class="card-body">
-                        <p class="card-title fw-400 txt-gray">{{ $product['name'] ?? 'Ức gà có xương' }}</p>
-                        <p class="card-title">
-                            <span class="fw-700">{{ number_format($price, 0, ',', '.') }}đ</span>
-                            <span class="txt-gray fs-13-t">/{{ $product['unit'] ?? '300g' }}</span>
-                        </p>
-                        <div class="container-ThemVGio">
-                            <a href="#" class="btn btn-ThemVaoGio text-white mx-auto fw-500 d-block">Thêm vào giỏ</a>
+
+            @if($products->isEmpty())
+                @continue
+            @endif
+
+             <!-- Category Banner Carousel 2 -->
+            <div class="row mt-3" style="margin-left: -34px; margin-right: -24px; margin-bottom: 25px">
+                <div id="thi-ca-trung" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-indicators">
+                        <button type="button" data-bs-target="#thi-ca-trung" data-bs-slide-to="0" class="active"></button>
+                        <button type="button" data-bs-target="#thi-ca-trung" data-bs-slide-to="1"></button>
+                        <button type="button" data-bs-target="#thi-ca-trung" data-bs-slide-to="2"></button>
+                    </div>
+
+                    <div class="carousel-inner">
+                        <div class="carousel-item active">
+                            <img src="{{ asset('template/Assets/Images/cate-pc-54_202410191139488622.jpg') }}" alt="Category 1" class="d-block w-100" />
+                        </div>
+                        <div class="carousel-item">
+                            <img src="{{ asset('template/Assets/Images/cate-pc-48_202410142214151821.jpg') }}" alt="Category 2" class="d-block w-100" />
+                        </div>
+                        <div class="carousel-item">
+                            <img src="{{ asset('template/Assets/Images/cate-pc-54_202410191139488622.jpg') }}" alt="Category 3" class="d-block w-100" />
                         </div>
                     </div>
+
+                    <button class="carousel-control-prev" type="button" data-bs-target="#thi-ca-trung" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon"></span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#thi-ca-trung" data-bs-slide="next">
+                        <span class="carousel-control-next-icon"></span>
+                    </button>
                 </div>
             </div>
-            @endfor
 
-            <a href="#" class="text-center mt-2">Xem thêm</a>
-        </div>
+            <div class="row mt-3 bg-white mb-13-t pb-12-t row-km" 
+                style="margin-left: -23px; border-top: 1px solid #2c9f45 !important;">
+                <div class="title-banner-wrapper">
+                    <div class="triangle-left"></div>
+                    <a class="title-banner">
+                        <span>{{ \Illuminate\Support\Str::upper($section['name'] ?? 'Danh mục') }}</span>
+                    </a>
+                    <div class="triangle-right"></div>
+                </div>
 
-        <!-- Products Section 2 -->
+                @foreach($products as $product)
+                    @php
+                        $image = product_image_url($product['image'] ?? null);
+                        $price = $product['final_price'] ?? 0;
+                        $unit = $product['unit'] ?? 'Gói';
+                        $detailUrl = $product['id'] ? route('user.products.detail', $product['id']) : '#';
+                        $hasDiscount = (bool) ($product['has_discount'] ?? false);
+                        $discountPercent = (int) round($product['discount_percent'] ?? 0);
+                    @endphp
+                    <div class="col-lg-3 col-md-4 col-sm-12">
+                        <div class="card home-product-card">
+                            @if($hasDiscount)
+                                <div class="d-flex align-items-center justify-content-center box-flash">
+                                    <i class="ri-flashlight-line"></i>
+                                    <span style="font-weight: 700">-{{ $discountPercent }}%</span>
+                                </div>
+                            @endif
+                            <a href="{{ $detailUrl }}">
+                                <img src="{{ $image }}" class="w-100" alt="{{ $product['name'] ?? 'Sản phẩm' }}" />
+                            </a>
+                            <div class="card-body">
+                                <p class="card-title fw-400 txt-gray product-name-single-line">{{ $product['name'] ?? 'Sản phẩm' }}</p>
+                                <p class="card-title product-price">
+                                    <span class="fw-700">{{ number_format($price, 0, ',', '.') }}đ</span>
+                                    <span class="txt-gray fs-13-t">/{{ $unit }}</span>
+                                </p>
+                                <div class="container-ThemVGio">
+                                    <a href="{{ $detailUrl }}" class="btn btn-ThemVaoGio text-white mx-auto fw-500 d-block">Thêm vào giỏ</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+
+                <a href="{{ route('user.products.index', ['category' => $section['id']]) }}" class="text-center mt-2">Xem thêm</a>
+            </div>
+        @endforeach
 
         <!-- Gian hàng và ưu đãi từ hãng -->
         <div class="row mt-2 mb-3" style="margin-left: -23px; margin-right: -24px;">

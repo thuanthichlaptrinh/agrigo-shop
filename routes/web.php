@@ -36,35 +36,73 @@ Route::get('/', function () {
         ->filter(fn ($product) => $product && ($product['is_percent'] ?? false))
         ->values();
 
-    $favoriteProducts = SanPham::where('TrangThai', 1)
+    $activePromotionConstraint = function ($query) use ($now) {
+        $query->where('KhuyenMai.TrangThai', 1)
+            ->where('KhuyenMai.NgayBatDau', '<=', $now)
+            ->where('KhuyenMai.NgayKetThuc', '>=', $now);
+    };
+
+    $formatProduct = function (SanPham $product) {
+        $promotion = $product->khuyenMai->first();
+        $pricing = $promotion ? calculate_promotion_pricing($product, $promotion) : null;
+
+        return [
+            'id' => $product->ID,
+            'name' => $product->TenSanPham,
+            'final_price' => $pricing['final_price'] ?? (float) ($product->Gia ?? 0),
+            'original_price' => (float) ($product->Gia ?? 0),
+            'unit' => $product->DonViTinh ?? 'Gói',
+            'image' => $product->HinhAnh,
+            'discount_percent' => $pricing['discount_percent'] ?? 0,
+            'has_discount' => (bool) $pricing,
+        ];
+    };
+
+    $favoriteProducts = SanPham::with(['khuyenMai' => $activePromotionConstraint])
+        ->where('TrangThai', 1)
         ->where('NoiBat', 1)
         ->orderByDesc('LuotBan')
         ->limit(8)
         ->get()
-        ->map(fn ($product) => [
-            'id' => $product->ID,
-            'name' => $product->TenSanPham,
-            'price' => (float) ($product->Gia ?? 0),
-            'unit' => $product->DonViTinh ?? 'Gói',
-            'image' => $product->HinhAnh,
-        ]);
+        ->map($formatProduct);
 
-    $regularProducts = SanPham::where('TrangThai', 1)
-        ->where(function ($query) {
-            $query->whereNull('NoiBat')->orWhere('NoiBat', 0);
-        })
-        ->orderByDesc('NgayTao')
-        ->limit(12)
+    $categoryProductSections = SanPham::with(['khuyenMai' => $activePromotionConstraint])
+        ->select([
+            'SanPham.ID',
+            'SanPham.TenSanPham',
+            'SanPham.Gia',
+            'SanPham.DonViTinh',
+            'SanPham.HinhAnh',
+            'SanPham.LuotBan',
+            'SanPham.NgayTao',
+            'DanhMuc.ID as category_id',
+            'DanhMuc.TenDanhMuc as category_name',
+            'DanhMuc.ThuTu as category_order',
+        ])
+        ->join('LoaiSanPham', 'SanPham.IDLoaiSP', '=', 'LoaiSanPham.ID')
+        ->join('DanhMuc', 'LoaiSanPham.IDDanhMuc', '=', 'DanhMuc.ID')
+        ->where('SanPham.TrangThai', 1)
+        ->where('LoaiSanPham.TrangThai', 1)
+        ->where('DanhMuc.TrangThai', 1)
+        ->orderBy('DanhMuc.ThuTu')
+        ->orderBy('DanhMuc.TenDanhMuc')
+        ->orderByDesc('SanPham.LuotBan')
+        ->orderByDesc('SanPham.NgayTao')
         ->get()
-        ->map(fn ($product) => [
-            'id' => $product->ID,
-            'name' => $product->TenSanPham,
-            'price' => (float) ($product->Gia ?? 0),
-            'unit' => $product->DonViTinh ?? 'Gói',
-            'image' => $product->HinhAnh,
-        ]);
+        ->groupBy('category_id')
+        ->sortBy(fn ($products) => $products->first()->category_order ?? 0)
+        ->map(function ($products) use ($formatProduct) {
+            $first = $products->first();
 
-    return view('user.home', compact('homeBanners', 'flashSaleProducts', 'favoriteProducts', 'regularProducts'));
+            return [
+                'id' => $first->category_id,
+                'name' => $first->category_name,
+                'products' => $products->take(4)->map($formatProduct)->values(),
+            ];
+        })
+        ->values();
+
+    return view('user.home', compact('homeBanners', 'flashSaleProducts', 'favoriteProducts', 'categoryProductSections'));
 })->name('user.home');
 
 // Trang không có quyền truy cập
