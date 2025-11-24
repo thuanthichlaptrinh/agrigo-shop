@@ -74,6 +74,11 @@
                 <i class="fa-solid fa-user-shield icon"></i> Vai trò
             </a>
         </li>
+        <li class="{{ request()->routeIs('admin.articles.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.articles.index') }}">
+                <i class="fa-solid fa-newspaper icon"></i> Bài viết
+            </a>
+        </li>
         <li class="divider" data-text="settings">Cài đặt</li>
         <li>
             <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">

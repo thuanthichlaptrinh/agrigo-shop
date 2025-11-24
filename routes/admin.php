@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\NhatKyController;
 use App\Http\Controllers\Admin\ThongBaoController;
 use App\Http\Controllers\Admin\VaiTroController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\BaiVietController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -260,6 +261,16 @@ Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
         Route::get('/{id}', [VoucherController::class, 'show'])->name('show');
     });
     
+    // Articles Management
+    Route::prefix('articles')->name('articles.')->group(function () {
+        Route::get('/', [BaiVietController::class, 'index'])->name('index');
+        Route::get('/create', [BaiVietController::class, 'create'])->name('create');
+        Route::post('/', [BaiVietController::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [BaiVietController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [BaiVietController::class, 'update'])->name('update');
+        Route::delete('/{id}', [BaiVietController::class, 'destroy'])->name('destroy');
+    });
+
     // Utility Routes
     Route::get('/search', function () {
         return redirect()->route('admin.dashboard');
