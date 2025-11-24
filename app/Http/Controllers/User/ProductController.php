@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\DanhGia;
 use App\Models\DanhMuc;
+use App\Models\HoatDongNguoiDung;
 use App\Models\LoaiSanPham;
 use App\Models\SanPham;
 use Illuminate\Http\Request;
@@ -89,7 +90,20 @@ class ProductController extends Controller
         }
 
         $products = $query->paginate(12)->withQueryString();
-        $products->getCollection()->transform(fn (SanPham $product) => $this->formatProduct($product));
+        
+        // Lấy danh sách ID sản phẩm yêu thích của user
+        $user = auth_user();
+        $wishlistProductIds = [];
+        if ($user) {
+            $wishlistProductIds = HoatDongNguoiDung::where('IDNguoiDung', $user->ID)
+                ->where('Loai', 'Yêu thích')
+                ->pluck('IDSanPham')
+                ->toArray();
+        }
+        
+        $products->getCollection()->transform(function (SanPham $product) use ($wishlistProductIds) {
+            return $this->formatProduct($product, $wishlistProductIds);
+        });
 
         return view('user.products.index', [
             'products' => $products,
@@ -120,6 +134,17 @@ class ProductController extends Controller
 
         $productData = $this->formatDetailProduct($product);
         $relatedProducts = $this->fetchRelatedProducts($product, $promotionScope);
+
+        // Kiểm tra sản phẩm có trong wishlist không
+        $user = auth_user();
+        $isWishlisted = false;
+        if ($user) {
+            $isWishlisted = HoatDongNguoiDung::where('IDNguoiDung', $user->ID)
+                ->where('IDSanPham', $id)
+                ->where('Loai', 'Yêu thích')
+                ->exists();
+        }
+        $productData['is_wishlisted'] = $isWishlisted;
 
         $ratingFilter = $request->integer('rating');
         if (!in_array($ratingFilter, [1, 2, 3, 4, 5], true)) {
@@ -194,7 +219,7 @@ class ProductController extends Controller
             ->with('success', 'Đánh giá của bạn đã được ghi nhận!');
     }
 
-    protected function formatProduct(SanPham $product): array
+    protected function formatProduct(SanPham $product, array $wishlistProductIds = []): array
     {
         $promotion = $product->khuyenMai->first();
         $pricing = $promotion ? calculate_promotion_pricing($product, $promotion) : null;
@@ -208,6 +233,7 @@ class ProductController extends Controller
             'original_price' => (float) ($product->Gia ?? 0),
             'discount_percent' => $pricing['discount_percent'] ?? 0,
             'has_discount' => (bool) $pricing,
+            'is_wishlisted' => in_array($product->ID, $wishlistProductIds),
         ];
     }
 
@@ -258,6 +284,15 @@ class ProductController extends Controller
 
     protected function fetchRelatedProducts(SanPham $product, callable $promotionScope)
     {
+        $user = auth_user();
+        $wishlistProductIds = [];
+        if ($user) {
+            $wishlistProductIds = HoatDongNguoiDung::where('IDNguoiDung', $user->ID)
+                ->where('Loai', 'Yêu thích')
+                ->pluck('IDSanPham')
+                ->toArray();
+        }
+
         return SanPham::query()
             ->with([
                 'khuyenMai' => $promotionScope,
@@ -271,7 +306,7 @@ class ProductController extends Controller
             ->inRandomOrder()
             ->limit(10)
             ->get()
-            ->map(function (SanPham $item) {
+            ->map(function (SanPham $item) use ($wishlistProductIds) {
                 $promotion = $item->khuyenMai->first();
                 $pricing = $promotion ? calculate_promotion_pricing($item, $promotion) : null;
                 $previewImage = $item->HinhAnh ?? optional($item->hinhAnh->first())->DuongDan;
@@ -284,6 +319,7 @@ class ProductController extends Controller
                     'old_price' => $pricing['original_price'] ?? null,
                     'unit' => $item->DonViTinh ?? '1kg',
                     'category' => optional($item->loaiSanPham)->TenLoai ?? 'Rau củ quả',
+                    'is_wishlisted' => in_array($item->ID, $wishlistProductIds),
                 ];
             });
     }

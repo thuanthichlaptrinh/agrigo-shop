@@ -50,13 +50,8 @@ Route::prefix('user')->name('user.')->middleware('user')->group(function () {
             return redirect()->route('user.profile', ['section' => 'wishlist']);
         })->name('index');
 
-        Route::post('/add/{productId}', function ($productId) {
-            return redirect()->route('user.wishlist.index');
-        })->name('add');
-
-        Route::delete('/remove/{productId}', function ($productId) {
-            return redirect()->route('user.wishlist.index');
-        })->name('remove');
+        Route::post('/add/{productId}', [ProfileController::class, 'addToWishlist'])->name('add');
+        Route::delete('/remove/{productId}', [ProfileController::class, 'removeFromWishlist'])->name('remove');
     });
 
     // Notifications

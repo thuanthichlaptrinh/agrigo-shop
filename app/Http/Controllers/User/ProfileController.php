@@ -7,6 +7,7 @@ use App\Models\DonHang;
 use App\Models\HoatDongNguoiDung;
 use App\Models\ThongBao;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
@@ -237,6 +238,57 @@ class ProfileController extends Controller
         return redirect()->route('user.profile', [
             'section' => 'orders',
         ])->with('success', 'Hủy đơn hàng thành công.');
+    }
+
+    public function addToWishlist(Request $request, int $productId)
+    {
+        $user = auth_user();
+        if (!$user) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Vui lòng đăng nhập'], 401);
+            }
+            return redirect()->route('login');
+        }
+
+        HoatDongNguoiDung::logYeuThich($user->ID, $productId);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Đã thêm vào danh sách yêu thích.'
+            ]);
+        }
+
+        return redirect()
+            ->back()
+            ->with('success', 'Đã thêm vào danh sách yêu thích.');
+    }
+
+    public function removeFromWishlist(Request $request, int $productId)
+    {
+        $user = auth_user();
+        if (!$user) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Vui lòng đăng nhập'], 401);
+            }
+            return redirect()->route('login');
+        }
+
+        HoatDongNguoiDung::where('IDNguoiDung', $user->ID)
+            ->where('IDSanPham', $productId)
+            ->where('Loai', 'Yêu thích')
+            ->delete();
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Đã xóa khỏi danh sách yêu thích.'
+            ]);
+        }
+
+        return redirect()
+            ->route('user.profile', ['section' => 'wishlist'])
+            ->with('success', 'Đã xóa khỏi danh sách yêu thích.');
     }
 
     protected function resolveSection(string $section): string

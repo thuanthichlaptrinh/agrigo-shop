@@ -89,6 +89,51 @@
         background: rgba(255, 184, 77, 0.25);
         margin-left: 4px;
     }
+
+    .wishlist-btn {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 10;
+        background: white;
+        border: none;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.2s ease;
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    .home-product-card:hover .wishlist-btn {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .wishlist-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .wishlist-btn i {
+        font-size: 20px;
+        color: #94a3b8;
+        transition: color 0.2s ease;
+    }
+
+    .wishlist-btn.active i {
+        color: #ef4444;
+    }
+
+    .wishlist-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
 </style>
 @endpush
 
@@ -177,6 +222,15 @@
                             <span style="font-weight: 700">-{{ (int) round($product['discount_percent'] ?? 0) }}%</span>
                         </div>
                     @endif
+                    
+                    {{-- Nút yêu thích --}}
+                    <button class="wishlist-btn {{ !empty($product['is_wishlisted']) ? 'active' : '' }}"  
+                            data-product-id="{{ $product['id'] ?? '' }}"
+                            data-wishlisted="{{ !empty($product['is_wishlisted']) ? 'true' : 'false' }}"
+                            title="{{ !empty($product['is_wishlisted']) ? 'Bỏ yêu thích' : 'Thêm vào yêu thích' }}">
+                        <i class="{{ !empty($product['is_wishlisted']) ? 'ri-heart-fill' : 'ri-heart-line' }}"></i>
+                    </button>
+                    
                     <a href="{{ route('user.products.detail', $product['id'] ?? 1) }}">
                         <img src="{{ product_image_url($product['image'] ?? null) }}" class="w-100" alt="{{ $product['name'] ?? 'Sản phẩm' }}" />
                     </a>
@@ -205,13 +259,12 @@
                     </div>
                 </div>
             </div>
-            @empty
-            <div class="col-12 text-center py-5">
-                <p class="text-muted mb-0">Chưa có sản phẩm nào phù hợp với bộ lọc hiện tại.</p>
-            </div>
-            @endforelse
-
-            @if($products instanceof \Illuminate\Contracts\Pagination\LengthAwarePaginator)
+                    @empty
+                    <div class="col-12 text-center py-5">
+                        <img src="{{ url('template/Assets/Images/logo5.png') }}" alt="Không có sản phẩm" style="max-width: 200px; margin-bottom: 1rem; opacity: 0.5;">
+                        <p class="text-muted mb-0">Chưa có sản phẩm nào phù hợp với bộ lọc hiện tại.</p>
+                    </div>
+                    @endforelse            @if($products instanceof \Illuminate\Contracts\Pagination\LengthAwarePaginator)
             <div class="col-12 text-center mt-3">
                 {{ $products->links() }}
             </div>
@@ -224,4 +277,79 @@
 @push('scripts')
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Xử lý nút yêu thích
+    const wishlistButtons = document.querySelectorAll('.wishlist-btn');
+    
+    wishlistButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const productId = this.dataset.productId;
+            const isWishlisted = this.dataset.wishlisted === 'true';
+            const icon = this.querySelector('i');
+            
+            if (!productId) {
+                return;
+            }
+
+            // Kiểm tra đăng nhập
+            @guest
+                window.location.href = '{{ route("login") }}';
+                return;
+            @endguest
+
+            // Disable button
+            this.disabled = true;
+            
+            const url = isWishlisted 
+                ? '{{ url("user/wishlist/remove") }}/' + productId
+                : '{{ url("user/wishlist/add") }}/' + productId;
+            
+            const method = isWishlisted ? 'DELETE' : 'POST';
+
+            fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Toggle trạng thái
+                if (isWishlisted) {
+                    // Bỏ yêu thích
+                    icon.className = 'ri-heart-line';
+                    this.classList.remove('active');
+                    this.dataset.wishlisted = 'false';
+                    this.title = 'Thêm vào yêu thích';
+                } else {
+                    // Thêm yêu thích
+                    icon.className = 'ri-heart-fill';
+                    this.classList.add('active');
+                    this.dataset.wishlisted = 'true';
+                    this.title = 'Bỏ yêu thích';
+                    
+                    // Animation
+                    this.style.transform = 'scale(1.2)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 200);
+                }
+                
+                this.disabled = false;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Có lỗi xảy ra, vui lòng thử lại');
+                this.disabled = false;
+            });
+        });
+    });
+});
+</script>
 @endpush

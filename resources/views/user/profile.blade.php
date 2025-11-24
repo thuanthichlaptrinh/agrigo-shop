@@ -24,6 +24,55 @@
     .order-card {
         border: 1px solid #eef1f3;
         border-radius: 12px;
+        transition: all 0.3s ease;
+        background: #fff;
+        overflow: hidden;
+    }
+    .order-card:hover {
+        box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+        border-color: #e0e0e0;
+        transform: translateY(-2px);
+    }
+    .order-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #eef1f3;
+        padding: 12px 20px;
+    }
+    .order-body {
+        padding: 20px;
+    }
+    .order-footer {
+        padding: 15px 20px;
+        border-top: 1px solid #eef1f3;
+        background-color: #fff;
+    }
+    .dashed-divider {
+        border-top: 1px dashed #eef1f3;
+        margin: 1rem 0;
+        opacity: 1;
+    }
+    .order-filters .nav-link {
+        color: #666;
+        border-radius: 30px;
+        padding: 8px 18px;
+        font-size: 0.9rem;
+        margin-right: 8px;
+        margin-bottom: 8px;
+        border: 1px solid #f0f0f0;
+        background: #fff;
+        transition: all 0.2s;
+    }
+    .order-filters .nav-link:hover {
+        background-color: #f8f9fa;
+        color: #333;
+        border-color: #e0e0e0;
+    }
+    .order-filters .nav-link.active {
+        background-color: #e8f5e9;
+        color: #1f7a45;
+        font-weight: 600;
+        border-color: #c8e6c9;
+        box-shadow: 0 2px 5px rgba(31, 122, 69, 0.1);
     }
     .wishlist-card {
         border: 1px solid #edf2ee;
@@ -33,6 +82,14 @@
     .wishlist-card:hover {
         transform: translateY(-2px);
         box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+    }
+    .wishlist-card h6 {
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: normal;
     }
     .notification-card {
         border-radius: 12px;
@@ -280,57 +337,78 @@
                     </div>
 
                     @forelse($orders as $order)
-                        <div class="order-card p-3 mb-3">
-                            <div class="d-flex justify-content-between flex-wrap gap-2">
-                                <div>
-                                    <p class="text-muted small mb-1">Mã đơn</p>
-                                    <h6 class="mb-0">{{ $order['code'] }}</h6>
+                        <div class="order-card mb-4">
+                            <div class="order-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div>
+                                        <span class="text-muted small d-block text-uppercase fw-600" style="font-size: 11px;">Đơn hàng</span>
+                                        <span class="fw-bold text-dark">#{{ $order['code'] }}</span>
+                                    </div>
+                                    <div class="vr d-none d-sm-block text-muted" style="height: 20px; opacity: 0.2;"></div>
+                                    <div class="d-none d-sm-block">
+                                        <span class="text-muted small d-block text-uppercase fw-600" style="font-size: 11px;">Ngày đặt</span>
+                                        <span class="text-dark">{{ $order['date'] ?? 'N/A' }}</span>
+                                    </div>
                                 </div>
                                 <div>
-                                    <p class="text-muted small mb-1">Ngày đặt</p>
-                                    <span>{{ $order['date'] ?? 'Đang cập nhật' }}</span>
-                                </div>
-                                <div>
-                                    <p class="text-muted small mb-1">Tổng tiền</p>
-                                    <strong class="text-success">{{ number_format($order['total'], 0, ',', '.') }} đ</strong>
-                                </div>
-                                <div class="text-end">
-                                    <p class="text-muted small mb-1">Trạng thái</p>
-                                    <span class="badge bg-{{ $order['status_color'] }}">{{ $order['status'] }}</span>
+                                    <span class="badge bg-{{ $order['status_color'] }} bg-opacity-10 text-{{ $order['status_color'] }} px-3 py-2 rounded-pill border border-{{ $order['status_color'] }} border-opacity-25">
+                                        {{ $order['status'] }}
+                                    </span>
                                 </div>
                             </div>
-                            <hr>
-                            @foreach($order['items'] as $item)
-                                <div class="d-flex align-items-center mb-3">
-                                    <img src="{{ product_image_url($item['image'] ?? null) }}" alt="{{ $item['name'] }}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;" class="me-3">
-                                    <div class="flex-fill">
-                                        <h6 class="mb-1">{{ $item['name'] }}</h6>
-                                        <small class="text-muted">x{{ $item['quantity'] }}</small>
+                            
+                            <div class="order-body">
+                                @foreach($order['items'] as $item)
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="position-relative me-3">
+                                            <img src="{{ product_image_url($item['image'] ?? null) }}" 
+                                                 alt="{{ $item['name'] }}" 
+                                                 style="width: 72px; height: 72px; object-fit: cover; border-radius: 10px;" 
+                                                 class="border">
+                                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-secondary border border-white" style="font-size: 0.7rem;">
+                                                x{{ $item['quantity'] }}
+                                            </span>
+                                        </div>
+                                        <div class="flex-fill">
+                                            <h6 class="mb-1 fw-600 text-dark">{{ $item['name'] }}</h6>
+                                            <p class="mb-0 text-muted small">{{ $item['unit'] ?? 'Sản phẩm' }}</p>
+                                        </div>
+                                        <div class="text-end">
+                                            <span class="fw-bold text-success">{{ number_format($item['price'], 0, ',', '.') }} đ</span>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <strong>{{ number_format($item['price'], 0, ',', '.') }} đ</strong>
-                                    </div>
-                                </div>
-                            @endforeach
+                                    @if(!$loop->last) <hr class="dashed-divider"> @endif
+                                @endforeach
+                            </div>
 
-                            <div class="d-flex justify-content-end gap-2">
-                                <a href="{{ route('user.orders.show', ['order' => $order['id']]) }}" class="btn btn-outline-primary btn-sm">Xem chi tiết</a>
-                                @if($order['can_cancel'])
-                                    <form action="{{ route('user.orders.cancel', ['order' => $order['id']]) }}" method="POST" onsubmit="return confirm('Bạn chắc chắn muốn hủy đơn này?')">
-                                        @csrf
-                                        <input type="hidden" name="cancel_reason" value="Người dùng yêu cầu hủy trong danh sách">
-                                        <button class="btn btn-outline-danger btn-sm" type="submit">Hủy đơn</button>
-                                    </form>
-                                @else
-                                    <button class="btn btn-outline-secondary btn-sm" type="button" disabled>Không thể hủy</button>
-                                @endif
+                            <div class="order-footer d-flex justify-content-between align-items-center flex-wrap gap-3">
+                                <div>
+                                    <span class="text-muted me-2">Tổng thành tiền:</span>
+                                    <span class="fs-5 fw-bold text-danger">{{ number_format($order['total'], 0, ',', '.') }} đ</span>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    @if($order['can_cancel'])
+                                        <form action="{{ route('user.orders.cancel', ['order' => $order['id']]) }}" method="POST" onsubmit="return confirm('Bạn chắc chắn muốn hủy đơn này?')">
+                                            @csrf
+                                            <input type="hidden" name="cancel_reason" value="Người dùng yêu cầu hủy">
+                                            <button class="btn btn-outline-danger btn-sm px-3 rounded-pill fw-500" type="submit">
+                                                <i class="ri-close-circle-line me-1"></i> Hủy đơn
+                                            </button>
+                                        </form>
+                                    @endif
+                                    <a href="{{ route('user.orders.show', ['order' => $order['id']]) }}" class="btn btn-success btn-sm px-4 rounded-pill fw-500 shadow-sm">
+                                        Xem chi tiết <i class="ri-arrow-right-line ms-1"></i>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     @empty
                         <div class="text-center py-5">
-                            <img src="{{ asset('template/Assets/Images/logo5.png') }}" alt="Không có đơn" style="max-width: 160px;" class="mb-3">
-                            <p class="text-muted mb-1">Bạn chưa có đơn hàng nào.</p>
-                            <a href="{{ route('user.products.index') }}" class="btn btn-success">Mua sắm ngay</a>
+                            <img src="{{ asset('template/Assets/Images/logo5.png') }}" alt="Không có đơn hàng" style="max-width: 160px; opacity: 0.5;" class="mb-3">
+                            <p class="text-muted mb-3">Bạn chưa có đơn hàng nào trong mục này.</p>
+                            <a href="{{ route('user.products.index') }}" class="btn btn-success rounded-pill px-4">
+                                <i class="ri-shopping-cart-line me-1"></i> Mua sắm ngay
+                            </a>
                         </div>
                     @endforelse
                 @elseif ($activeSection === 'wishlist')
@@ -341,15 +419,24 @@
 
                     <div class="row g-3">
                         @forelse($wishlistItems as $item)
-                            <div class="col-md-4 col-sm-6">
-                                <div class="wishlist-card h-100 p-3">
+                            <div class="col-lg-3 col-md-4 col-sm-6 col-6">
+                                <div class="wishlist-card h-100 p-3 position-relative">
+                                    <form action="{{ route('user.wishlist.remove', $item['id']) }}" method="POST" class="position-absolute" style="top: 10px; right: 10px; z-index: 10;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-light rounded-circle" style="width: 32px; height: 32px; padding: 0;" title="Xóa khỏi yêu thích">
+                                            <i class="ri-close-line" style="font-size: 18px;"></i>
+                                        </button>
+                                    </form>
                                     <img src="{{ product_image_url($item['image'] ?? null) }}" alt="{{ $item['name'] }}" class="w-100 rounded-3 mb-3" style="height: 160px; object-fit: cover;">
                                     <h6 class="fw-600">{{ $item['name'] }}</h6>
                                     <p class="text-success fw-700 mb-1">{{ number_format($item['price'], 0, ',', '.') }} đ / {{ $item['unit'] }}</p>
                                     <small class="text-muted">Đã lưu: {{ $item['added_at'] ?? 'Gần đây' }}</small>
                                     <div class="d-flex gap-2 mt-3">
                                         <a href="{{ route('user.products.detail', ['id' => $item['id']]) }}" class="btn btn-outline-success btn-sm flex-fill">Xem chi tiết</a>
-                                        <button class="btn btn-success btn-sm" type="button" disabled>Thêm giỏ</button>
+                                        <button class="btn btn-success btn-sm add-to-cart-btn" type="button" data-product-id="{{ $item['id'] }}" data-product-name="{{ $item['name'] }}">
+                                            <i class="ri-shopping-cart-line"></i>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -459,6 +546,74 @@
                 reader.readAsDataURL(file);
             });
         }
+
+        // Xử lý nút thêm vào giỏ hàng từ wishlist
+        const addToCartButtons = dashboard.querySelectorAll('.add-to-cart-btn');
+        addToCartButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const productId = this.dataset.productId;
+                const productName = this.dataset.productName;
+                
+                if (!productId) {
+                    return;
+                }
+
+                // Disable button
+                this.disabled = true;
+                const originalHtml = this.innerHTML;
+                this.innerHTML = '<i class="ri-loader-4-line ri-spin"></i>';
+
+                // Send AJAX request
+                fetch('{{ route("user.cart.add") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        product_id: productId,
+                        quantity: 1
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Show success message
+                    this.innerHTML = '<i class="ri-check-line"></i>';
+                    this.classList.remove('btn-success');
+                    this.classList.add('btn-outline-success');
+                    
+                    // Optional: Update cart count in header if exists
+                    const cartCount = document.querySelector('.cart-count');
+                    if (cartCount && data.count) {
+                        cartCount.textContent = data.count;
+                    }
+
+                    // Show toast notification using AppAlert component
+                    if (data.message && window.AppAlert) {
+                        window.AppAlert.show(data.message, { type: 'success' });
+                    }
+
+                    // Reset button after 2 seconds
+                    setTimeout(() => {
+                        this.innerHTML = originalHtml;
+                        this.classList.remove('btn-outline-success');
+                        this.classList.add('btn-success');
+                        this.disabled = false;
+                    }, 2000);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    if (window.AppAlert) {
+                        window.AppAlert.show('Không thể thêm vào giỏ hàng', { type: 'error' });
+                    } else {
+                        alert('Không thể thêm vào giỏ hàng');
+                    }
+                    this.innerHTML = originalHtml;
+                    this.disabled = false;
+                });
+            });
+        });
     });
 </script>
 @endpush

@@ -268,10 +268,15 @@
         height: 100%;
         display: flex;
         flex-direction: column;
+        position: relative;
     }
     .related-product-card:hover {
         transform: translateY(-6px);
         box-shadow: 0 18px 35px rgba(15, 86, 52, 0.12);
+    }
+    .related-product-card:hover .wishlist-btn {
+        opacity: 1;
+        visibility: visible;
     }
     .related-product-card img {
         width: 100%;
@@ -444,6 +449,46 @@
         color: #fff;
         border-color: #0c8b46;
     }
+
+    .wishlist-btn {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 10;
+        background: white;
+        border: none;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.2s ease;
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    .wishlist-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .wishlist-btn i {
+        font-size: 20px;
+        color: #94a3b8;
+        transition: color 0.2s ease;
+    }
+
+    .wishlist-btn.active i {
+        color: #ef4444;
+    }
+
+    .wishlist-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
 </style>
 @endpush
 
@@ -590,6 +635,14 @@
                 @foreach($relatedProducts as $item)
                     <div class="related-carousel-item">
                         <div class="related-product-card">
+                            {{-- Nút yêu thích --}}
+                            <button class="wishlist-btn {{ !empty($item['is_wishlisted']) ? 'active' : '' }}" 
+                                    data-product-id="{{ $item['id'] ?? '' }}"
+                                    data-wishlisted="{{ !empty($item['is_wishlisted']) ? 'true' : 'false' }}"
+                                    title="{{ !empty($item['is_wishlisted']) ? 'Bỏ yêu thích' : 'Thêm vào yêu thích' }}">
+                                <i class="{{ !empty($item['is_wishlisted']) ? 'ri-heart-fill' : 'ri-heart-line' }}"></i>
+                            </button>
+                            
                             <a href="{{ route('user.products.detail', $item['id'] ?? 0) }}">
                                 <img src="{{ function_exists('product_image_url') ? product_image_url($item['image'] ?? null) : asset($item['image'] ?? $placeholderImage) }}" alt="{{ $item['name'] ?? '' }}" loading="lazy">
                             </a>
@@ -888,5 +941,140 @@ function decreaseQuantity() {
         input.value = current - 1;
     }
 }
+
+// Xử lý nút yêu thích trong trang detail
+document.addEventListener('DOMContentLoaded', function() {
+    const wishlistBtn = document.querySelector('.wishlist-detail-btn');
+    
+    if (wishlistBtn) {
+        wishlistBtn.addEventListener('click', function() {
+            const productId = this.dataset.productId;
+            const isWishlisted = this.dataset.wishlisted === 'true';
+            const icon = this.querySelector('i');
+            const text = this.querySelector('span');
+            
+            if (!productId) {
+                return;
+            }
+
+            // Kiểm tra đăng nhập
+            @guest
+                window.location.href = '{{ route("login") }}';
+                return;
+            @endguest
+
+            // Disable button
+            this.disabled = true;
+            
+            const url = isWishlisted 
+                ? '{{ url("user/wishlist/remove") }}/' + productId
+                : '{{ url("user/wishlist/add") }}/' + productId;
+            
+            const method = isWishlisted ? 'DELETE' : 'POST';
+
+            fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Toggle trạng thái
+                if (isWishlisted) {
+                    // Bỏ yêu thích
+                    icon.className = 'ri-heart-line me-2';
+                    text.textContent = 'Yêu thích';
+                    this.classList.remove('active');
+                    this.dataset.wishlisted = 'false';
+                } else {
+                    // Thêm yêu thích
+                    icon.className = 'ri-heart-fill me-2';
+                    text.textContent = 'Đã yêu thích';
+                    this.classList.add('active');
+                    this.dataset.wishlisted = 'true';
+                }
+                
+                this.disabled = false;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Có lỗi xảy ra, vui lòng thử lại');
+                this.disabled = false;
+            });
+        });
+    }
+
+    // Xử lý nút yêu thích trong related products
+    const relatedWishlistButtons = document.querySelectorAll('.related-product-card .wishlist-btn');
+    relatedWishlistButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const productId = this.dataset.productId;
+            const isWishlisted = this.dataset.wishlisted === 'true';
+            const icon = this.querySelector('i');
+            
+            if (!productId) {
+                return;
+            }
+
+            // Kiểm tra đăng nhập
+            @guest
+                window.location.href = '{{ route("login") }}';
+                return;
+            @endguest
+
+            // Disable button
+            this.disabled = true;
+            
+            const url = isWishlisted 
+                ? '{{ url("user/wishlist/remove") }}/' + productId
+                : '{{ url("user/wishlist/add") }}/' + productId;
+            
+            const method = isWishlisted ? 'DELETE' : 'POST';
+
+            fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Toggle trạng thái
+                if (isWishlisted) {
+                    icon.className = 'ri-heart-line';
+                    this.classList.remove('active');
+                    this.dataset.wishlisted = 'false';
+                    this.title = 'Thêm vào yêu thích';
+                } else {
+                    icon.className = 'ri-heart-fill';
+                    this.classList.add('active');
+                    this.dataset.wishlisted = 'true';
+                    this.title = 'Bỏ yêu thích';
+                    
+                    // Animation
+                    this.style.transform = 'scale(1.2)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 200);
+                }
+                
+                this.disabled = false;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Có lỗi xảy ra, vui lòng thử lại');
+                this.disabled = false;
+            });
+        });
+    });
+});
 </script>
 @endpush
