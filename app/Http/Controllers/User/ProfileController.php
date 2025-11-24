@@ -296,11 +296,11 @@ class ProfileController extends Controller
         return in_array($section, $this->sections, true) ? $section : 'info';
     }
 
-    protected function getOrdersForUser(string $filter = 'all', string $search = ''): Collection
+    protected function getOrdersForUser(string $filter = 'all', string $search = ''): \Illuminate\Contracts\Pagination\LengthAwarePaginator
     {
         $user = auth_user();
         if (!$user) {
-            return collect();
+            return new \Illuminate\Pagination\LengthAwarePaginator([], 0, 5);
         }
 
         $query = DonHang::with(['chiTiet.sanPham'])
@@ -322,8 +322,9 @@ class ProfileController extends Controller
 
         return $query
             ->latest('NgayDat')
-            ->get()
-            ->map(function (DonHang $order) {
+            ->paginate(5)
+            ->withQueryString()
+            ->through(function (DonHang $order) {
                 return [
                     'id' => $order->ID,
                     'code' => $order->MaDonHang ?? sprintf('DH%06d', $order->ID),
@@ -331,6 +332,7 @@ class ProfileController extends Controller
                     'total' => (float) ($order->TongThanhToan ?? $order->getTongTienHang()),
                     'status' => $order->TrangThai ?? 'Chờ xử lý',
                     'status_color' => $this->statusColor($order->TrangThai),
+                    'can_cancel' => in_array($order->TrangThai, ['Chờ xử lý', 'Chờ xác nhận', 'Đơn vừa đặt']),
                     'items' => $order->chiTiet->map(function ($detail) {
                         $product = $detail->sanPham;
                         return [
@@ -339,8 +341,7 @@ class ProfileController extends Controller
                             'price' => (float) $detail->DonGia,
                             'image' => optional($product)->HinhAnh,
                         ];
-                    })->values()->all(),
-                    'can_cancel' => $order->canCancel(),
+                    }),
                 ];
             });
     }

@@ -4,6 +4,38 @@
 
 @push('styles')
 <style>
+    /* Custom Pagination */
+    .pagination-custom .page-link {
+        border: none;
+        margin: 0 4px;
+        border-radius: 8px;
+        color: #666;
+        font-weight: 600;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        background: #fff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .pagination-custom .page-link:hover {
+        background-color: #e8f5e9;
+        color: #1c8244;
+        transform: translateY(-1px);
+    }
+    .pagination-custom .page-item.active .page-link {
+        background: linear-gradient(135deg, #1c8244 0%, #156634 100%);
+        color: white;
+        box-shadow: 0 4px 10px rgba(28, 130, 68, 0.2);
+    }
+    .pagination-custom .page-item.disabled .page-link {
+        background-color: #f8f9fa;
+        color: #ccc;
+        box-shadow: none;
+    }
+    
     .info .action {
         color: green;
         font-weight: 500;
@@ -411,6 +443,10 @@
                             </a>
                         </div>
                     @endforelse
+
+                    <div class="mt-4">
+                        {{ $orders->links('pagination.custom') }}
+                    </div>
                 @elseif ($activeSection === 'wishlist')
                     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                         <h5 class="fw-700 mb-0">Sản phẩm yêu thích</h5>

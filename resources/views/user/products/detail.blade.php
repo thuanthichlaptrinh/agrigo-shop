@@ -170,73 +170,255 @@
     .media-thumb.is-active { border-color: #1c8244; box-shadow: 0 8px 16px rgba(28,130,68,.18); }
 
     .product-summary {
-        background: rgba(255, 255, 255, 0.9);
-        border-radius: 20px;
-        padding: 32px;
-        box-shadow: inset 0 0 0 1px rgba(0,0,0,.04);
-    }
-    .stat-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 16px;
-        border-radius: 999px;
-        background: rgba(28, 130, 68, 0.08);
-        color: #1c8244;
-        font-weight: 600;
-        font-size: 0.9rem;
-    }
-    .price-badge {
+        background: #fff;
+        border-radius: 24px;
+        padding: 40px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.03);
+        border: 1px solid rgba(0,0,0,0.04);
+        height: 100%;
         display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-        align-items: baseline;
+        flex-direction: column;
+        position: relative;
     }
-    .price-badge .current-price {
-        font-size: clamp(32px, 3vw, 42px);
-        font-weight: 700;
-        color: #d72638;
-    }
-    .feature-pill {
-        background: #f3f7f4;
-        border-radius: 16px;
-        padding: 14px 18px;
+    .btn-wishlist {
+        position: absolute;
+        top: 24px;
+        right: 24px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #fff;
+        border: 1px solid #eee;
+        color: #666;
         display: flex;
-        align-items: center;
-        gap: 12px;
-        color: #1f2b22;
-    }
-    .feature-pill i {
-        width: 38px;
-        height: 38px;
-        border-radius: 12px;
-        background: rgba(28, 130, 68, 0.12);
-        display: inline-flex;
         align-items: center;
         justify-content: center;
-        color: #1c8244;
-        font-size: 1.25rem;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        z-index: 10;
     }
-    .quantity-control {
-        border: 1px solid rgba(0,0,0,0.1);
+    .btn-wishlist:hover {
+        background: #fff0f3;
+        color: #ff4757;
+        border-color: #ff4757;
+        transform: scale(1.1);
+    }
+    .btn-wishlist.active {
+        background: #ff4757;
+        color: #fff;
+        border-color: #ff4757;
+    }
+    .product-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        line-height: 1.3;
+        margin-bottom: 12px;
+        letter-spacing: -0.5px;
+    }
+    .product-meta {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 24px;
+        font-size: 0.95rem;
+    }
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #666;
+    }
+    .meta-item i {
+        color: #1c8244;
+        font-size: 1.1rem;
+    }
+    .price-section {
+        background: #f8f9fa;
         border-radius: 16px;
-        padding: 10px 18px;
-        display: inline-flex;
+        padding: 20px 24px;
+        margin-bottom: 28px;
+        display: flex;
+        align-items: baseline;
+        gap: 16px;
+        border: 1px solid rgba(0,0,0,0.03);
+    }
+    .current-price {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #1c8244;
+        line-height: 1;
+    }
+    .old-price {
+        font-size: 1.1rem;
+        color: #999;
+        text-decoration: line-through;
+        font-weight: 500;
+    }
+    .discount-badge {
+        background: #ffebee;
+        color: #d32f2f;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.9rem;
+    }
+    .highlights-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 12px;
+        margin-bottom: 32px;
+    }
+    .highlight-item {
+        background: #fff;
+        border: 1px solid #eef1f3;
+        border-radius: 12px;
+        padding: 12px 16px;
+        display: flex;
         align-items: center;
         gap: 12px;
+        transition: all 0.2s ease;
     }
-    .quantity-control button {
-        border: none;
+    .highlight-item:hover {
+        border-color: #c3f3cb;
+        background: #f9fdfa;
+        transform: translateY(-2px);
+    }
+    .highlight-icon {
         width: 36px;
         height: 36px;
         border-radius: 10px;
-        background: #f0f2f5;
-        font-size: 20px;
+        background: #e8f5e9;
+        color: #1c8244;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        flex-shrink: 0;
     }
-    .cta-group .btn {
-        padding: 16px 24px;
-        border-radius: 16px;
+    .highlight-text {
+        display: flex;
+        flex-direction: column;
+    }
+    .highlight-label {
+        font-size: 0.75rem;
+        color: #666;
+        text-transform: uppercase;
         font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+    .highlight-value {
+        font-weight: 700;
+        color: #333;
+        font-size: 0.9rem;
+    }
+    .quantity-section {
+        margin-bottom: 32px;
+        display: flex;
+        align-items: center;
+        gap: 24px;
+    }
+    .quantity-wrapper {
+        display: flex;
+        align-items: center;
+        background: #fff;
+        border: 2px solid #eef1f3;
+        border-radius: 12px;
+        padding: 4px;
+        height: 48px;
+    }
+    .qty-btn {
+        width: 36px;
+        height: 36px;
+        border: none;
+        background: transparent;
+        border-radius: 8px;
+        color: #333;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: background 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        line-height: 1;
+    }
+    .qty-btn:hover {
+        background: #f5f5f5;
+    }
+    .qty-input {
+        width: 50px;
+        border: none;
+        text-align: center;
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #333;
+        background: transparent;
+        height: 36px;
+        padding: 0;
+        margin: 0;
+        line-height: 36px;
+    }
+    #quantity {
+        padding-left: 10px;
+    }
+    .qty-input:focus {
+        outline: none;
+    }
+    .stock-status {
+        font-size: 0.9rem;
+        color: #1c8244;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .stock-status::before {
+        content: '';
+        display: block;
+        width: 8px;
+        height: 8px;
+        background: #1c8244;
+        border-radius: 50%;
+        box-shadow: 0 0 0 3px rgba(28, 130, 68, 0.15);
+    }
+    .action-buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-top: auto;
+    }
+    .btn-action {
+        padding: 16px;
+        border-radius: 14px;
+        font-weight: 700;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        border: none;
+    }
+    .btn-add-cart {
+        background: #e8f5e9;
+        color: #1c8244;
+    }
+    .btn-add-cart:hover {
+        background: #d0e8d2;
+        transform: translateY(-2px);
+    }
+    .btn-buy-now {
+        background: linear-gradient(135deg, #1c8244 0%, #156634 100%);
+        color: #fff;
+        box-shadow: 0 8px 20px rgba(28, 130, 68, 0.25);
+    }
+    .btn-buy-now:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 25px rgba(28, 130, 68, 0.35);
+        color: #fff;
     }
     .detail-grid {
         display: grid;
@@ -538,64 +720,79 @@
         </div>
     </div>
     <div class="col-lg-6">
-        <div class="product-summary h-100 d-flex flex-column">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-                <span class="stat-pill"><i class="ri-verified-badge-line"></i>{{ $product['cert'] ?? 'An toàn đã kiểm định' }}</span>
-                <span class="text-muted"><i class="ri-fire-line me-1 text-danger"></i>{{ $product['sold_label'] ?? 'Bán chạy tuần này' }}</span>
+        <div class="product-summary">
+            <button class="btn-wishlist" title="Thêm vào yêu thích">
+                <i class="ri-heart-line"></i>
+            </button>
+            <div class="product-meta">
+                <div class="meta-item">
+                    <i class="ri-verified-badge-fill"></i>
+                    <span>{{ $product['cert'] ?? 'Chứng nhận hữu cơ' }}</span>
+                </div>
+                <div class="meta-item">
+                    <i class="ri-star-fill" style="color: #ffc107;"></i>
+                    <span>{{ number_format($reviewStats['average'] ?? 0, 1) }} ({{ $reviewStats['total'] ?? 0 }} đánh giá)</span>
+                </div>
+                <div class="meta-item">
+                    <i class="ri-fire-fill" style="color: #ff5722;"></i>
+                    <span>{{ $product['sold_label'] ?? 'Đã bán 0' }}</span>
+                </div>
             </div>
-            <h1 class="h3 fw-700 mb-2">{{ $product['name'] ?? 'Táo Gala Pháp size 100' }}</h1>
-            <p class="text-muted mb-4">{{ $product['description'] ?? 'Chọn lọc kỹ càng từ nông trại Organic, bảo quản lạnh và giao nhanh trong 2 giờ.' }}</p>
 
-            <div class="price-badge mb-4">
+            <h1 class="product-title">{{ $product['name'] ?? 'Táo Gala Pháp size 100' }}</h1>
+            <p class="text-muted mb-4" style="line-height: 1.6;">{{ $product['description'] ?? 'Táo Gala Pháp có vỏ đỏ sọc vàng bắt mắt, thịt giòn, ngọt thanh và rất thơm. Sản phẩm được nhập khẩu trực tiếp, đảm bảo tươi ngon.' }}</p>
+
+            <div class="price-section">
                 <span class="current-price">{{ number_format($product['price'] ?? 89000) }}đ</span>
                 @if(isset($product['old_price']) && $product['old_price'] > ($product['price'] ?? 0))
-                    <span class="text-muted" style="text-decoration: line-through;">{{ number_format($product['old_price']) }}đ</span>
-                    <span class="badge bg-danger-subtle text-danger fw-600">-{{ round((($product['old_price'] - ($product['price'] ?? 0)) / $product['old_price']) * 100) }}%</span>
+                    <span class="old-price">{{ number_format($product['old_price']) }}đ</span>
+                    <span class="discount-badge">-{{ round((($product['old_price'] - ($product['price'] ?? 0)) / $product['old_price']) * 100) }}%</span>
                 @endif
-                <span class="text-muted">Đơn vị: {{ $product['unit'] ?? '1kg' }}</span>
+                <span class="text-muted ms-auto">Đơn vị: <strong>{{ $product['unit'] ?? '1kg' }}</strong></span>
             </div>
 
-            <div class="row g-3 mb-4">
+            <div class="highlights-grid">
                 @foreach($highlights->take(3) as $highlight)
-                    <div class="col-md-4 col-sm-6">
-                        <div class="feature-pill">
+                    <div class="highlight-item">
+                        <div class="highlight-icon">
                             <i class="{{ $highlight['icon'] ?? 'ri-leaf-line' }}"></i>
-                            <div>
-                                <div class="fw-600">{{ $highlight['label'] ?? '' }}</div>
-                                <small class="text-muted">{{ $highlight['value'] ?? '' }}</small>
-                            </div>
+                        </div>
+                        <div class="highlight-text">
+                            <span class="highlight-label">{{ $highlight['label'] ?? '' }}</span>
+                            <span class="highlight-value">{{ $highlight['value'] ?? '' }}</span>
                         </div>
                     </div>
                 @endforeach
             </div>
 
-            <div class="mb-4">
-                <h6 class="fw-600 text-uppercase text-muted mb-2">Số lượng</h6>
-                <div class="d-flex flex-wrap align-items-center gap-3">
-                    <div class="quantity-control">
-                        <button type="button" onclick="decreaseQuantity()">-</button>
-                        <input type="number" id="quantity" value="1" min="1" class="form-control text-center border-0" style="width: 70px; font-weight: 700;">
-                        <button type="button" onclick="increaseQuantity()">+</button>
-                    </div>
-                    <span class="text-muted"><i class="ri-stack-line text-success me-1"></i>{{ $product['stock'] ?? 100 }} sản phẩm có sẵn</span>
+            <div class="quantity-section">
+                <div class="quantity-wrapper">
+                    <button type="button" class="qty-btn" onclick="decreaseQuantity()">-</button>
+                    <input type="number" id="quantity" value="1" min="1" class="qty-input">
+                    <button type="button" class="qty-btn" onclick="increaseQuantity()">+</button>
+                </div>
+                <div class="stock-status">
+                    {{ $product['stock'] ?? 100 }} sản phẩm
                 </div>
             </div>
 
-            <div class="cta-group d-grid gap-3" style="grid-template-columns: repeat(auto-fit,minmax(220px,1fr));">
+            <div class="action-buttons">
                 <button type="button"
-                    class="btn btn-success text-white"
+                    class="btn-action btn-add-cart"
                     data-add-to-cart="true"
                     data-product-id="{{ $product['id'] ?? '' }}"
                     data-quantity-field="#quantity">
-                    <i class="ri-shopping-bag-3-line me-2"></i>Thêm vào giỏ hàng
+                    <i class="ri-shopping-bag-3-line"></i>
+                    Thêm vào giỏ
                 </button>
                 <button type="button"
-                    class="btn btn-outline-success"
+                    class="btn-action btn-buy-now"
                     data-add-to-cart="true"
                     data-product-id="{{ $product['id'] ?? '' }}"
                     data-quantity-field="#quantity"
                     data-redirect-url="{{ route('user.cart.index') }}">
-                    <i class="ri-flashlight-line me-2"></i>Mua ngay & giao nhanh
+                    <i class="ri-flashlight-fill"></i>
+                    Mua ngay
                 </button>
             </div>
         </div>
@@ -1075,6 +1272,29 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     });
+
+    // Main product wishlist button handler
+    const mainWishlistBtn = document.querySelector('.product-summary .btn-wishlist');
+    if (mainWishlistBtn) {
+        mainWishlistBtn.addEventListener('click', function() {
+            const icon = this.querySelector('i');
+            this.classList.toggle('active');
+            
+            if (this.classList.contains('active')) {
+                icon.classList.remove('ri-heart-line');
+                icon.classList.add('ri-heart-fill');
+                
+                // Animation effect
+                this.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 200);
+            } else {
+                icon.classList.remove('ri-heart-fill');
+                icon.classList.add('ri-heart-line');
+            }
+        });
+    }
 });
 </script>
 @endpush
