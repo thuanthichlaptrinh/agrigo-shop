@@ -2,486 +2,891 @@
 
 @section('title', $product['name'] ?? 'Chi tiết sản phẩm - Organic Shop')
 
+@php
+    $placeholderImage = 'template/Assets/Images/tao_gala_phap_size_100_8aef2b9571944ed0b7a6ee52ea416e3d_large.webp';
+    $gallery = collect($product['gallery'] ?? [])
+        ->flatten()
+        ->filter()
+        ->map(fn ($img) => function_exists('product_image_url') ? product_image_url($img) : asset($img))
+        ->values();
+
+    if ($gallery->isEmpty()) {
+        $gallery = collect([
+            function_exists('product_image_url') ? product_image_url($product['image'] ?? null) : asset($product['image'] ?? $placeholderImage),
+            asset($placeholderImage)
+        ]);
+    }
+
+    $gallery = $gallery->unique()->values();
+
+    $highlights = collect($product['highlights'] ?? [
+        ['icon' => 'ri-leaf-line', 'label' => 'Chuẩn hữu cơ', 'value' => 'Chứng nhận VietGAP'],
+        ['icon' => 'ri-shield-check-line', 'label' => 'Bảo quản lạnh', 'value' => 'Giữ tươi 48h'],
+        ['icon' => 'ri-truck-line', 'label' => 'Giao nhanh', 'value' => 'Trong 2 giờ']
+    ]);
+
+    $facts = [
+        ['label' => 'Thương hiệu', 'value' => $product['brand'] ?? 'Organic Shop'],
+        ['label' => 'Xuất xứ', 'value' => $product['origin'] ?? 'Việt Nam'],
+        ['label' => 'Đóng gói', 'value' => $product['weight'] ?? '1kg / túi'],
+        ['label' => 'Hạn sử dụng', 'value' => $product['expiry'] ?? '07 ngày'],
+    ];
+
+    $relatedProducts = collect($relatedProducts ?? $product['related'] ?? [])->filter(function ($item) {
+        return filled(data_get($item, 'name'));
+    });
+@endphp
+
 @push('styles')
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css" />
 <style>
-    .btn-Them:hover,
-    .btn-ThanhToan:hover {
-        filter: brightness(1.5);
+    .product-hero {
+        border-radius: 8px;
+        width: 1320px !important;
+        background:  #fff;
+        box-shadow: 0 24px 55px rgba(41, 148, 85, 0.08);
+        padding-top: 0 !important;
     }
-    .product-images img {
+    .breadcrumb-trail {
+        align-items: center;
+        gap: 10px;
+        background: #fff;
+        padding: 10px 18px;
+        box-shadow: 0 12px 30px rgba(28, 130, 68, 0.08);
+        margin-bottom: 22px;
+        font-size: 13px;
+        color: #5b6472;
+        margin-left: -12px;
+        margin-right: -12px;
+        margin-bottom: 30px;
+    }
+    .breadcrumb-trail .breadcrumb-icon {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #c3f3cb 0%, #6ccf8b 100%);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #115c32;
+        font-size: 1.1rem;
+    }
+    .breadcrumb-icon i {
+        font-size: 14px
+    }
+    .breadcrumb-trail .breadcrumb-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: inherit;
+    }
+    .breadcrumb-trail .breadcrumb-item a {
+        color: #0c8b46;
+        font-weight: 600;
+        text-decoration: none;
+    }
+    .breadcrumb-trail .breadcrumb-item span {
+        color: #7b8698;
+        font-weight: 600;
+    }
+    .breadcrumb-trail .breadcrumb-sep {
+        color: #c5ced9;
+        font-size: 13px;
+    }
+    .product-media {
+        border-radius: 20px;
+        box-shadow: inset 0 0  1px rgba(0, 0, 0, 0.04);
+        background-color: rgba(255, 255, 255, 0.9);
+    }
+    .media-surface {
+        position: relative;
+        overflow: hidden;
+        border-radius: 18px;
+        background: #f6f9fb;
+    }
+    .media-track {
+        display: flex;
+        transition: transform 0.6s cubic-bezier(.4,0,.2,1);
+        will-change: transform;
+    }
+    .media-slide {
+        min-width: 100%;
+        padding: 32px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: white;
+    }
+    .media-slide img {
+        width: 100%;
+        max-height: 420px;
+        object-fit: contain;
+    }
+    .media-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        border: none;
+        background: rgba(28, 130, 68, 0.12);
+        color: #1c8244;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         cursor: pointer;
-        border: 2px solid transparent;
+        transition: all 0.2s ease;
+        opacity: 0;
+        pointer-events: none;
     }
-    .product-images img.active,
-    .product-images img:hover {
-        border-color: var(--bg-primary);
+    .media-nav:hover { background: #1c8244; color: #fff; }
+    .media-nav--prev { left: 12px; }
+    .media-nav--next { right: 12px; }
+    .media-surface:hover .media-nav,
+    .media-nav:focus-visible {
+        opacity: 1;
+        pointer-events: auto;
+    }
+    .media-thumbs {
+        display: flex;
+        gap: 12px;
+        margin-top: 18px;
+        overflow-x: auto;
+        padding-bottom: 4px; 
+        padding-left: 24px;
+        padding-bottom: 24px;
+    }
+    .media-thumb {
+        width: 72px;
+        height: 72px;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 2px solid transparent;
+        flex-shrink: 0;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .media-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .media-thumb.is-active { border-color: #1c8244; box-shadow: 0 8px 16px rgba(28,130,68,.18); }
+
+    .product-summary {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 20px;
+        padding: 32px;
+        box-shadow: inset 0 0 0 1px rgba(0,0,0,.04);
+    }
+    .stat-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 999px;
+        background: rgba(28, 130, 68, 0.08);
+        color: #1c8244;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    .price-badge {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: baseline;
+    }
+    .price-badge .current-price {
+        font-size: clamp(32px, 3vw, 42px);
+        font-weight: 700;
+        color: #d72638;
+    }
+    .feature-pill {
+        background: #f3f7f4;
+        border-radius: 16px;
+        padding: 14px 18px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: #1f2b22;
+    }
+    .feature-pill i {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        background: rgba(28, 130, 68, 0.12);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #1c8244;
+        font-size: 1.25rem;
+    }
+    .quantity-control {
+        border: 1px solid rgba(0,0,0,0.1);
+        border-radius: 16px;
+        padding: 10px 18px;
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .quantity-control button {
+        border: none;
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: #f0f2f5;
+        font-size: 20px;
+    }
+    .cta-group .btn {
+        padding: 16px 24px;
+        border-radius: 16px;
+        font-weight: 600;
+    }
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+    }
+    .detail-card {
+        background: #fff;
+        border-radius: 16px;
+        padding: 18px;
+        border: 1px solid rgba(0,0,0,0.06);
+    }
+    .detail-card span {
+        display: block;
+    }
+    .detail-card .label { color: #6b7785; font-size: 0.9rem; }
+    .detail-card .value { font-weight: 600; margin-top: 4px; }
+
+    .related-section {
+        margin-left: -24px;
+        margin-right: -24px;
+    }
+    .related-product-card {
+        border-radius: 20px;
+        border: 1px solid rgba(28,130,68,0.12);
+        overflow: hidden;
+        background: #fff;
+        transition: transform .2s ease, box-shadow .2s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    .related-product-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 18px 35px rgba(15, 86, 52, 0.12);
+    }
+    .related-product-card img {
+        width: 100%;
+        aspect-ratio: 4/3;
+        object-fit: cover;
+    }
+    .related-product-card .card-body {
+        padding: 18px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    .related-product-card .price {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1c8244;
+    }
+    .related-product-card .unit {
+        color: #7b8698;
+        font-size: 0.9rem;
+    }
+    .related-product-card .btn {
+        border-radius: 12px;
+        font-weight: 600;
+        margin-top: auto;
+    }
+    .related-carousel {
+        position: relative;
+        padding: 0 48px;
+    }
+    .related-carousel-track {
+        display: flex;
+        gap: 16px;
+        overflow-x: auto;
+        scroll-snap-type: x proximity;
+        scroll-behavior: smooth;
+        padding-bottom: 8px;
+    }
+    .related-carousel-track::-webkit-scrollbar { display: none; }
+    .related-carousel-item {
+        flex: 0 0 calc(20% - 13px);
+        min-width: 210px;
+        scroll-snap-align: start;
+    }
+    .related-carousel-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: none;
+        background: rgba(28, 130, 68, 0.12);
+        color: #1c8244;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        opacity: 0;
+        pointer-events: none;
+    }
+    .related-carousel-nav:hover { background: #1c8244; color: #fff; }
+    .related-carousel-nav--prev { left: 0; }
+    .related-carousel-nav--next { right: 0; }
+    .related-carousel:hover .related-carousel-nav,
+    .related-carousel-nav:focus-visible {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    @media (max-width: 991px) {
+        .product-hero { margin: 0 -12px; }
+        .product-summary, .product-media { padding: 20px; }
+        .related-carousel { padding: 0 36px; }
+        .related-carousel-item { flex: 0 0 calc(50% - 12px); }
+    }
+
+    @media (max-width: 575px) {
+        .related-carousel { padding: 0 12px; }
+        .related-carousel-item { flex: 0 0 80%; }
+        .related-carousel-nav { width: 32px; height: 32px; }
+    }
+    .btn-gradient-add {
+        border: none;
+        background: linear-gradient(135deg, #8eca51 0%, #2c8e5f 60%, #1f7a4c 100%);
+        color: #fff !important;
+        box-shadow: 0 14px 28px rgba(13, 91, 52, 0.25);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .btn-gradient-add:hover {
+        transform: translateY(-2px);
+        color: #fff;
+        box-shadow: 0 20px 35px rgba(13, 91, 52, 0.35);
+    }
+    .review-score {
+        font-size: clamp(2.25rem, 4vw, 3rem);
+        font-weight: 700;
+        color: #1c8244;
+    }
+    .review-stars i {
+        font-size: 1.4rem;
+        color: #ffc107;
+    }
+    .review-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: #e2f5e9;
+        color: #0c8b46;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .star-rating-input {
+        display: inline-flex;
+        gap: 8px;
+    }
+    .star-rating-input button {
+        border: none;
+        background: transparent;
+        font-size: 1.8rem;
+        color: #d5dce2;
+        cursor: pointer;
+        padding: 0;
+        transition: color 0.15s ease;
+    }
+    .star-rating-input button.is-active {
+        color: #ffc107;
+    }
+    .review-form textarea {
+        resize: vertical;
+        min-height: 110px;
+    }
+    .alert-inline {
+        border-radius: 10px;
+        font-size: 0.9rem;
+    }
+    .review-photos {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .review-photo {
+        width: 88px;
+        height: 88px;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.08);
+        display: block;
+    }
+    .review-photo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+    .review-filter .btn {
+        border-radius: 999px;
+        border: 1px solid rgba(12, 139, 70, 0.2);
+        color: #0c8b46;
+        background: transparent;
+        font-weight: 600;
+        padding: 6px 14px;
+    }
+    .review-filter .btn.active,
+    .review-filter .btn:hover {
+        background: #0c8b46;
+        color: #fff;
+        border-color: #0c8b46;
     }
 </style>
 @endpush
 
 @section('content')
-<div class="row" style="margin-left: -24px; margin-right: -24px">
-    <div class="col-12">
-        <!-- Breadcrumb -->
-        <div class="p-2 bg-white my-2" style="border-radius: 4px">
-            <a href="{{ route('user.home') }}" style="text-decoration: none; color: #000">
-                <i class="ri-home-line" style="font-size: 18px; margin-right: 6px"></i>
-            </a>
-            <i class="ri-arrow-right-s-line"></i>
-            <a href="{{ route('user.products.index') }}" style="text-decoration: none; color: #000">Sản phẩm</a>
-            <i class="ri-arrow-right-s-line"></i>
-            <span class="fw-500">{{ $product['name'] ?? 'Chi tiết sản phẩm' }}</span>
-        </div>
-    </div>
-</div>
-
-<div class="row mt-3" style="margin-left: -24px; margin-right: -24px">
-    <!-- Product Images -->
-    <div class="col-md-5">
-        <div class="bg-white p-3" style="border-radius: 8px">
-            <div class="main-image mb-3">
-                <img id="mainImage" src="{{ asset($product['image'] ?? 'template/Assets/Images/tao_gala_phap_size_100_8aef2b9571944ed0b7a6ee52ea416e3d_large.webp') }}" class="w-100" alt="" style="border-radius: 8px" />
-            </div>
-            <div class="product-images d-flex gap-2">
-                @for($i = 0; $i < 4; $i++)
-                <img src="{{ asset('template/Assets/Images/tao_gala_phap_size_100_8aef2b9571944ed0b7a6ee52ea416e3d_large.webp') }}" 
-                     style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px" 
-                     alt="" 
-                     @if($i === 0) class="active" @endif
-                     onclick="changeMainImage(this)" />
-                @endfor
-            </div>
-        </div>
-    </div>
-
-    <!-- Product Info -->
-    <div class="col-md-7">
-        <div class="bg-white p-4" style="border-radius: 8px">
-            <h3 class="fw-700">{{ $product['name'] ?? 'Táo Gala Pháp size 100' }}</h3>
-            <p class="text-muted">{{ $product['description'] ?? 'Sản phẩm chất lượng cao' }}</p>
-            
-            <div class="my-4">
-                <div class="d-flex align-items-center gap-3">
-                    <span class="fs-1 fw-700 text-danger">{{ number_format($product['price'] ?? 89000) }}đ</span>
-                    @if(isset($product['old_price']))
-                    <span class="fs-5 text-muted" style="text-decoration: line-through">{{ number_format($product['old_price']) }}đ</span>
-                    <span class="badge bg-danger">-{{ round((($product['old_price'] - $product['price']) / $product['old_price']) * 100) }}%</span>
-                    @endif
+@if(!empty($product['breadcrumbs']))
+    <nav class="breadcrumb-trail">
+        <span class="breadcrumb-icon"><i class="ri-home-5-line"></i></span>
+        @foreach($product['breadcrumbs'] as $index => $crumb)
+            <span class="breadcrumb-item">
+                @if(!empty($crumb['url']))
+                    <a href="{{ $crumb['url'] }}">{{ $crumb['label'] }}</a>
+                @else
+                    <span>{{ $crumb['label'] }}</span>
+                @endif
+            </span>
+            @if(!$loop->last)
+                <i class="ri-arrow-right-s-line breadcrumb-sep"></i>
+            @endif
+        @endforeach
+    </nav>
+@endif
+<div class="row g-4 product-hero pt-0">
+    <div class="col-lg-6 mt-0">
+        <div class="product-media h-100">
+            <div class="media-surface">
+                <div class="media-track" id="productMediaTrack">
+                    @foreach($gallery as $image)
+                        <div class="media-slide" data-slide-index="{{ $loop->index }}">
+                            <img src="{{ $image }}" alt="{{ $product['name'] ?? 'Hình ảnh sản phẩm' }}" loading="lazy">
+                        </div>
+                    @endforeach
                 </div>
-                <p class="text-muted mt-2">Đơn vị: {{ $product['unit'] ?? '1kg' }}</p>
+                <button type="button" class="media-nav media-nav--prev" aria-label="Ảnh trước" data-media-nav="-1">
+                    <i class="ri-arrow-left-s-line"></i>
+                </button>
+                <button type="button" class="media-nav media-nav--next" aria-label="Ảnh tiếp" data-media-nav="1">
+                    <i class="ri-arrow-right-s-line"></i>
+                </button>
+            </div>
+            <div class="media-thumbs" id="productMediaThumbs">
+                @foreach($gallery as $image)
+                    <div class="media-thumb" data-thumb-index="{{ $loop->index }}">
+                        <img src="{{ $image }}" alt="thumb-{{ $loop->index }}" loading="lazy">
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="product-summary h-100 d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                <span class="stat-pill"><i class="ri-verified-badge-line"></i>{{ $product['cert'] ?? 'An toàn đã kiểm định' }}</span>
+                <span class="text-muted"><i class="ri-fire-line me-1 text-danger"></i>{{ $product['sold_label'] ?? 'Bán chạy tuần này' }}</span>
+            </div>
+            <h1 class="h3 fw-700 mb-2">{{ $product['name'] ?? 'Táo Gala Pháp size 100' }}</h1>
+            <p class="text-muted mb-4">{{ $product['description'] ?? 'Chọn lọc kỹ càng từ nông trại Organic, bảo quản lạnh và giao nhanh trong 2 giờ.' }}</p>
+
+            <div class="price-badge mb-4">
+                <span class="current-price">{{ number_format($product['price'] ?? 89000) }}đ</span>
+                @if(isset($product['old_price']) && $product['old_price'] > ($product['price'] ?? 0))
+                    <span class="text-muted" style="text-decoration: line-through;">{{ number_format($product['old_price']) }}đ</span>
+                    <span class="badge bg-danger-subtle text-danger fw-600">-{{ round((($product['old_price'] - ($product['price'] ?? 0)) / $product['old_price']) * 100) }}%</span>
+                @endif
+                <span class="text-muted">Đơn vị: {{ $product['unit'] ?? '1kg' }}</span>
+            </div>
+
+            <div class="row g-3 mb-4">
+                @foreach($highlights->take(3) as $highlight)
+                    <div class="col-md-4 col-sm-6">
+                        <div class="feature-pill">
+                            <i class="{{ $highlight['icon'] ?? 'ri-leaf-line' }}"></i>
+                            <div>
+                                <div class="fw-600">{{ $highlight['label'] ?? '' }}</div>
+                                <small class="text-muted">{{ $highlight['value'] ?? '' }}</small>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
             </div>
 
             <div class="mb-4">
-                <h5>Số lượng:</h5>
-                <div class="d-flex align-items-center gap-2">
-                    <div class="d-flex align-items-center" style="border: 1px solid #ddd; border-radius: 8px; padding: 8px">
-                        <button class="btn btn-sm" onclick="decreaseQuantity()">-</button>
-                        <input type="number" id="quantity" value="1" min="1" class="form-control text-center mx-2" style="width: 60px; border: none" />
-                        <button class="btn btn-sm" onclick="increaseQuantity()">+</button>
+                <h6 class="fw-600 text-uppercase text-muted mb-2">Số lượng</h6>
+                <div class="d-flex flex-wrap align-items-center gap-3">
+                    <div class="quantity-control">
+                        <button type="button" onclick="decreaseQuantity()">-</button>
+                        <input type="number" id="quantity" value="1" min="1" class="form-control text-center border-0" style="width: 70px; font-weight: 700;">
+                        <button type="button" onclick="increaseQuantity()">+</button>
                     </div>
-                    <span class="text-muted">{{ $product['stock'] ?? 100 }} sản phẩm có sẵn</span>
+                    <span class="text-muted"><i class="ri-stack-line text-success me-1"></i>{{ $product['stock'] ?? 100 }} sản phẩm có sẵn</span>
                 </div>
             </div>
 
-            <div class="d-flex gap-3">
+            <div class="cta-group d-grid gap-3" style="grid-template-columns: repeat(auto-fit,minmax(220px,1fr));">
                 <button type="button"
-                    class="btn btn-primary btn-lg flex-grow-1"
+                    class="btn btn-success text-white"
                     data-add-to-cart="true"
                     data-product-id="{{ $product['id'] ?? '' }}"
                     data-quantity-field="#quantity">
-                    <i class="ri-shopping-cart-line me-2"></i>
-                    Thêm vào giỏ hàng
+                    <i class="ri-shopping-bag-3-line me-2"></i>Thêm vào giỏ hàng
                 </button>
-                <a href="{{ route('user.cart.index') }}"
-                    class="btn btn-success btn-lg flex-grow-1"
+                <button type="button"
+                    class="btn btn-outline-success"
                     data-add-to-cart="true"
                     data-product-id="{{ $product['id'] ?? '' }}"
                     data-quantity-field="#quantity"
                     data-redirect-url="{{ route('user.cart.index') }}">
-                    Mua ngay
-                </a>
-            </div>
-        </div>
-
-        <!-- Product Details -->
-        <div class="bg-white p-4 mt-3" style="border-radius: 8px">
-            <h5 class="fw-700">Thông tin sản phẩm</h5>
-            <table class="table">
-                <tbody>
-                    <tr>
-                        <td class="fw-500">Thương hiệu:</td>
-                        <td>{{ $product['brand'] ?? 'Organic Shop' }}</td>
-                    </tr>
-                    <tr>
-                        <td class="fw-500">Xuất xứ:</td>
-                        <td>{{ $product['origin'] ?? 'Việt Nam' }}</td>
-                    </tr>
-                    <tr>
-                        <td class="fw-500">Trọng lượng:</td>
-                        <td>{{ $product['weight'] ?? '1kg' }}</td>
-                    </tr>
-                    <tr>
-                        <td class="fw-500">Hạn sử dụng:</td>
-                        <td>{{ $product['expiry'] ?? '7 ngày' }}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<!-- Product Description -->
-<div class="row mt-3" style="margin-left: -24px; margin-right: -24px">
-    <div class="col-12">
-        <div class="bg-white p-4" style="border-radius: 8px">
-            <h5 class="fw-700">Mô tả sản phẩm</h5>
-            <div class="mt-3">
-                {!! $product['full_description'] ?? '<p>Sản phẩm chất lượng cao, được chọn lọc kỹ càng từ các nhà cung cấp uy tín.</p>' !!}
+                    <i class="ri-flashlight-line me-2"></i>Mua ngay & giao nhanh
+                </button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Related Products -->
-<div class="row mt-3" style="margin-left: -24px; margin-right: -24px">
-    <div class="col-12">
-        <div class="bg-white p-4" style="border-radius: 8px">
-            <h5 class="fw-700 mb-3">Sản phẩm liên quan</h5>
-            <div class="row">
-                @for($i = 0; $i < 4; $i++)
-                <div class="col-lg-3 col-md-4 col-sm-12 mb-3">
-                    <div class="card" style="border: 1px solid #d8e1f9">
-                        <a href="{{ route('user.products.detail', 1) }}">
-                            <img src="{{ asset('template/Assets/Images/tao_gala_phap_size_100_8aef2b9571944ed0b7a6ee52ea416e3d_large.webp') }}" class="w-100" alt="" />
+<div class="bg-white p-4 mt-4" style="border-radius: 8px; width: 1320px; margin-left: -12px;">
+    <h4 class="fw-700 mb-3">Thông tin sản phẩm</h4>
+    <div class="detail-grid mb-4">
+        @foreach($facts as $fact)
+            <div class="detail-card">
+                <span class="label">{{ $fact['label'] }}</span>
+                <span class="value">{{ $fact['value'] }}</span>
+            </div>
+        @endforeach
+    </div>
+    <div class="mt-3">
+        {!! $product['full_description'] ?? '<p>Sản phẩm chất lượng cao, được chọn lọc kỹ càng từ các nhà cung cấp uy tín, đảm bảo độ tươi ngon và giàu dinh dưỡng cho mỗi bữa ăn của gia đình bạn.</p>' !!}
+    </div>
+</div>
+
+@if($relatedProducts->isNotEmpty())
+<div class="related-section mt-4">
+    <div class="bg-white p-4" style="border-radius: 8px; width: 1320px; margin-left: 12px; ">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div>
+                <h4 class="fw-700 mb-1">Sản phẩm liên quan</h4>
+                <p class="text-muted mb-0">Gợi ý dành riêng cho bạn dựa trên sản phẩm đang xem</p>
+            </div>
+            <a href="{{ $product['category_url'] ?? route('user.products.index') }}" class="text-success fw-600">Xem tất cả <i class="ri-arrow-right-up-line"></i></a>
+        </div>
+        <div class="related-carousel" id="relatedCarousel">
+            <button type="button" class="related-carousel-nav related-carousel-nav--prev" aria-label="Sản phẩm trước" data-related-nav="-1">
+                <i class="ri-arrow-left-s-line"></i>
+            </button>
+            <div class="related-carousel-track" id="relatedCarouselTrack">
+                @foreach($relatedProducts as $item)
+                    <div class="related-carousel-item">
+                        <div class="related-product-card">
+                            <a href="{{ route('user.products.detail', $item['id'] ?? 0) }}">
+                                <img src="{{ function_exists('product_image_url') ? product_image_url($item['image'] ?? null) : asset($item['image'] ?? $placeholderImage) }}" alt="{{ $item['name'] ?? '' }}" loading="lazy">
+                            </a>
+                            <div class="card-body">
+                                <p class="text-muted mb-1">{{ $item['category'] ?? 'Rau củ quả' }}</p>
+                                <h6 class="fw-700 mb-2">{{ $item['name'] ?? '' }}</h6>
+                                <div class="d-flex align-items-baseline gap-2 mb-3">
+                                    <span class="price">{{ number_format($item['price'] ?? 0) }}đ</span>
+                                    <span class="unit">/{{ $item['unit'] ?? '1kg' }}</span>
+                                </div>
+                                <button type="button" class="btn btn-gradient-add" data-add-to-cart="true" data-product-id="{{ $item['id'] ?? '' }}" data-quantity-field="#quantity">
+                                    <i class="ri-shopping-cart-line me-1"></i>Thêm vào giỏ
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+            <button type="button" class="related-carousel-nav related-carousel-nav--next" aria-label="Sản phẩm tiếp" data-related-nav="1">
+                <i class="ri-arrow-right-s-line"></i>
+            </button>
+        </div>
+    </div>
+</div>
+@endif
+
+@php
+    $averageRating = $reviewStats['average'] ?? 0;
+    $totalReviews = $reviewStats['total'] ?? 0;
+    $breakdown = $reviewStats['breakdown'] ?? [];
+    $selectedRating = $selectedRating ?? null;
+@endphp
+
+<div class="row mt-3" id="reviews">
+    <div class="col-12 bg-white p-4" style="border-radius: 8px">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+            <div>
+                <h4 class="fw-700 mb-1" style="color: var(--text-primary)">Đánh giá {{ $product['name'] ?? 'sản phẩm' }}</h4>
+                <p class="text-muted mb-0">{{ $totalReviews ? $totalReviews . ' lượt đánh giá đã đăng' : 'Chưa có đánh giá nào' }}</p>
+            </div>
+            @if(session('success'))
+                <div class="alert alert-success mb-0 alert-inline">{{ session('success') }}</div>
+            @elseif(session('error'))
+                <div class="alert alert-danger mb-0 alert-inline">{{ session('error') }}</div>
+            @endif
+        </div>
+
+        <div class="row gy-4">
+            <div class="col-md-5 border-end">
+                <div class="text-center mb-4">
+                    <div class="review-score">{{ number_format((float) $averageRating, 1) }}<span class="fs-4 text-muted">/5</span></div>
+                    <div class="review-stars mb-2">
+                        @for ($i = 1; $i <= 5; $i++)
+                            <i class="ri-star-{{ $i <= round($averageRating) ? 'fill' : 'line' }}"></i>
+                        @endfor
+                    </div>
+                    <p class="text-muted mb-0">{{ $totalReviews }} lượt đánh giá hợp lệ</p>
+                </div>
+                <div class="rating-bars">
+                    @for ($star = 5; $star >= 1; $star--)
+                        @php
+                            $bar = $breakdown[$star] ?? ['count' => 0, 'percent' => 0];
+                        @endphp
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="me-2 fw-600" style="width: 22px;">{{ $star }}</span>
+                            <i class="ri-star-fill me-2" style="color: #ffc107;"></i>
+                            <div class="progress flex-fill me-2" style="height: 8px;">
+                                <div class="progress-bar bg-rating" role="progressbar" style="width: {{ $bar['percent'] ?? 0 }}%; background-color: #00713b !important;" aria-valuenow="{{ $bar['percent'] ?? 0 }}" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <span class="text-muted" style="width: 110px;">{{ $bar['count'] ?? 0 }} đánh giá</span>
+                        </div>
+                    @endfor
+                </div>
+            </div>
+            <div class="col-md-7 ps-md-4">
+                <h5 class="fw-600 mb-3" style="color: var(--text-primary)">Chia sẻ trải nghiệm của bạn</h5>
+                @auth
+                    <form action="{{ route('user.products.reviews.store', $product['id']) }}" method="POST" class="review-form" enctype="multipart/form-data">
+                        @csrf
+                        <div class="mb-3">
+                            <label class="fw-600 mb-2">Chọn số sao</label>
+                            <div class="star-rating-input" data-rating-input>
+                                <input type="hidden" name="rating" value="{{ old('rating', 5) }}">
+                                @for ($i = 1; $i <= 5; $i++)
+                                    <button type="button" data-value="{{ $i }}" aria-label="{{ $i }} sao">
+                                        <i class="ri-star-fill"></i>
+                                    </button>
+                                @endfor
+                            </div>
+                            @error('rating')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="mb-3">
+                            <label for="reviewComment" class="fw-600 mb-2">Nội dung đánh giá</label>
+                            <textarea id="reviewComment" name="comment" class="form-control @error('comment') is-invalid @enderror" placeholder="Chia sẻ cảm nhận về chất lượng, hương vị, cách đóng gói...">{{ old('comment') }}</textarea>
+                            @error('comment')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="mb-3">
+                            <label class="fw-600 mb-2" for="reviewPhotos">Hình ảnh minh họa <span class="text-muted fw-normal" style="font-size: 0.9rem;">(tối đa 4 ảnh, 3MB/ảnh)</span></label>
+                            <input type="file" name="photos[]" id="reviewPhotos" class="form-control" accept="image/jpeg,image/png,image/webp" multiple>
+                            <div class="form-text">Ưu tiên ảnh thực tế để người khác dễ tham khảo.</div>
+                            @if($errors->has('photos') || $errors->has('photos.*'))
+                                <div class="text-danger small mt-1">{{ $errors->first('photos') ?? $errors->first('photos.*') }}</div>
+                            @endif
+                        </div>
+                        <button type="submit" class="btn btn-gradient-add px-4">
+                            <i class="ri-send-plane-line me-1"></i>Gửi đánh giá
+                        </button>
+                    </form>
+                @else
+                    <div class="p-4 bg-light rounded-3 d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3">
+                        <div>
+                            <p class="fw-600 mb-1">Vui lòng đăng nhập để đánh giá sản phẩm</p>
+                            <p class="text-muted mb-0">Chúng tôi sẽ hiển thị ngay sau khi bạn gửi.</p>
+                        </div>
+                        <a href="{{ route('login') }}" class="btn btn-gradient-add px-4">Đăng nhập</a>
+                    </div>
+                @endauth
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
+                <div class="review-filter d-flex flex-wrap gap-2">
+                    <a href="{{ route('user.products.detail', ['id' => $product['id']]) }}#reviews" class="btn {{ $selectedRating === null ? 'active' : '' }}">
+                        Tất cả ({{ $totalReviews }})
+                    </a>
+                    @for ($star = 5; $star >= 1; $star--)
+                        <a href="{{ route('user.products.detail', ['id' => $product['id'], 'rating' => $star]) }}#reviews" class="btn {{ $selectedRating === $star ? 'active' : '' }}">
+                            {{ $star }} sao ({{ $breakdown[$star]['count'] ?? 0 }})
                         </a>
-                        <div class="card-body">
-                            <p class="card-title fw-400 txt-gray">Sản phẩm tương tự</p>
-                            <p class="card-title">
-                                <span class="fw-700">89.000đ</span>
-                                <span class="txt-gray fs-13-t">/1kg</span>
-                            </p>
-                            <div class="container-ThemVGio">
-                                <a href="#" class="btn btn-ThemVaoGio text-white mx-auto fw-500 d-block">Thêm vào giỏ</a>
+                    @endfor
+                </div>
+                @if($selectedRating)
+                    <div class="text-muted small">
+                        Đang lọc theo <strong>{{ $selectedRating }} sao</strong> ·
+                        <a href="{{ route('user.products.detail', ['id' => $product['id']]) }}#reviews" class="text-success text-decoration-none">Xóa lọc</a>
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        @php
+            $reviewsCollection = $reviews instanceof \Illuminate\Support\Collection ? $reviews : collect($reviews ?? []);
+            $reviewCount = $reviewsCollection->count();
+        @endphp
+
+        <div class="mt-4" data-review-list>
+            @forelse($reviews as $review)
+                @php $isHiddenReview = $loop->index >= 2; @endphp
+                <div class="review-item border-bottom pb-3 mb-3 {{ $isHiddenReview ? 'd-none js-review-hidden' : '' }}" data-review-item data-hidden="{{ $isHiddenReview ? 'true' : 'false' }}">
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="review-avatar">{{ $review['user_initial'] ?? 'U' }}</div>
+                        <div class="flex-fill">
+                            <h6 class="fw-600 mb-1">{{ $review['user_name'] ?? 'Người dùng' }}</h6>
+                            <div class="mb-2">
+                                @for ($i = 1; $i <= 5; $i++)
+                                    <i class="ri-star-{{ $i <= ($review['rating'] ?? 0) ? 'fill' : 'line' }}" style="color: #ffc107;"></i>
+                                @endfor
                             </div>
+                            @if(!empty($review['comment']))
+                                <p class="mb-2">{{ $review['comment'] }}</p>
+                            @endif
+                            @if(!empty($review['images']))
+                                <div class="review-photos mb-2">
+                                    @foreach($review['images'] as $photo)
+                                        <a href="{{ $photo }}" target="_blank" class="review-photo" rel="noopener">
+                                            <img src="{{ $photo }}" alt="Ảnh đánh giá">
+                                        </a>
+                                    @endforeach
+                                </div>
+                            @endif
+                            <p class="text-muted small mb-0">
+                                <i class="ri-time-line"></i> {{ $review['created_at'] ?? '' }}
+                            </p>
                         </div>
                     </div>
                 </div>
-                @endfor
-            </div>
+            @empty
+                <div class="text-center text-muted py-4">
+                    <i class="ri-chat-1-line d-block mb-2" style="font-size: 2rem;"></i>
+                    <p class="mb-0">Hãy là người đầu tiên chia sẻ cảm nhận về sản phẩm này!</p>
+                </div>
+            @endforelse
+            @if($reviewCount > 2)
+                <div class="text-center mt-3">
+                    <button class="btn btn-outline-success px-4" data-review-more>
+                        Hiển thị thêm đánh giá
+                    </button>
+                </div>
+            @endif
         </div>
     </div>
 </div>
-
-<!-- Đánh giá Section -->
-        <div class="row mt-3">
-            <div class="col-12 bg-white p-4" style="border-radius: 8px">
-                <h4 class="fw-700 mb-4" style="color: var(--text-primary)">Đánh giá Đồng hồ thông minh Huawei Watch Fit 4</h4>
-                
-                <div class="row">
-                    <!-- Rating Summary -->
-                    <div class="col-md-5 border-end">
-                        <div class="text-center mb-3">
-                            <h1 class="display-1 fw-700 mb-0" style="color: var(--text-primary)">4.8<span class="fs-3 text-muted">/5</span></h1>
-                            <div class="mb-2">
-                                <i class="ri-star-fill" style="color: #ffc107; font-size: 1.5rem;"></i>
-                                <i class="ri-star-fill" style="color: #ffc107; font-size: 1.5rem;"></i>
-                                <i class="ri-star-fill" style="color: #ffc107; font-size: 1.5rem;"></i>
-                                <i class="ri-star-fill" style="color: #ffc107; font-size: 1.5rem;"></i>
-                                <i class="ri-star-fill" style="color: #ffc107; font-size: 1.5rem;"></i>
-                            </div>
-                            <p class="text-muted mb-3">10 lượt đánh giá</p>
-                            <button class="btn btn-write-review text-white fw-600 px-4 py-2">Viết đánh giá</button>
-                        </div>
-
-                        <!-- Rating Bars -->
-                        <div class="rating-bars mt-4">
-                            <div class="d-flex align-items-center mb-2">
-                                <span class="me-2" style="color: var(--text-primary); font-weight: 600; width: 20px;">5</span>
-                                <i class="ri-star-fill me-2" style="color: #ffc107;"></i>
-                                <div class="progress flex-grow-1 me-2" style="height: 8px;">
-                                    <div class="progress-bar bg-rating" role="progressbar" style="width: 80%; background-color: #00713b !important;" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                                <span class="text-muted" style="width: 80px;">8 đánh giá</span>
-                            </div>
-                            <div class="d-flex align-items-center mb-2">
-                                <span class="me-2" style="color: var(--text-primary); font-weight: 600; width: 20px;">4</span>
-                                <i class="ri-star-fill me-2" style="color: #ffc107;"></i>
-                                <div class="progress flex-grow-1 me-2" style="height: 8px;">
-                                    <div class="progress-bar bg-rating" role="progressbar" style="width: 20%; background-color: #00713b !important;" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                                <span class="text-muted" style="width: 80px;">2 đánh giá</span>
-                            </div>
-                            <div class="d-flex align-items-center mb-2">
-                                <span class="me-2" style="color: var(--text-primary); font-weight: 600; width: 20px;">3</span>
-                                <i class="ri-star-fill me-2" style="color: #ffc107;"></i>
-                                <div class="progress flex-grow-1 me-2" style="height: 8px;">
-                                    <div class="progress-bar bg-rating" role="progressbar" style="width: 0%; background-color: #00713b !important;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                                <span class="text-muted" style="width: 80px;">0 đánh giá</span>
-                            </div>
-                            <div class="d-flex align-items-center mb-2">
-                                <span class="me-2" style="color: var(--text-primary); font-weight: 600; width: 20px;">2</span>
-                                <i class="ri-star-fill me-2" style="color: #ffc107;"></i>
-                                <div class="progress flex-grow-1 me-2" style="height: 8px;">
-                                    <div class="progress-bar bg-rating" role="progressbar" style="width: 0%; background-color: #00713b !important;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                                <span class="text-muted" style="width: 80px;">0 đánh giá</span>
-                            </div>
-                            <div class="d-flex align-items-center mb-2">
-                                <span class="me-2" style="color: var(--text-primary); font-weight: 600; width: 20px;">1</span>
-                                <i class="ri-star-fill me-2" style="color: #ffc107;"></i>
-                                <div class="progress flex-grow-1 me-2" style="height: 8px;">
-                                    <div class="progress-bar bg-rating" role="progressbar" style="width: 0%; background-color: #00713b !important;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                                <span class="text-muted" style="width: 80px;">0 đánh giá</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- User Experience Ratings -->
-                    <div class="col-md-7 ps-4">
-                        <h5 class="fw-600 mb-3" style="color: var(--text-primary)">Đánh giá theo trải nghiệm</h5>
-                        
-                        <div class="experience-rating mb-3">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="fw-500">Thời lượng pin</span>
-                                <div>
-                                    <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                    <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                    <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                    <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                    <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                    <span class="ms-2 fw-600" style="color: var(--text-primary)">5/5</span>
-                                    <span class="text-muted ms-1">(3 đánh giá)</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="experience-rating mb-3">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="fw-500">Độ chỉ số sức khỏe</span>
-                                <div>
-                                    <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                    <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                    <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                    <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                    <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                    <span class="ms-2 fw-600" style="color: var(--text-primary)">5/5</span>
-                                    <span class="text-muted ms-1">(3 đánh giá)</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="experience-rating mb-3">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="fw-500">Tiện ích thông minh</span>
-                                <div>
-                                    <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                    <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                    <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                    <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                    <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                    <span class="ms-2 fw-600" style="color: var(--text-primary)">5/5</span>
-                                    <span class="text-muted ms-1">(3 đánh giá)</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="experience-rating mb-3">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="fw-500">Cảm giác đeo</span>
-                                <div>
-                                    <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                    <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                    <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                    <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                    <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                    <span class="ms-2 fw-600" style="color: var(--text-primary)">5/5</span>
-                                    <span class="text-muted ms-1">(3 đánh giá)</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Filter Tabs -->
-                <div class="row mt-4">
-                    <div class="col-12">
-                        <h5 class="fw-600 mb-3" style="color: var(--text-primary)">Lọc đánh giá theo</h5>
-                        <div class="filter-tabs d-flex flex-wrap gap-2">
-                            <button class="btn btn-filter-active">Tất cả</button>
-                            <button class="btn btn-filter">Có hình ảnh</button>
-                            <button class="btn btn-filter">Đã mua hàng</button>
-                            <button class="btn btn-filter">5 sao</button>
-                            <button class="btn btn-filter">4 sao</button>
-                            <button class="btn btn-filter">3 sao</button>
-                            <button class="btn btn-filter">2 sao</button>
-                            <button class="btn btn-filter">1 sao</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Reviews List -->
-                <div class="row mt-4">
-                    <div class="col-12">
-                        <!-- Review 1 -->
-                        <div class="review-item border-bottom pb-3 mb-3">
-                            <div class="d-flex align-items-start">
-                                <div class="review-avatar me-3">
-                                    <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-600" 
-                                         style="width: 40px; height: 40px; background-color: #9c27b0;">B</div>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h6 class="fw-600 mb-1">Bế Quang Ninh</h6>
-                                    <div class="mb-2">
-                                        <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                        <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                        <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                        <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                        <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                        <span class="ms-2 badge" style="background-color: #00713b; color: white; font-size: 11px;">Tuyệt vời</span>
-                                    </div>
-                                    <p class="mb-2">sản phẩm có độ được huyết áp không</p>
-                                    <p class="text-muted small mb-0">
-                                        <i class="ri-time-line"></i> Đánh giá đã đăng vào 2 tháng trước
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Review 2 -->
-                        <div class="review-item border-bottom pb-3 mb-3">
-                            <div class="d-flex align-items-start">
-                                <div class="review-avatar me-3">
-                                    <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-600" 
-                                         style="width: 40px; height: 40px; background-color: #00897b;">H</div>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h6 class="fw-600 mb-1">Huong Can</h6>
-                                    <div class="mb-2">
-                                        <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                        <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                        <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                        <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                        <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                        <span class="ms-2 badge" style="background-color: #00713b; color: white; font-size: 11px;">Tuyệt vời</span>
-                                    </div>
-                                    <p class="mb-2">Rất hài lòng</p>
-                                    <p class="text-muted small mb-0">
-                                        <i class="ri-time-line"></i> Đánh giá đã đăng vào 3 tháng trước
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Review 3 -->
-                        <div class="review-item border-bottom pb-3 mb-3">
-                            <div class="d-flex align-items-start">
-                                <div class="review-avatar me-3">
-                                    <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-600" 
-                                         style="width: 40px; height: 40px; background-color: #5e35b1;">L</div>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h6 class="fw-600 mb-1">Le Dung</h6>
-                                    <div class="mb-2">
-                                        <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                        <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                        <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                        <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                        <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                        <span class="ms-2 badge" style="background-color: #00713b; color: white; font-size: 11px;">Tuyệt vời</span>
-                                    </div>
-                                    <div class="mb-2">
-                                        <span class="badge me-1" style="background-color: #e8f5e9; color: #00713b; border: 1px solid #00713b;">Thời lượng pin Cực khoẻ</span>
-                                        <span class="badge me-1" style="background-color: #e8f5e9; color: #00713b; border: 1px solid #00713b;">Độ chỉ số sức khoẻ Chính xác tuyệt đối</span>
-                                        <span class="badge me-1" style="background-color: #e8f5e9; color: #00713b; border: 1px solid #00713b;">Tiện ích thông minh Đa dạng</span>
-                                        <span class="badge me-1" style="background-color: #e8f5e9; color: #00713b; border: 1px solid #00713b;">Cảm giác đeo Rất thoải mái</span>
-                                    </div>
-                                    <p class="mb-2">Có thu cũ đổi mới kg shop</p>
-                                    <p class="text-muted small mb-0">
-                                        <i class="ri-time-line"></i> Đánh giá đã đăng vào 3 tháng trước
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Review 4 -->
-                        <div class="review-item pb-3 mb-3">
-                            <div class="d-flex align-items-start">
-                                <div class="review-avatar me-3">
-                                    <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-600" 
-                                         style="width: 40px; height: 40px; background-color: #d32f2f;">A</div>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h6 class="fw-600 mb-1">
-                                        Anh Quang
-                                        <span class="badge ms-2" style="background-color: #00713b; color: white; font-size: 10px;">
-                                            <i class="ri-checkbox-circle-fill"></i> Đã mua tại CellphoneS
-                                        </span>
-                                    </h6>
-                                    <div class="mb-2">
-                                        <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                        <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                        <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                        <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                        <i class="ri-star-fill" style="color: #ffc107;"></i>
-                                        <span class="ms-2 badge" style="background-color: #00713b; color: white; font-size: 11px;">Tuyệt vời</span>
-                                    </div>
-                                    <div class="mb-2">
-                                        <span class="badge me-1" style="background-color: #e8f5e9; color: #00713b; border: 1px solid #00713b;">Thời lượng pin Cực khoẻ</span>
-                                        <span class="badge me-1" style="background-color: #e8f5e9; color: #00713b; border: 1px solid #00713b;">Độ chỉ số sức khoẻ Chính xác tuyệt đối</span>
-                                        <span class="badge me-1" style="background-color: #e8f5e9; color: #00713b; border: 1px solid #00713b;">Tiện ích thông minh Đa dạng</span>
-                                        <span class="badge me-1" style="background-color: #e8f5e9; color: #00713b; border: 1px solid #00713b;">Cảm giác đeo Rất thoải mái</span>
-                                    </div>
-                                    <p class="mb-2">Sản phẩm tốt. Thời Trang. Nhiều tiện ích thông minh.</p>
-                                    <p class="mb-2">Tuy nhiên, dồng ở của tôi không báo khi có cuộc gọi zalo (cuộc gọi qua sim và tin nhắn zalo thì vẫn báo). Huawei Watch Fit 4 có dùng khí bơi được không? Bản Pro thì nói có hỗ trợ lặn sâu 40m. Bản thường không nói rõ việc sử dụng dưới nước.</p>
-                                    <p class="text-muted small mb-0">
-                                        <i class="ri-time-line"></i> Đánh giá đã đăng vào 3 tháng trước
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- View More Button -->
-                        <div class="text-center mt-4">
-                            <button class="btn btn-view-more px-4 py-2">
-                                Xem tất cả đánh giá
-                                <i class="ri-arrow-right-s-line"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div> 
-        </div>
 
     <!-- Footer --> 
     <div class="mt-3" style="margin-left: 10px"> 
-        @include('partials.footer')
+        @include('user.partials.footer')
     </div>
 @endsection 
 
 @push('scripts')
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
 <script>
-function changeMainImage(img) {
-    document.getElementById('mainImage').src = img.src;
-    document.querySelectorAll('.product-images img').forEach(i => i.classList.remove('active'));
-    img.classList.add('active');
-}
+document.addEventListener('DOMContentLoaded', () => {
+    const track = document.getElementById('productMediaTrack');
+    const slides = track ? track.querySelectorAll('.media-slide') : [];
+    const thumbs = Array.from(document.querySelectorAll('.media-thumb'));
+    let currentIndex = 0;
+
+    const goToSlide = (index) => {
+        if (!track || slides.length === 0) return;
+        const total = slides.length;
+        currentIndex = (index + total) % total;
+        track.style.transform = `translateX(-${currentIndex * 100}%)`;
+        thumbs.forEach((thumb, i) => thumb.classList.toggle('is-active', i === currentIndex));
+    };
+
+    document.querySelectorAll('[data-media-nav]').forEach((button) => {
+        button.addEventListener('click', () => {
+            const delta = parseInt(button.dataset.mediaNav, 10) || 0;
+            goToSlide(currentIndex + delta);
+        });
+    });
+
+    thumbs.forEach((thumb) => {
+        thumb.addEventListener('click', () => {
+            const targetIndex = parseInt(thumb.dataset.thumbIndex, 10) || 0;
+            goToSlide(targetIndex);
+        });
+    });
+
+    goToSlide(0);
+
+    document.querySelectorAll('.related-carousel').forEach((carousel) => {
+        const relatedTrack = carousel.querySelector('.related-carousel-track');
+        if (!relatedTrack) return;
+
+        carousel.querySelectorAll('[data-related-nav]').forEach((button) => {
+            button.addEventListener('click', () => {
+                const direction = parseInt(button.dataset.relatedNav, 10) || 0;
+                const item = relatedTrack.querySelector('.related-carousel-item');
+                const itemWidth = item ? item.getBoundingClientRect().width + 16 : carousel.getBoundingClientRect().width * 0.9;
+                relatedTrack.scrollBy({ left: itemWidth * direction, behavior: 'smooth' });
+            });
+        });
+    });
+
+    document.querySelectorAll('[data-rating-input]').forEach((wrapper) => {
+        const hiddenInput = wrapper.querySelector('input[name="rating"]');
+        const buttons = wrapper.querySelectorAll('button[data-value]');
+
+        const syncStars = (value) => {
+            buttons.forEach((button) => {
+                const starValue = parseInt(button.dataset.value, 10) || 0;
+                const isActive = starValue <= value;
+                button.classList.toggle('is-active', isActive);
+                button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+            });
+        };
+
+        const initial = hiddenInput ? parseInt(hiddenInput.value || '0', 10) : 0;
+        syncStars(initial || 0);
+
+        buttons.forEach((button) => {
+            button.addEventListener('click', () => {
+                const value = parseInt(button.dataset.value, 10) || 0;
+                if (hiddenInput) {
+                    hiddenInput.value = value;
+                }
+                syncStars(value);
+            });
+        });
+    });
+
+    const showMoreButton = document.querySelector('[data-review-more]');
+    if (showMoreButton) {
+        showMoreButton.addEventListener('click', () => {
+            document.querySelectorAll('.js-review-hidden').forEach((item) => item.classList.remove('d-none', 'js-review-hidden'));
+            showMoreButton.classList.add('d-none');
+        });
+    }
+});
 
 function increaseQuantity() {
     const input = document.getElementById('quantity');
-    input.value = parseInt(input.value) + 1;
+    input.value = parseInt(input.value || '1', 10) + 1;
 }
 
 function decreaseQuantity() {
     const input = document.getElementById('quantity');
-    if (parseInt(input.value) > 1) {
-        input.value = parseInt(input.value) - 1;
+    const current = parseInt(input.value || '1', 10);
+    if (current > 1) {
+        input.value = current - 1;
     }
 }
-
 </script>
 @endpush

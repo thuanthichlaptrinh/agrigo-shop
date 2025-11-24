@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('products')->name('user.products.')->group(function () {
     Route::get('/', [ProductController::class, 'index'])->name('index');
     Route::get('/{id}', [ProductController::class, 'show'])->name('detail');
+    Route::post('/{id}/reviews', [ProductController::class, 'storeReview'])
+        ->middleware('auth')
+        ->name('reviews.store');
 });
 
 // Search

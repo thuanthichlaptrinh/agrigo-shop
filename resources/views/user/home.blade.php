@@ -135,14 +135,16 @@
     }
 
     .home-product-card .btn-ThemVaoGio {
-        border-radius: 999px;
-        box-shadow: 0 8px 18px rgba(0, 168, 107, 0.25);
+        border-radius: 20px !important;
+        /* box-shadow: 0 8px 18px rgba(0, 168, 107, 0.25); */
+        box-shadow: 0 14px 28px rgba(13, 91, 52, 0.25);
     }
 
     .home-product-card .box-flash {
         right: 16px;
         top: 16px;
     }
+ 
 </style>
 @endpush
 
@@ -528,6 +530,7 @@
                                             data-add-to-cart="true"
                                             data-product-id="{{ $product['id'] }}"
                                         @endif>
+                                        <i class="ri-shopping-cart-line me-1"></i>
                                         Thêm vào giỏ
                                     </a>
                                 </div>

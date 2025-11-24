@@ -71,6 +71,7 @@
 }
 
 .container-ThemVGio {
+    margin-top: 10px;
     position: relative;
     overflow: hidden; /* Đảm bảo hiệu ứng không bị tràn */
     border-radius: 4px;
@@ -83,6 +84,8 @@
     );
     background-size: 300% 100%; /* Mở rộng gradient theo chiều ngang */
     animation: bg-move-fade 3s infinite linear; /* Tạo hiệu ứng chuyển động */
+    box-shadow: 0 14px 28px rgba(13, 91, 52, 0.25);
+    border-radius: 10px;
 }
 
 .container-ThemVGio:hover {
