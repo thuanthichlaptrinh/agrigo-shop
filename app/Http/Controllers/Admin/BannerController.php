@@ -34,11 +34,20 @@ class BannerController extends Controller
 
         $banners = $query->orderBy('ThuTu')->paginate(15);
 
+        $stats = Banner::selectRaw('
+                COUNT(*) as total,
+                SUM(CASE WHEN TrangThai = 1 THEN 1 ELSE 0 END) as active,
+                SUM(CASE WHEN TrangThai = 0 THEN 1 ELSE 0 END) as inactive,
+                SUM(CASE WHEN ViTri = "Trang chủ" THEN 1 ELSE 0 END) as home
+            ')
+            ->first()
+            ->toArray();
+
         if ($request->wantsJson()) {
             return response()->json($banners);
         }
 
-        return view('admin.banners.index', compact('banners'));
+        return view('admin.banners.index', compact('banners', 'stats'));
     }
 
     public function store(Request $request)

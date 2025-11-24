@@ -301,7 +301,7 @@
         <div class="row mt-3" style="background-color: #effff2; margin-left: -23px; padding-left: 10px">
             <div class="d-flex justify-content-between mt-2 pl-22-t">
                 <h5 style="color: var(--text-primary); margin-top: 8px" class="fw-700">KHUYẾN MÃI SỐC</h5>
-                <a href="{{ route('user.products.index') }}" class="fs-14-t d-flex align-items-center" style="text-decoration: none">
+                <a href="{{ route('user.products.index', ['promotion' => 'flash']) }}" class="fs-14-t d-flex align-items-center" style="text-decoration: none">
                     Xem thêm khuyến mãi
                     <i class="ri-arrow-right-s-line fs-20-t mt-3-t fw-700"></i>
                 </a>

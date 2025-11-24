@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
     <!-- Boxicons CDN (Backup) -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <!-- Remix Icon for toast component -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.4.0/remixicon.css" />
         
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
@@ -261,6 +263,16 @@
             border: 2px solid var(--border); 
             background: #fff;
             box-shadow: var(--shadow-sm);
+        }
+
+        .lazy-image {
+            filter: blur(8px);
+            background: #e2e8f0;
+        }
+
+        .lazy-image[data-loaded="true"] {
+            filter: none;
+            background: transparent;
         }
         
         .product-info strong {
@@ -557,10 +569,28 @@
     </style>
 </head>
 <body>
+@php
+    $sharedAlerts = collect([
+        ['message' => session('status'), 'type' => session('status_type', 'info')],
+        ['message' => session('success'), 'type' => 'success'],
+        ['message' => session('error'), 'type' => 'error'],
+        ['message' => session('warning'), 'type' => 'warning'],
+    ])
+        ->when($errors->any(), fn($collection) => $collection->merge(
+            collect($errors->all())->map(fn($error) => ['message' => $error, 'type' => 'error'])
+        ))
+        ->filter(fn ($alert) => filled($alert['message'] ?? null))
+        ->values()
+        ->all();
+
+    $lazyImagePlaceholder = 'data:image/gif;base64,R0lGODlhAQABAIAAAP///////ywAAAAAAQABAAACAUwAOw==';
+@endphp
+
+<x-alert-stack :messages="$sharedAlerts" />
 @include('admin.partials.sidebar')
 <section id="content">
     @include('admin.partials.navbar')
-    <main style="margin-top: 64px;">
+    <main style="margin-top: 64px !important">
         <div class="page-header">
             <div>
                 <h2>Quản lý sản phẩm</h2>
@@ -597,19 +627,7 @@
             </div>
         </div>
 
-        @if(session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
-        @if($errors->any())
-            <div class="alert alert-danger">
-                <strong>Đã xảy ra lỗi:</strong>
-                <ul class="mb-0 mt-2">
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
+
 
         <div class="filter-section">
             <form method="GET" action="{{ route('admin.products.index') }}">
@@ -700,7 +718,13 @@
                             <tr>
                                 <td>
                                     <div class="product-info">
-                                        <img src="{{ $cover }}" alt="{{ $product->TenSanPham }}" class="product-thumb">
+                                        <img
+                                            src="{{ $lazyImagePlaceholder }}"
+                                            data-src="{{ $cover }}"
+                                            alt="{{ $product->TenSanPham }}"
+                                            class="product-thumb lazy-image"
+                                            loading="lazy"
+                                        >
                                         <div>
                                             <strong>{{ $product->TenSanPham }}</strong>
                                             <div style="color:var(--muted); font-size:13px;">#SP{{ $product->ID }} • {{ optional($product->NgayTao)->format('d/m/Y') ?? '---' }}</div>
@@ -810,7 +834,7 @@
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Mô tả</label>
-                    <textarea name="MoTa" class="form-control" rows="4">{{ old('MoTa') }}</textarea>
+                    <textarea name="MoTa" id="create_MoTa" class="form-control" rows="4">{{ old('MoTa') }}</textarea>
                 </div>
                 <div class="form-grid">
                     <div class="mb-3">
@@ -1098,6 +1122,81 @@
     const editModal = document.getElementById('editModal');
     const viewModal = document.getElementById('viewModal');
     const bulkModal = document.getElementById('bulkModal');
+    const CKEDITOR_DEFAULT_CONFIG = {
+        toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', '|', 'undo', 'redo'],
+        language: 'vi'
+    };
+    let createEditorInstance = null;
+    let editEditorInstance = null;
+
+    function initLazyImages(){
+        const lazyImages = document.querySelectorAll('img[data-src]');
+        if(!lazyImages.length) return;
+
+        const loadImage = (img) => {
+            const src = img.getAttribute('data-src');
+            if(!src) return;
+            img.src = src;
+            img.removeAttribute('data-src');
+            img.dataset.loaded = 'true';
+        };
+
+        lazyImages.forEach(img => {
+            img.loading = 'lazy';
+            img.addEventListener('load', () => {
+                img.dataset.loaded = 'true';
+            }, { once: true });
+        });
+
+        if('IntersectionObserver' in window){
+            const observer = new IntersectionObserver((entries, obs) => {
+                entries.forEach(entry => {
+                    if(entry.isIntersecting){
+                        loadImage(entry.target);
+                        obs.unobserve(entry.target);
+                    }
+                });
+            }, { rootMargin: '150px 0px', threshold: 0.01 });
+            lazyImages.forEach(img => observer.observe(img));
+        } else {
+            lazyImages.forEach(loadImage);
+        }
+    }
+
+    function initClassicEditor(elementId, assignInstance){
+        const element = document.getElementById(elementId);
+        if(!element || typeof ClassicEditor === 'undefined') return;
+        ClassicEditor
+            .create(element, CKEDITOR_DEFAULT_CONFIG)
+            .then(editor => {
+                editor.model.document.on('change:data', () => {
+                    element.value = editor.getData();
+                });
+                assignInstance(editor);
+            })
+            .catch(error => {
+                console.error('CKEditor initialization error:', error);
+                if(window.AppAlert && typeof window.AppAlert.show === 'function'){
+                    window.AppAlert.show('Không thể khởi tạo trình soạn thảo.', { type: 'error' });
+                }
+            });
+    }
+
+    function ensureSingleEditorsReady(){
+        initClassicEditor('create_MoTa', instance => { createEditorInstance = instance; });
+        initClassicEditor('edit_MoTa', instance => { editEditorInstance = instance; });
+    }
+
+    function initPageScripts(){
+        ensureSingleEditorsReady();
+        initLazyImages();
+    }
+
+    if(document.readyState === 'loading'){
+        document.addEventListener('DOMContentLoaded', initPageScripts);
+    } else {
+        initPageScripts();
+    }
 
     function resolveImagePath(path){
         if(!path) return 'https://via.placeholder.com/120x120?text=No+Image';
@@ -1115,8 +1214,14 @@
         bodyEl.style.overflow='auto';
         const form = element.querySelector('form');
         if(form && element.id !== 'bulkModal') form.reset();
+        if(element.id === 'createModal' && createEditorInstance){
+            createEditorInstance.setData('');
+        }
         if(element.id === 'editModal'){
             document.getElementById('editGallery').innerHTML='';
+            if(editEditorInstance){
+                editEditorInstance.setData('');
+            }
         }
     }
 
@@ -1138,7 +1243,12 @@
                 document.getElementById('edit_IDNhaCungCap').value = product.IDNhaCungCap || '';
                 document.getElementById('edit_XuatXu').value = product.XuatXu || '';
                 document.getElementById('edit_HanSuDung').value = product.HanSuDung ? product.HanSuDung.substring(0,10) : '';
-                document.getElementById('edit_MoTa').value = product.MoTa || '';
+                const editDesc = product.MoTa || '';
+                if(editEditorInstance){
+                    editEditorInstance.setData(editDesc);
+                } else {
+                    document.getElementById('edit_MoTa').value = editDesc;
+                }
                 document.getElementById('edit_NoiBat').checked = !!product.NoiBat;
                 document.getElementById('edit_TrangThai').checked = !!product.TrangThai;
                 const gallery = document.getElementById('editGallery');
@@ -1233,7 +1343,9 @@
 
     function addBulkRow(){
         if(bulkRowsContainer.children.length >= 20){
-            alert('Mỗi lần chỉ thêm tối đa 20 sản phẩm.');
+            if(window.AppAlert && typeof window.AppAlert.show === 'function'){
+                window.AppAlert.show('Mỗi lần chỉ thêm tối đa 20 sản phẩm.', { type: 'warning' });
+            }
             return;
         }
         const html = bulkTemplate.replace(/__INDEX__/g, bulkIndex).replace(/__ORDER__/g, bulkRowsContainer.children.length + 1);
@@ -1247,12 +1359,17 @@
         const textarea = document.getElementById(textareaId);
         if(textarea && typeof ClassicEditor !== 'undefined'){
             ClassicEditor
-                .create(textarea, {
-                    toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', '|', 'undo', 'redo'],
-                    language: 'vi'
+                .create(textarea, CKEDITOR_DEFAULT_CONFIG)
+                .then(editor => {
+                    editor.model.document.on('change:data', () => {
+                        textarea.value = editor.getData();
+                    });
                 })
                 .catch(error => {
                     console.error('CKEditor initialization error:', error);
+                    if(window.AppAlert && typeof window.AppAlert.show === 'function'){
+                        window.AppAlert.show('Không thể khởi tạo trình soạn thảo.', { type: 'error' });
+                    }
                 });
         }
         

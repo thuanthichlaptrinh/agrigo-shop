@@ -6,6 +6,7 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
         <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.4.0/remixicon.css" />
         <link rel="stylesheet" href="/template/admin/style.css" />
         <link rel="stylesheet" href="/template/admin/products.css" />
         <title>Quản lý bài viết - ADMIN</title>
@@ -116,6 +117,22 @@
         </style>
     </head>
     <body>
+        @php
+            $sharedAlerts = collect([
+                ['message' => session('status'), 'type' => session('status_type', 'info')],
+                ['message' => session('success'), 'type' => 'success'],
+                ['message' => session('error'), 'type' => 'error'],
+                ['message' => session('warning'), 'type' => 'warning'],
+            ])
+                ->when($errors->any(), fn($collection) => $collection->merge(
+                    collect($errors->all())->map(fn($error) => ['message' => $error, 'type' => 'error'])
+                ))
+                ->filter(fn ($alert) => filled($alert['message'] ?? null))
+                ->values()
+                ->all();
+        @endphp
+
+        <x-alert-stack :messages="$sharedAlerts" />
         <!-- Sidebar -->
         @include('admin.partials.sidebar')
 
@@ -125,10 +142,10 @@
             @include('admin.partials.navbar')
 
             <!-- Main -->
-            <main>
+            <main style="margin-top: 64px !important">
                 <div class="page-header">
                     <div>
-                        <h1>Quản lý bài viết</h1>
+                        <h2>Quản lý bài viết</h2>
                         <p class="text-muted mb-0">Quản lý tin tức, bài viết blog</p>
                     </div>
                     <button type="button" class="btn-primary-action" data-bs-toggle="modal" data-bs-target="#createModal">
@@ -463,33 +480,6 @@
 
         <script src="/template/admin/script.js"></script>
         
-        <!-- Toast Notification -->
-        @if(session('success'))
-            <div class="toast-container position-fixed top-0 end-0 p-3">
-                <div class="toast show align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="d-flex">
-                        <div class="toast-body">
-                            <i class="fas fa-check-circle me-2"></i> {{ session('success') }}
-                        </div>
-                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                    </div>
-                </div>
-            </div>
-        @endif
-
-        @if(session('error'))
-            <div class="toast-container position-fixed top-0 end-0 p-3">
-                <div class="toast show align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="d-flex">
-                        <div class="toast-body">
-                            <i class="fas fa-exclamation-circle me-2"></i> {{ session('error') }}
-                        </div>
-                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                    </div>
-                </div>
-            </div>
-        @endif
-
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <script>
             function previewImage(input, previewId) {

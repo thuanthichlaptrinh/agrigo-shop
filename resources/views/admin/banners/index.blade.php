@@ -3,87 +3,282 @@
 @section('title', 'Quản lý Banner')
 
 @section('content')
+@push('styles')
 <style>
-    .banner-preview {
-        width: 100%;
-        max-width: 200px;
-        height: auto;
-        border-radius: 8px;
-        object-fit: cover;
+    .banner-page {
+        padding: 24px;
+        background: linear-gradient(120deg, #f8fafc 0%, #eef2ff 100%);
+        border-radius: 28px;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
     }
-    
-    .status-badge {
-        padding: 6px 12px;
+
+    .banner-hero {
+        background: linear-gradient(135deg, #2563eb, #7c3aed);
+        border-radius: 24px;
+        padding: 24px;
+        color: #fff;
+        display: flex;
+        justify-content: space-between;
+        gap: 24px;
+        align-items: center;
+        box-shadow: 0 25px 50px rgba(37, 99, 235, 0.25);
+    }
+
+    .banner-hero h1 {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 6px;
+    }
+
+    .banner-hero p {
+        margin: 0;
+        opacity: 0.9;
+    }
+
+    .btn-gradient {
+        background: #fff;
+        color: #1d4ed8;
+        font-weight: 600;
+        border-radius: 14px;
+        padding: 12px 22px;
+        border: none;
+        box-shadow: 0 12px 24px rgba(15, 23, 42, 0.2);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn-gradient:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 18px 30px rgba(15, 23, 42, 0.25);
+    }
+
+    .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 18px;
+        margin: 24px 0;
+    }
+
+    .stat-card {
+        background: #fff;
         border-radius: 20px;
+        padding: 18px;
+        border: 1px solid #eef2ff;
+        box-shadow: 0 15px 30px rgba(15,23,42,0.05);
+    }
+
+    .stat-card span {
+        font-size: 13px;
+        font-weight: 600;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .stat-card h3 {
+        margin: 10px 0 0;
+        font-size: 30px;
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .stat-card small {
+        color: #64748b;
+        font-size: 12px;
+    }
+
+    .filter-card, .table-card {
+        border-radius: 24px;
+        background: #fff;
+        box-shadow: 0 20px 40px rgba(15,23,42,0.08);
+        border: 1px solid #e2e8f0;
+        margin-bottom: 24px;
+    }
+
+    .filter-card .card-body {
+        padding: 20px;
+    }
+
+    .filter-card .form-control,
+    .filter-card .form-select {
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+        padding: 11px 14px;
+    }
+
+    .filter-card label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #475569;
+    }
+
+    .table-card .card-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .table-card table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .table-card thead th {
+        text-transform: uppercase;
+        font-size: 11px;
+        letter-spacing: 0.8px;
+        color: #94a3b8;
+        padding: 14px 18px;
+        background: #f8fafc;
+    }
+
+    .table-card tbody td {
+        padding: 18px;
+        border-bottom: 1px solid #eef2ff;
+        vertical-align: middle;
+        font-size: 15px;
+    }
+
+    .banner-preview {
+        width: 180px;
+        height: 90px;
+        border-radius: 18px;
+        object-fit: cover;
+        box-shadow: 0 8px 18px rgba(15,23,42,0.15);
+        border: 1px solid rgba(255,255,255,0.6);
+    }
+
+    .tag-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 999px;
         font-size: 12px;
         font-weight: 600;
+        color: #fff;
+    }
+
+    .tag-home { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+    .tag-product { background: linear-gradient(135deg, #ec4899, #f97316); }
+    .tag-promotion { background: linear-gradient(135deg, #0ea5e9, #14b8a6); }
+    .tag-sidebar { background: linear-gradient(135deg, #10b981, #22c55e); }
+
+    .status-chip {
+        border-radius: 999px;
+        padding: 6px 14px;
+        font-weight: 600;
+        font-size: 13px;
         cursor: pointer;
-        transition: all 0.2s;
+        border: 1px solid transparent;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-    
-    .status-badge.active {
-        background: rgba(34, 197, 94, 0.1);
+
+    .status-chip.active {
+        background: rgba(34, 197, 94, 0.15);
         color: #16a34a;
+        border-color: rgba(34,197,94,0.3);
     }
-    
-    .status-badge.inactive {
-        background: rgba(239, 68, 68, 0.1);
+
+    .status-chip.inactive {
+        background: rgba(248,113,113,0.15);
         color: #dc2626;
+        border-color: rgba(248,113,113,0.3);
     }
-    
-    .status-badge:hover {
-        transform: scale(1.05);
+
+    .status-chip:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 20px rgba(15,23,42,0.08);
     }
-    
-    .position-badge {
-        padding: 4px 10px;
-        border-radius: 6px;
-        font-size: 12px;
-        font-weight: 600;
-        display: inline-block;
+
+    .action-group button {
+        border-radius: 12px;
+        border: none;
+        width: 40px;
+        height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 6px;
+        color: #0f172a;
+        background: #f8fafc;
     }
-    
-    .position-badge.home {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
+
+    .action-group button:hover {
+        background: #e0e7ff;
+        color: #4338ca;
     }
-    
-    .position-badge.product {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        color: white;
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #94a3b8;
     }
-    
-    .position-badge.promotion {
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        color: white;
+
+    .empty-state i {
+        font-size: 48px;
+        margin-bottom: 12px;
     }
-    
-    .position-badge.sidebar {
-        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-        color: white;
+
+    @media (max-width: 992px) {
+        .banner-hero {
+            flex-direction: column;
+            text-align: center;
+        }
     }
 </style>
+@endpush
 
-<div class="container">
-    <div class="card">
-        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-            <h1 style="font-size: 24px; font-weight: 700; margin: 0;">
-                <i class="fa-solid fa-image me-2"></i>
-                Quản lý Banner
-            </h1>
-            <button class="btn btn-primary" onclick="openCreateModal()">
-                <i class="fa-solid fa-plus me-1"></i>
-                Thêm Banner
-            </button>
+@php
+    $stats = $stats ?? [];
+    $statTotal = number_format($stats['total'] ?? $banners->total());
+    $statActive = number_format($stats['active'] ?? 0);
+    $statInactive = number_format($stats['inactive'] ?? 0);
+    $statHome = number_format($stats['home'] ?? 0);
+@endphp
+
+<div class="banner-page">
+    <div class="banner-hero">
+        <div>
+            <h1><i class="fa-solid fa-image me-2"></i>Quản lý Banner</h1>
+            <p>Theo dõi và tối ưu trải nghiệm hình ảnh cho toàn bộ website.</p>
         </div>
+        <button class="btn-gradient" onclick="openCreateModal()">
+            <i class="fa-solid fa-plus me-2"></i> Thêm banner mới
+        </button>
+    </div>
 
+    <div class="stat-grid">
+        <div class="stat-card">
+            <span>Tổng banner</span>
+            <h3>{{ $statTotal }}</h3>
+            <small>Hiện còn {{ $statActive }} banner đang hoạt động</small>
+        </div>
+        <div class="stat-card">
+            <span>Đang hiển thị</span>
+            <h3>{{ $statActive }}</h3>
+            <small>{{ $statInactive }} banner đang tạm ẩn</small>
+        </div>
+        <div class="stat-card">
+            <span>Trang chủ</span>
+            <h3>{{ $statHome }}</h3>
+            <small>Banner ở khu vực nổi bật nhất</small>
+        </div>
+    </div>
+
+    <div class="filter-card card">
         <div class="card-body">
-            <form method="GET" action="{{ route('admin.banners.index') }}" class="row g-3 mb-3">
-                <div class="col-md-3">
-                    <input type="text" name="search" class="form-control" placeholder="Tìm kiếm banner..." value="{{ request('search') }}">
+            <form method="GET" action="{{ route('admin.banners.index') }}" class="row g-3 align-items-end">
+                <div class="col-lg-4 col-md-6">
+                    <label class="form-label">Từ khóa</label>
+                    <input type="text" name="search" class="form-control" placeholder="Tìm tiêu đề hoặc liên kết" value="{{ request('search') }}">
                 </div>
-                
-                <div class="col-md-2">
+                <div class="col-lg-3 col-md-4">
+                    <label class="form-label">Vị trí</label>
                     <select name="vi_tri" class="form-select">
                         <option value="">Tất cả vị trí</option>
                         <option value="Trang chủ" {{ request('vi_tri') == 'Trang chủ' ? 'selected' : '' }}>Trang chủ</option>
@@ -92,138 +287,112 @@
                         <option value="Sidebar" {{ request('vi_tri') == 'Sidebar' ? 'selected' : '' }}>Sidebar</option>
                     </select>
                 </div>
-                
-                <div class="col-md-2">
+                <div class="col-lg-3 col-md-4">
+                    <label class="form-label">Trạng thái</label>
                     <select name="trang_thai" class="form-select">
-                        <option value="">Tất cả trạng thái</option>
+                        <option value="">Tất cả</option>
                         <option value="1" {{ request('trang_thai') === '1' ? 'selected' : '' }}>Hoạt động</option>
                         <option value="0" {{ request('trang_thai') === '0' ? 'selected' : '' }}>Không hoạt động</option>
                     </select>
                 </div>
-                
-                <div class="col-md-auto">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fa-solid fa-filter"></i>
-                        Lọc
+                <div class="col-md-5 col-lg-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-dark flex-fill">
+                        <i class="fa-solid fa-filter me-1"></i> Lọc
                     </button>
-                </div>
-                
-                <div class="col-md-auto">
-                    <a href="{{ route('admin.banners.index') }}" class="btn btn-secondary">
-                        <i class="fa-solid fa-rotate-right"></i>
-                        Đặt lại
-                    </a>
+                    <a href="{{ route('admin.banners.index') }}" class="btn btn-outline-secondary flex-fill">Đặt lại</a>
                 </div>
             </form>
+        </div>
+    </div>
 
-            @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show">
-                <i class="fa-solid fa-check-circle me-2"></i>
-                {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    <div class="table-card card">
+        <div class="card-header">
+            <div>
+                <h5 class="mb-0">Danh sách banner</h5>
+                <small class="text-muted">Hiển thị {{ $banners->firstItem() ?? 0 }} - {{ $banners->lastItem() ?? 0 }} / {{ $banners->total() }}</small>
             </div>
-            @endif
-
-            @if(session('error'))
-            <div class="alert alert-danger alert-dismissible fade show">
-                <i class="fa-solid fa-exclamation-circle me-2"></i>
-                {{ session('error') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            @endif
-
-            @if($errors->any())
-            <div class="alert alert-danger alert-dismissible fade show">
-                <i class="fa-solid fa-triangle-exclamation me-2"></i>
-                <strong>Đã xảy ra lỗi:</strong>
-                <ul class="mb-0 mt-2">
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-            @endif
-
-            <div class="table-wrapper">
-                <table class="authors-table">
-                    <thead>
-                        <tr>
-                            <th width="60">ID</th>
-                            <th width="200">Hình ảnh</th>
-                            <th width="280">Tiêu đề</th>
-                            <th width="150">Vị trí</th>
-                            <th width="100" class="text-center">Thứ tự</th>
-                            <th width="120">Trạng thái</th>
-                            <th width="150" class="text-center">Hành động</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($banners as $banner)
-                        <tr>
-                            <td>{{ $banner->ID }}</td>
-                            <td>
-                                <img src="{{ asset('uploads/banners/' . $banner->HinhAnh) }}" alt="{{ $banner->TieuDe }}" class="banner-preview">
-                            </td>
-                            <td>
-                                <div style="font-weight: 600; margin-bottom: 4px;">{{ $banner->TieuDe }}</div>
-                                @if($banner->LienKet)
-                                <small class="text-muted">
-                                    <i class="fa-solid fa-link"></i>
-                                    {{ Str::limit($banner->LienKet, 50) }}
-                                </small>
-                                @endif
-                            </td>
-                            <td>
-                                <span class="position-badge {{ 
-                                    $banner->ViTri == 'Trang chủ' ? 'home' : 
-                                    ($banner->ViTri == 'Sản phẩm' ? 'product' : 
-                                    ($banner->ViTri == 'Khuyến mãi' ? 'promotion' : 'sidebar'))
-                                }}">
-                                    {{ $banner->ViTri }}
-                                </span>
-                            </td>
-                            <td class="text-center">
-                                <span style="font-weight: 700; font-size: 16px; color: #667eea;">{{ $banner->ThuTu }}</span>
-                            </td>
-                            <td>
-                                <span class="status-badge {{ $banner->TrangThai ? 'active' : 'inactive' }}" 
-                                      onclick="toggleStatus({{ $banner->ID }})">
-                                    <i class="fa-solid fa-{{ $banner->TrangThai ? 'check-circle' : 'times-circle' }}"></i>
-                                    {{ $banner->TrangThai ? 'Hoạt động' : 'Tắt' }}
-                                </span>
-                            </td>
-                            <td class="text-center">
-                                <button class="btn btn-sm btn-primary" onclick="openEditModal({{ $banner->ID }})" title="Chỉnh sửa">
-                                    <i class="fa-solid fa-pen"></i>
-                                </button>
-                                <form action="{{ route('admin.banners.destroy', $banner->ID) }}" method="POST" style="display: inline-block;" onsubmit="return confirm('Bạn có chắc chắn muốn xóa banner này?')">
+            <span class="badge bg-primary-subtle text-primary">{{ $banners->count() }} mục trên trang</span>
+        </div>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Hình ảnh</th>
+                        <th>Thông tin</th>
+                        <th>Vị trí</th>
+                        <th class="text-center">Thứ tự</th>
+                        <th>Trạng thái</th>
+                        <th class="text-center">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($banners as $banner)
+                    <tr>
+                        <td><strong>#{{ $banner->ID }}</strong></td>
+                        <td>
+                            <img src="{{ asset('uploads/banners/' . $banner->HinhAnh) }}" alt="{{ $banner->TieuDe }}" class="banner-preview">
+                        </td>
+                        <td>
+                            <div class="fw-semibold text-primary mb-1">{{ $banner->TieuDe }}</div>
+                            @if($banner->LienKet)
+                                <small class="text-muted"><i class="fa-solid fa-link me-1"></i>{{ Str::limit($banner->LienKet, 50) }}</small>
+                            @else
+                                <small class="text-muted">Không có liên kết</small>
+                            @endif
+                        </td>
+                        <td>
+                            @php
+                                $tagClass = match($banner->ViTri) {
+                                    'Trang chủ' => 'tag-home',
+                                    'Sản phẩm' => 'tag-product',
+                                    'Khuyến mãi' => 'tag-promotion',
+                                    default => 'tag-sidebar'
+                                };
+                            @endphp
+                            <span class="tag-chip {{ $tagClass }}">
+                                <i class="fa-solid fa-location-arrow"></i> {{ $banner->ViTri }}
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <span class="fw-bold" style="font-size: 16px; color: #4c1d95;">{{ $banner->ThuTu }}</span>
+                        </td>
+                        <td>
+                            <span class="status-chip {{ $banner->TrangThai ? 'active' : 'inactive' }}" onclick="toggleStatus({{ $banner->ID }})">
+                                <i class="fa-solid fa-{{ $banner->TrangThai ? 'circle-check' : 'circle-xmark' }}"></i>
+                                {{ $banner->TrangThai ? 'Đang hiển thị' : 'Đang tắt' }}
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <div class="action-group">
+                                <button type="button" onclick="openEditModal({{ $banner->ID }})" title="Chỉnh sửa"><i class="fa-solid fa-pen"></i></button>
+                                <form action="{{ route('admin.banners.destroy', $banner->ID) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa banner này?')">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger" title="Xóa">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </button>
+                                    <button type="submit" title="Xóa"><i class="fa-solid fa-trash"></i></button>
                                 </form>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="7" class="text-center py-5">
-                                <i class="fa-solid fa-image" style="font-size: 48px; color: #d1d5db; margin-bottom: 16px;"></i>
-                                <p class="text-muted">Chưa có banner nào</p>
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-            
-            @if($banners->hasPages())
-            <div class="mt-3">
-                {{ $banners->links() }}
-            </div>
-            @endif
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <i class="fa-solid fa-images"></i>
+                                <p>Chưa có banner nào phù hợp với điều kiện lọc.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
+        @if($banners->hasPages())
+        <div class="card-footer d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <small class="text-muted">Trang {{ $banners->currentPage() }} / {{ $banners->lastPage() }}</small>
+            {{ $banners->links('pagination::bootstrap-5') }}
+        </div>
+        @endif
     </div>
 </div>
 
@@ -383,7 +552,32 @@
     </div>
 </div>
 
+@push('scripts')
 <script>
+const toastFallback = (message, type = 'info') => {
+    const log = type === 'error' ? console.error : console.log;
+    log(message);
+    if (typeof window !== 'undefined' && window.alert) {
+        alert(message);
+    }
+};
+
+const queueToast = (message, type = 'info') => {
+    if (window.AppAlert && typeof window.AppAlert.queue === 'function') {
+        window.AppAlert.queue({ message, type });
+        return;
+    }
+    toastFallback(message, type);
+};
+
+const showToast = (message, type = 'info') => {
+    if (window.AppAlert && typeof window.AppAlert.show === 'function') {
+        window.AppAlert.show(message, { type });
+        return;
+    }
+    queueToast(message, type);
+};
+
 function openCreateModal() {
     const modal = new bootstrap.Modal(document.getElementById('createModal'));
     modal.show();
@@ -391,7 +585,7 @@ function openCreateModal() {
 
 function openEditModal(id) {
     fetch(`/admin/banners/${id}`)
-        .then(response => response.json())
+        .then(response => response.ok ? response.json() : Promise.reject(response))
         .then(data => {
             document.getElementById('editForm').action = `/admin/banners/${id}`;
             document.getElementById('editTieuDe').value = data.TieuDe;
@@ -401,20 +595,19 @@ function openEditModal(id) {
             document.getElementById('editStatus').checked = data.TrangThai == 1;
             document.getElementById('editCurrentImage').src = `/uploads/banners/${data.HinhAnh}`;
             document.getElementById('editPreview').style.display = 'none';
-            
+
             const modal = new bootstrap.Modal(document.getElementById('editModal'));
             modal.show();
         })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Có lỗi xảy ra khi tải thông tin banner');
+        .catch(() => {
+            showToast('Không thể tải thông tin banner. Vui lòng thử lại.', 'error');
         });
 }
 
 function previewImage(input, previewId) {
     const preview = document.getElementById(previewId);
     const img = preview.querySelector('img');
-    
+
     if (input.files && input.files[0]) {
         const reader = new FileReader();
         reader.onload = function(e) {
@@ -431,7 +624,7 @@ function toggleStatus(id) {
     if (!confirm('Bạn có chắc chắn muốn thay đổi trạng thái banner này?')) {
         return;
     }
-    
+
     fetch(`/admin/banners/${id}/toggle-status`, {
         method: 'PATCH',
         headers: {
@@ -443,16 +636,25 @@ function toggleStatus(id) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            location.reload();
+            queueToast(data.message || 'Đã cập nhật trạng thái banner.', 'success');
+            setTimeout(() => window.location.reload(), 800);
         } else {
-            alert(data.message || 'Có lỗi xảy ra');
+            showToast(data.message || 'Không thể cập nhật trạng thái.', 'error');
         }
     })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Có lỗi xảy ra khi thay đổi trạng thái');
+    .catch(() => {
+        showToast('Có lỗi xảy ra khi thay đổi trạng thái.', 'error');
     });
 }
+
+@if($errors->any())
+document.addEventListener('DOMContentLoaded', () => {
+    @foreach($errors->all() as $error)
+        queueToast(@json($error), 'error');
+    @endforeach
+});
+@endif
 </script>
+@endpush
 
 @endsection
