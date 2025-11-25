@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\User\ArticleController;
 use App\Models\Banner;
+use App\Models\BaiViet;
 use App\Models\SanPham;
 use App\Models\SanPhamKhuyenMai;
 use Illuminate\Support\Facades\Route;
@@ -102,8 +104,24 @@ Route::get('/', function () {
         })
         ->values();
 
-    return view('user.home', compact('homeBanners', 'flashSaleProducts', 'favoriteProducts', 'categoryProductSections'));
+    $homeArticles = BaiViet::with(['nguoiDung'])
+        ->where('TrangThai', 1)
+        ->orderByDesc('NgayTao')
+        ->limit(5)
+        ->get();
+
+    return view('user.home', compact(
+        'homeBanners',
+        'flashSaleProducts',
+        'favoriteProducts',
+        'categoryProductSections',
+        'homeArticles'
+    ));
 })->name('user.home');
+
+// Bài viết - trang danh sách & chi tiết
+Route::get('/bai-viet', [ArticleController::class, 'index'])->name('articles.index');
+Route::get('/bai-viet/{slug}', [ArticleController::class, 'show'])->name('articles.show');
 
 // Trang không có quyền truy cập
 Route::get('/unauthorized', function () {

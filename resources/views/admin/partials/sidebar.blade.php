@@ -81,15 +81,15 @@
         </li>
         <li class="divider" data-text="settings">Cài đặt</li>
         <li>
-            <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                <i class="fa-solid fa-right-from-bracket icon"></i> Đăng xuất
+            <a href="{{ url('/')  }}">
+                <i class="fa-solid fa-home icon"></i> Trang chủ
             </a>
         </li>
         <li>
-            <a href="{{ url('/')  }}">
-                <i class="fa-solid fa-right-from-bracket icon"></i> Trang chủ
+            <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                <i class="fa-solid fa-right-from-bracket icon"></i> Đăng xuất
             </a>
-        </li>
+        </li> 
     </ul>
     
     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">

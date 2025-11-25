@@ -99,7 +99,7 @@ class UserController extends Controller
 
             $avatarPath = $this->uploadAvatar($request);
 
-            NguoiDung::create([
+            $user = NguoiDung::create([
                 'TenNguoiDung' => $request->TenNguoiDung,
                 'Email' => $request->Email,
                 'MatKhau' => Hash::make($request->MatKhau),
@@ -110,6 +110,21 @@ class UserController extends Controller
                 'TrangThai' => $request->TrangThai,
                 'HinhAnh' => $avatarPath
             ]);
+
+            $user->load('vaiTro');
+
+            activity_logger()->logAdminAction(
+                $this->currentAdminId(),
+                'Tạo người dùng',
+                null,
+                [
+                    'user_id' => $user->ID,
+                    'TenNguoiDung' => $user->TenNguoiDung,
+                    'Email' => $user->Email,
+                    'VaiTro' => optional($user->vaiTro)->TenVaiTro,
+                    'TrangThai' => $user->TrangThai ? 'Hoạt động' : 'Khóa'
+                ]
+            );
 
             return redirect()->route('admin.users.index')->with('success', 'Thêm người dùng thành công!');
         } catch (\Exception $e) {
@@ -212,6 +227,8 @@ class UserController extends Controller
             'TrangThai' => $request->TrangThai
         ];
 
+        $before = $user->only(['TenNguoiDung', 'Email', 'SDT', 'DiaChi', 'NgaySinh', 'IDVaiTro', 'TrangThai']);
+
         // Chỉ cập nhật mật khẩu nếu có nhập
         if ($request->filled('MatKhau')) {
             $data['MatKhau'] = Hash::make($request->MatKhau);
@@ -222,6 +239,16 @@ class UserController extends Controller
         }
 
         $user->update($data);
+        $user->refresh()->load('vaiTro');
+
+        activity_logger()->logAdminAction(
+            $this->currentAdminId(),
+            'Cập nhật người dùng',
+            array_merge(['user_id' => $user->ID], $before),
+            array_merge([
+                'user_id' => $user->ID
+            ], $user->only(['TenNguoiDung', 'Email', 'SDT', 'DiaChi', 'NgaySinh', 'IDVaiTro', 'TrangThai']))
+        );
 
         return redirect()->route('admin.users.index')->with('success', 'Cập nhật người dùng thành công!');
     }
@@ -237,8 +264,17 @@ class UserController extends Controller
             return back()->with('error', 'Không thể khóa tài khoản của chính bạn!');
         }
 
+        $oldStatus = $user->TrangThai;
         $user->TrangThai = $user->TrangThai ? 0 : 1;
         $user->save();
+
+        $action = $user->TrangThai ? 'Mở khóa tài khoản' : 'Khóa tài khoản';
+        activity_logger()->logAdminAction(
+            $this->currentAdminId(),
+            $action,
+            ['user_id' => $user->ID, 'TrangThai' => $oldStatus],
+            ['user_id' => $user->ID, 'TrangThai' => $user->TrangThai]
+        );
 
         $message = $user->TrangThai ? 'Mở khóa tài khoản thành công!' : 'Khóa tài khoản thành công!';
 
@@ -291,8 +327,22 @@ class UserController extends Controller
             return back()->with('error', 'Không thể xóa tài khoản của chính bạn!');
         }
 
+        $snapshot = $user->only(['TenNguoiDung', 'Email', 'SDT', 'DiaChi', 'NgaySinh', 'IDVaiTro', 'TrangThai']);
         $user->delete();
 
+        activity_logger()->logAdminAction(
+            $this->currentAdminId(),
+            'Xóa người dùng',
+            array_merge(['user_id' => $user->ID], $snapshot),
+            null
+        );
+
         return redirect()->route('admin.users.index')->with('success', 'Xóa người dùng thành công!');
+    }
+
+    protected function currentAdminId(): ?int
+    {
+        $user = function_exists('auth_user') ? auth_user() : auth()->user();
+        return optional($user)->ID;
     }
 }

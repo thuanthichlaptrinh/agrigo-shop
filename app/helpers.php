@@ -5,6 +5,7 @@ use App\Models\SanPham;
 use App\Models\KhuyenMai;
 use App\Models\SanPhamKhuyenMai;
 use App\Support\Auth\JwtSessionManager;
+use App\Support\Logging\ActivityLogger;
 use Illuminate\Support\Str;
 
 if (!function_exists('auth_user')) {
@@ -194,5 +195,12 @@ if (!function_exists('product_image_url')) {
         }
 
         return asset(ltrim($path, '/'));
+    }
+}
+
+if (!function_exists('activity_logger')) {
+    function activity_logger(): ActivityLogger
+    {
+        return app(ActivityLogger::class);
     }
 }

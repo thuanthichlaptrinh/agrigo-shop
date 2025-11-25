@@ -49,16 +49,39 @@ class AuthController extends Controller
         $user = NguoiDung::where('Email', $request->email)->first();
 
         if (!$user) {
+            activity_logger()->logSystemAction(
+                'Đăng nhập thất bại - không tồn tại email',
+                null,
+                ['email' => $request->email],
+                'Thất bại'
+            );
+
             return back()->withErrors(['email' => 'Email không tồn tại'])->withInput($request->only('email'));
         }
 
         // Kiểm tra tài khoản có bị khóa không
         if (!$user->TrangThai) {
+            activity_logger()->logUserAction(
+                $user->ID,
+                'Đăng nhập thất bại - tài khoản bị khóa',
+                null,
+                ['email' => $user->Email],
+                'Thất bại'
+            );
+
             return back()->withErrors(['email' => 'Tài khoản đã bị khóa'])->withInput($request->only('email'));
         }
 
         // Kiểm tra mật khẩu
         if (!Hash::check($request->password, $user->MatKhau)) {
+            activity_logger()->logUserAction(
+                $user->ID,
+                'Đăng nhập thất bại - sai mật khẩu',
+                null,
+                ['email' => $user->Email],
+                'Thất bại'
+            );
+
             return back()->withErrors(['password' => 'Mật khẩu không đúng'])->withInput($request->only('email'));
         }
 
@@ -84,6 +107,17 @@ class AuthController extends Controller
 
             app(CartService::class)->count();
 
+            activity_logger()->logUserAction(
+                $user->ID,
+                'Đăng nhập hệ thống',
+                null,
+                [
+                    'TenNguoiDung' => $user->TenNguoiDung,
+                    'Email' => $user->Email,
+                    'VaiTro' => $user->vaiTro->TenVaiTro ?? 'User'
+                ]
+            );
+
             // Redirect theo vai trò
             $vaiTro = $user->vaiTro->TenVaiTro ?? 'User';
             
@@ -98,6 +132,13 @@ class AuthController extends Controller
             return redirect()->route('user.home')->with('success', 'Đăng nhập thành công!');
 
         } catch (JWTException $e) {
+            activity_logger()->logSystemAction(
+                'Đăng nhập thất bại - lỗi JWT',
+                null,
+                ['message' => $e->getMessage()],
+                'Thất bại'
+            );
+
             return back()->withErrors(['email' => 'Lỗi hệ thống'])->withInput($request->only('email'));
         }
     }
@@ -181,6 +222,16 @@ class AuthController extends Controller
                 'IDVaiTro' => $userRole->ID
             ]);
 
+            activity_logger()->logUserAction(
+                $user->ID,
+                'Đăng ký tài khoản',
+                null,
+                [
+                    'TenNguoiDung' => $user->TenNguoiDung,
+                    'Email' => $user->Email
+                ]
+            );
+
             // Đăng nhập luôn sau khi đăng ký
             Auth::login($user);
             $request->session()->regenerate();
@@ -199,6 +250,13 @@ class AuthController extends Controller
             return redirect()->route('user.home')->with('success', 'Đăng ký thành công!');
 
         } catch (\Exception $e) {
+            activity_logger()->logSystemAction(
+                'Đăng ký thất bại',
+                null,
+                ['message' => $e->getMessage(), 'email' => $request->Email],
+                'Thất bại'
+            );
+
             return back()->withErrors(['email' => 'Có lỗi xảy ra'])->withInput($request->except('MatKhau', 'MatKhau_confirmation'));
         }
     }
@@ -206,6 +264,12 @@ class AuthController extends Controller
     // Đăng xuất
     public function logout(Request $request)
     {
+        $currentUser = auth()->user();
+        if (!$currentUser && function_exists('auth_user')) {
+            $currentUser = auth_user();
+        }
+        $currentUserId = optional($currentUser)->ID;
+
         try {
             $token = session('jwt_token');
             $userId = session('user_id');
@@ -231,6 +295,10 @@ class AuthController extends Controller
             $sessionName = $request->session()->getName();
             $sessionId = $request->session()->getId();
             
+            if ($currentUserId) {
+                activity_logger()->logUserAction($currentUserId, 'Đăng xuất hệ thống');
+            }
+
             // Xóa tất cả session data (bao gồm flash messages)
             $request->session()->flush();
             $request->session()->invalidate();
@@ -249,6 +317,23 @@ class AuthController extends Controller
 
             return redirect()->route('login')->withCookie($cookie);
         } catch (\Exception $e) {
+            if ($currentUserId) {
+                activity_logger()->logUserAction(
+                    $currentUserId,
+                    'Đăng xuất hệ thống - lỗi',
+                    null,
+                    ['message' => $e->getMessage()],
+                    'Thất bại'
+                );
+            } else {
+                activity_logger()->logSystemAction(
+                    'Đăng xuất hệ thống - lỗi',
+                    null,
+                    ['message' => $e->getMessage()],
+                    'Thất bại'
+                );
+            }
+
             // Xóa session dù có lỗi
             $sessionName = $request->session()->getName();
             $sessionId = $request->session()->getId();

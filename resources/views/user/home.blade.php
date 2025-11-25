@@ -144,6 +144,18 @@
         right: 16px;
         top: 16px;
     }
+
+    .article-grid-row .article-grid-col--half {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+
+    @media (max-width: 992px) {
+        .article-grid-row .article-grid-col--half {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+    }
  
 </style>
 @endpush
@@ -621,6 +633,31 @@
             </div>
         </div>
 
+        @php
+            $homeArticlesCollection = collect($homeArticles ?? []);
+            $featuredArticle = $homeArticlesCollection->get(0);
+            $secondaryArticles = $homeArticlesCollection->slice(1)->values();
+            $defaultArticleImage = asset('template/Assets/Images/thumb-2024-26_202410171658026192.jpg');
+            $resolveArticleImage = function ($article) use ($defaultArticleImage) {
+                if (!$article || empty($article->HinhAnh)) {
+                    return $defaultArticleImage;
+                }
+
+                $path = $article->HinhAnh;
+                return \Illuminate\Support\Str::startsWith($path, ['http://', 'https://'])
+                    ? $path
+                    : asset($path);
+            };
+
+            $articleLink = function ($article) {
+                return $article && $article->Slug ? route('articles.show', $article->Slug) : '#';
+            };
+
+            $articleTime = function ($article) {
+                return $article && $article->NgayTao ? $article->NgayTao->diffForHumans() : 'Đang cập nhật';
+            };
+        @endphp
+
         <!-- Bài viết -->
         <div class="row mt-2 mb-3 bg-white" style="margin-left: -23px; margin-right: -12px; padding: 20px 15px; border-radius: 8px;">
             <div class="col-12">
@@ -628,30 +665,30 @@
                     <!-- Article 1 - Cá song biển -->
                     <div class="col-lg-6 col-md-6 col-sm-12">
                         <div class="article-card" style="border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); height: 100%;">
-                            <a href="#" class="text-decoration-none">
+                            <a href="{{ $articleLink($featuredArticle) }}" class="text-decoration-none">
                                 <!-- Hình ảnh lớn với 2 hàng 3 cột -->
                                 <div class="article-images" style="display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); gap: 2px; height: 280px;">
                                     <div style="grid-column: 1 / 2; grid-row: 1 / 2;">
-                                        <img src="" style="width: 100%; height: 100%; object-fit: cover;" alt="Cá song biển 1" />
+                                        <img src="{{ $resolveArticleImage($featuredArticle) }}" style="width: 100%; height: 100%; object-fit: cover;" alt="{{ $featuredArticle->TieuDe ?? 'Bài viết nổi bật' }} 1" />
                                     </div>
                                     <div style="grid-column: 2 / 3; grid-row: 1 / 2;">
-                                        <img src="" style="width: 100%; height: 100%; object-fit: cover;" alt="Cá song biển 2" />
+                                        <img src="{{ $resolveArticleImage($featuredArticle) }}" style="width: 100%; height: 100%; object-fit: cover;" alt="{{ $featuredArticle->TieuDe ?? 'Bài viết nổi bật' }} 2" />
                                     </div>
                                     <div style="grid-column: 3 / 4; grid-row: 1 / 2;">
-                                        <img src="" style="width: 100%; height: 100%; object-fit: cover;" alt="Cá song biển 3" />
+                                        <img src="{{ $resolveArticleImage($featuredArticle) }}" style="width: 100%; height: 100%; object-fit: cover;" alt="{{ $featuredArticle->TieuDe ?? 'Bài viết nổi bật' }} 3" />
                                     </div>
                                     <div style="grid-column: 1 / 2; grid-row: 2 / 3;">
-                                        <img src="" style="width: 100%; height: 100%; object-fit: cover;" alt="Cá song biển 4" />
+                                        <img src="{{ $resolveArticleImage($featuredArticle) }}" style="width: 100%; height: 100%; object-fit: cover;" alt="{{ $featuredArticle->TieuDe ?? 'Bài viết nổi bật' }} 4" />
                                     </div>
                                     <div style="grid-column: 2 / 4; grid-row: 2 / 3;">
-                                        <img src="" style="width: 100%; height: 100%; object-fit: cover;" alt="Cá song biển 5" />
+                                        <img src="{{ $resolveArticleImage($featuredArticle) }}" style="width: 100%; height: 100%; object-fit: cover;" alt="{{ $featuredArticle->TieuDe ?? 'Bài viết nổi bật' }} 5" />
                                     </div>
                                 </div>
                                 <!-- Nội dung -->
                                 <div style="padding: 15px; background: white;">
-                                    <h5 class="fw-600 mb-2" style="color: #333; font-size: 16px;">Cá song biển có phải cá mú không? Các loại cá song biển phổ biến</h5>
+                                    <h5 class="fw-600 mb-2" style="color: #333; font-size: 16px;">{{ $featuredArticle->TieuDe ?? 'Đang cập nhật bài viết nổi bật' }}</h5>
                                     <p class="text-muted mb-0" style="font-size: 13px;">
-                                        <i class="ri-time-line"></i> 2 giờ trước
+                                        <i class="ri-time-line"></i> {{ $articleTime($featuredArticle) }}
                                     </p>
                                 </div>
                             </a>
@@ -660,18 +697,19 @@
 
                     <!-- Column 2 - 4 bài viết nhỏ -->
                     <div class="col-lg-6 col-md-6 col-sm-12">
-                        <div class="row g-3">
+                        <div class="row g-3 article-grid-row">
                             <!-- Article 2 - Cá vàng dưới công -->
-                            <div class="col-12">
-                                <div class="article-card-small" style="border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                                    <a href="#" class="text-decoration-none d-flex">
-                                        <img src=""
-                                             style="width: 180px; height: 130px; object-fit: cover;"
-                                             alt="Cá vàng dưới công" />
-                                        <div style="padding: 12px; flex: 1; background: white;">
-                                            <h6 class="fw-600 mb-2" style="color: #333; font-size: 15px; line-height: 1.4;">Cá vàng dưới công là gì? Đặc điểm của cá vàng dưới công</h6>
+                            <div class="col-lg-6 col-md-12 article-grid-col--half">
+                                <div class="article-card-mini" style="border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); height: 100%;">
+                                    @php $article = $secondaryArticles->get(0); @endphp
+                                    <a href="{{ $articleLink($article) }}" class="text-decoration-none">
+                                        <img src="{{ $resolveArticleImage($article) }}"
+                                             style="width: 100%; height: 140px; object-fit: cover;"
+                                             alt="{{ $article->TieuDe ?? 'Bài viết' }}" />
+                                        <div style="padding: 12px; background: white;">
+                                            <h6 class="fw-600 mb-2" style="color: #333; font-size: 15px; line-height: 1.4;">{{ $article->TieuDe ?? 'Đang cập nhật bài viết' }}</h6>
                                             <p class="text-muted mb-0" style="font-size: 13px;">
-                                                <i class="ri-time-line"></i> 2 giờ trước
+                                                <i class="ri-time-line"></i> {{ $articleTime($article) }}
                                             </p>
                                         </div>
                                     </a>
@@ -679,16 +717,17 @@
                             </div>
 
                             <!-- Article 3 - Kem lạnh Carslam -->
-                            <div class="col-12">
-                                <div class="article-card-small" style="border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                                    <a href="#" class="text-decoration-none d-flex">
-                                        <img src=""
-                                             style="width: 180px; height: 130px; object-fit: cover;"
-                                             alt="Kem lạnh Carslam" />
-                                        <div style="padding: 12px; flex: 1; background: white;">
-                                            <h6 class="fw-600 mb-2" style="color: #333; font-size: 15px; line-height: 1.4;">Kem lạnh Carslam: Review, công dụng, cách sử dụng</h6>
+                            <div class="col-lg-6 col-md-12 article-grid-col--half">
+                                <div class="article-card-mini" style="border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); height: 100%;">
+                                    @php $article = $secondaryArticles->get(1); @endphp
+                                    <a href="{{ $articleLink($article) }}" class="text-decoration-none">
+                                        <img src="{{ $resolveArticleImage($article) }}"
+                                             style="width: 100%; height: 140px; object-fit: cover;"
+                                             alt="{{ $article->TieuDe ?? 'Bài viết' }}" />
+                                        <div style="padding: 12px; background: white;">
+                                            <h6 class="fw-600 mb-2" style="color: #333; font-size: 15px; line-height: 1.4;">{{ $article->TieuDe ?? 'Đang cập nhật bài viết' }}</h6>
                                             <p class="text-muted mb-0" style="font-size: 13px;">
-                                                <i class="ri-time-line"></i> 2 giờ trước
+                                                <i class="ri-time-line"></i> {{ $articleTime($article) }}
                                             </p>
                                         </div>
                                     </a>
@@ -698,14 +737,15 @@
                             <!-- Article 4 - Thạch rau câu -->
                             <div class="col-6">
                                 <div class="article-card-mini" style="border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); height: 100%;">
-                                    <a href="#" class="text-decoration-none">
-                                        <img src=""
+                                    @php $article = $secondaryArticles->get(2); @endphp
+                                    <a href="{{ $articleLink($article) }}" class="text-decoration-none">
+                                        <img src="{{ $resolveArticleImage($article) }}"
                                              style="width: 100%; height: 140px; object-fit: cover;"
-                                             alt="Thạch rau câu" />
+                                             alt="{{ $article->TieuDe ?? 'Bài viết' }}" />
                                         <div style="padding: 10px; background: white;">
-                                            <h6 class="fw-600 mb-1" style="color: #333; font-size: 14px; line-height: 1.3;">Tham khảo 2 cách làm dâu dứa dưỡng lỗ chỉ lỗ Tết Ôn ngon mát</h6>
+                                            <h6 class="fw-600 mb-1" style="color: #333; font-size: 14px; line-height: 1.3;">{{ $article->TieuDe ?? 'Đang cập nhật bài viết' }}</h6>
                                             <p class="text-muted mb-0" style="font-size: 12px;">
-                                                <i class="ri-time-line"></i> 7 giờ trước
+                                                <i class="ri-time-line"></i> {{ $articleTime($article) }}
                                             </p>
                                         </div>
                                     </a>
@@ -715,14 +755,15 @@
                             <!-- Article 5 - Review phim -->
                             <div class="col-6">
                                 <div class="article-card-mini" style="border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); height: 100%;">
-                                    <a href="#" class="text-decoration-none">
-                                        <img src=""
+                                    @php $article = $secondaryArticles->get(3); @endphp
+                                    <a href="{{ $articleLink($article) }}" class="text-decoration-none">
+                                        <img src="{{ $resolveArticleImage($article) }}"
                                              style="width: 100%; height: 140px; object-fit: cover;"
-                                             alt="Review phim" />
+                                             alt="{{ $article->TieuDe ?? 'Bài viết' }}" />
                                         <div style="padding: 10px; background: white;">
-                                            <h6 class="fw-600 mb-1" style="color: #333; font-size: 14px; line-height: 1.3;">Review phim Cách Em 1 Milimet – Phim Việt VTV đang hot</h6>
+                                            <h6 class="fw-600 mb-1" style="color: #333; font-size: 14px; line-height: 1.3;">{{ $article->TieuDe ?? 'Đang cập nhật bài viết' }}</h6>
                                             <p class="text-muted mb-0" style="font-size: 12px;">
-                                                <i class="ri-time-line"></i> 7 giờ trước
+                                                <i class="ri-time-line"></i> {{ $articleTime($article) }}
                                             </p>
                                         </div>
                                     </a>
@@ -734,8 +775,8 @@
 
                 <!-- View More Button -->
                 <div class="text-center mt-4">
-                    <a href="#" class="text-decoration-none fw-600" style="color: #333; font-size: 15px;">
-                        Xem thêm mẹo hay khác
+                    <a href="{{ $homeArticlesCollection->isNotEmpty() ? route('articles.index') : '#' }}" class="text-decoration-none fw-600" style="color: #333; font-size: 15px;">
+                        {{ $homeArticlesCollection->isNotEmpty() ? 'Xem thêm bài viết' : 'Đang cập nhật thêm bài viết' }}
                     </a>
                 </div>
             </div>
