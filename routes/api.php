@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthApiController;
+use App\Http\Controllers\Api\ChatbotController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -24,6 +25,9 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::post('/reset-password', [AuthApiController::class, 'resetPassword'])->name('reset-password');
         Route::post('/logout', [AuthApiController::class, 'logout'])->name('logout');
     });
+
+    // Chatbot API (no CSRF)
+    Route::post('/chatbot/query', [ChatbotController::class, 'query'])->name('chatbot.query');
 
     // Protected routes (cần xác thực JWT)
     Route::middleware('jwt.auth')->group(function () {
