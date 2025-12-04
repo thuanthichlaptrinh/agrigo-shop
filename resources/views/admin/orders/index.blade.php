@@ -188,7 +188,7 @@
             border-radius: 20px; 
             box-shadow: var(--shadow-md);
             background: var(--card); 
-            margin-bottom: 100px;
+            margin-bottom: 30px;
             overflow: visible;
             border: 1px solid rgba(226, 232, 240, 0.8);
         }
@@ -528,6 +528,53 @@
             color: #0f766e;
             border-left: 4px solid #10b981;
         }
+
+        /* Pagination */
+        .pagination-wrapper {
+            margin: 28px 0 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .pagination-wrapper nav {
+            display: inline-flex;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.1);
+            border-radius: 14px;
+            padding: 4px;
+            background: #fff;
+        }
+
+        .pagination-wrapper .pagination { margin: 0; gap: 6px; }
+
+        .pagination-wrapper .page-item:first-child .page-link,
+        .pagination-wrapper .page-item:last-child .page-link { border-radius: 10px; }
+
+        .pagination-wrapper .page-link {
+            border: 1px solid transparent;
+            border-radius: 10px !important;
+            padding: 8px 16px;
+            color: #435ebe;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .pagination-wrapper .page-link:hover {
+            background: rgba(67, 94, 190, 0.08);
+            border-color: rgba(67, 94, 190, 0.2);
+            color: #2b3f91;
+        }
+
+        .pagination-wrapper .page-item.active .page-link {
+            background: linear-gradient(135deg, #435ebe 0%, #6f70f5 100%);
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 10px 20px rgba(67, 94, 190, 0.25);
+        }
+
+        .pagination-wrapper .page-item.disabled .page-link {
+            color: #a0a7c4;
+            background: transparent;
+        }
         
         @media (max-width:768px) {
             .page-header { 
@@ -776,8 +823,8 @@
         </div>
 
         @if($orders->hasPages())
-            <div class="d-flex justify-content-center mt-3">
-                {{ $orders->links('pagination::bootstrap-5') }}
+            <div class="pagination-wrapper mt-3">
+                {{ $orders->links('vendor.pagination.admin-users') }}
             </div>
         @endif
 

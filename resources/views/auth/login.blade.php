@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link
         rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
@@ -42,6 +43,88 @@
         .btn-xanh:hover {
             opacity: 0.8;
         }
+        
+        .btn-xanh:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Toast notification styles */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+        
+        .custom-toast {
+            min-width: 300px;
+            padding: 15px 20px;
+            padding-right: 35px;
+            border-radius: 10px;
+            background: #fff;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            margin-bottom: 10px;
+            animation: slideIn 0.3s ease;
+            position: relative;
+        }
+        
+        .custom-toast.success {
+            border-left: 4px solid #22c55e;
+        }
+        
+        .custom-toast.error {
+            border-left: 4px solid #ef4444;
+        }
+        
+        .custom-toast .toast-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .custom-toast.success .toast-title {
+            color: #16a34a;
+        }
+        
+        .custom-toast.error .toast-title {
+            color: #dc2626;
+        }
+        
+        .custom-toast .toast-message {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .custom-toast .toast-close {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: #999;
+            cursor: pointer;
+            line-height: 1;
+        }
+        
+        .custom-toast .toast-close:hover {
+            color: #333;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .field-error {
+            color: #dc2626;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+        
+        .input-error {
+            border-color: #dc2626 !important;
+        }
 
         @media only screen and (max-width: 768px) {
             .box-area {
@@ -58,6 +141,9 @@
     </style>
 </head>
 <body>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
     <div class="container d-flex justify-content-center align-items-center min-vh-100">
         <div class="row border rounded-5 p-3 bg-white shadow box-area">
             <!-- Left Box -->
@@ -79,24 +165,21 @@
                 <a href="{{ route('user.home') }}" class="text-dark p-3 close" style="position: relative; top: -40px; right: -365px">
                     <img src="{{ asset('template/Assets/Icon/close.png') }}" style="width: 14px" alt="" />
                 </a>
-                <form class="row align-items-center" action="{{ route('login') }}" method="POST">
-                    @csrf
+                <form id="loginForm" class="row align-items-center">
                     <div class="header-text mb-4">
                         <h2>Xin chào !</h2>
                         <p>Chúng tôi rất vui khi bạn trở lại.</p>
                     </div>
                     <div class="input-group mb-3">
-                        <input type="email" name="email" class="form-control form-control-lg bg-light fs-6" placeholder="Email" required />
-                        @error('email')
-                            <div class="text-danger small mt-1">{{ $message }}</div>
-                        @enderror
+                        <input type="email" name="email" id="email" class="form-control form-control-lg bg-light fs-6" placeholder="Email" required />
                     </div>
+                    <div class="field-error mb-2" id="emailError"></div>
+                    
                     <div class="input-group mb-1">
-                        <input type="password" name="password" class="form-control form-control-lg bg-light fs-6" placeholder="Mật khẩu" required />
-                        @error('password')
-                            <div class="text-danger small mt-1">{{ $message }}</div>
-                        @enderror
+                        <input type="password" name="password" id="password" class="form-control form-control-lg bg-light fs-6" placeholder="Mật khẩu" required />
                     </div>
+                    <div class="field-error mb-2" id="passwordError"></div>
+                    
                     <div class="input-group mb-5 d-flex justify-content-between">
                         <div class="form-check">
                             <input type="checkbox" name="remember" class="form-check-input" id="formCheck" />
@@ -109,10 +192,15 @@
                     <div class="input-group mb-3">
                         <button
                             type="submit"
+                            id="submitBtn"
                             class="btn btn-xanh text-white btn-lg w-100 fs-6"
                             style="background: radial-gradient(159.85% 367.97% at 150% 123.85%, #ffe147 0, #65ae17 38.76%, #469c4b 59.65%, #00713b 100%)"
                         >
-                            Đăng nhập
+                            <span class="btn-text">Đăng nhập</span>
+                            <span class="btn-loader d-none">
+                                <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                Đang xử lý...
+                            </span>
                         </button>
                     </div>
                     <div class="input-group mb-3">
@@ -131,5 +219,107 @@
             </div>
         </div>
     </div>
+
+    <script>
+        const API_BASE = '/api/v1';
+
+        // Show toast notification
+        function showToast(type, title, message) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `custom-toast ${type}`;
+            toast.innerHTML = `
+                <div class="toast-title">${title}</div>
+                <div class="toast-message">${message}</div>
+                <button type="button" class="toast-close" onclick="this.parentElement.remove()">&times;</button>
+            `;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.style.animation = 'slideIn 0.3s ease reverse';
+                    setTimeout(() => toast.remove(), 300);
+                }
+            }, 4000);
+        }
+
+        // Clear all field errors
+        function clearErrors() {
+            document.querySelectorAll('.field-error').forEach(el => el.textContent = '');
+            document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+        }
+
+        // Show field error
+        function showFieldError(field, message) {
+            const input = document.getElementById(field);
+            const error = document.getElementById(field + 'Error');
+            if (input) input.classList.add('input-error');
+            if (error) error.textContent = message;
+        }
+
+        // Handle form submission
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            clearErrors();
+
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = submitBtn.querySelector('.btn-text');
+            const btnLoader = submitBtn.querySelector('.btn-loader');
+
+            // Show loading state
+            submitBtn.disabled = true;
+            btnText.classList.add('d-none');
+            btnLoader.classList.remove('d-none');
+
+            const formData = {
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Store token
+                    localStorage.setItem('jwt_token', data.data.token);
+                    localStorage.setItem('user', JSON.stringify(data.data.user));
+                    
+                    showToast('success', 'Thành công!', data.message);
+                    
+                    // Redirect after short delay
+                    setTimeout(() => {
+                        window.location.href = data.data.redirect_url || '/';
+                    }, 1000);
+                } else {
+                    // Show field errors if any
+                    if (data.errors) {
+                        Object.keys(data.errors).forEach(field => {
+                            const messages = data.errors[field];
+                            showFieldError(field, Array.isArray(messages) ? messages[0] : messages);
+                        });
+                    }
+                    showToast('error', 'Đăng nhập thất bại', data.message);
+                }
+            } catch (error) {
+                showToast('error', 'Lỗi kết nối', 'Không thể kết nối đến máy chủ');
+                console.error('Login error:', error);
+            } finally {
+                // Reset button state
+                submitBtn.disabled = false;
+                btnText.classList.remove('d-none');
+                btnLoader.classList.add('d-none');
+            }
+        });
+    </script>
 </body>
 </html>

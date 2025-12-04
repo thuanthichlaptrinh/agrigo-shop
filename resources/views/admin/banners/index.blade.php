@@ -390,7 +390,9 @@
         @if($banners->hasPages())
         <div class="card-footer d-flex justify-content-between align-items-center flex-wrap gap-2">
             <small class="text-muted">Trang {{ $banners->currentPage() }} / {{ $banners->lastPage() }}</small>
-            {{ $banners->links('pagination::bootstrap-5') }}
+            <div class="pagination-wrapper">
+                {{ $banners->links('vendor.pagination.admin-users') }}
+            </div>
         </div>
         @endif
     </div>

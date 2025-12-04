@@ -41,7 +41,51 @@
             .action-btn.info { background:rgba(59,130,246,.15); color:#1d4ed8; }
             .action-btn.edit { background:rgba(250,204,21,.2); color:#a16207; }
             .action-btn.delete { background:rgba(248,113,113,.2); color:#b91c1c; }
-            .pagination-wrapper { margin-top:20px; display:flex; justify-content:center; }
+            .pagination-wrapper {
+                margin: 28px 0 0;
+                display: flex;
+                justify-content: center;
+            }
+
+            .pagination-wrapper nav {
+                display: inline-flex;
+                box-shadow: 0 12px 30px rgba(15, 23, 42, 0.1);
+                border-radius: 14px;
+                padding: 4px;
+                background: #fff;
+            }
+
+            .pagination-wrapper .pagination { margin: 0; gap: 6px; }
+
+            .pagination-wrapper .page-item:first-child .page-link,
+            .pagination-wrapper .page-item:last-child .page-link { border-radius: 10px; }
+
+            .pagination-wrapper .page-link {
+                border: 1px solid transparent;
+                border-radius: 10px !important;
+                padding: 8px 16px;
+                color: #435ebe;
+                font-weight: 600;
+                transition: all 0.2s ease;
+            }
+
+            .pagination-wrapper .page-link:hover {
+                background: rgba(67, 94, 190, 0.08);
+                border-color: rgba(67, 94, 190, 0.2);
+                color: #2b3f91;
+            }
+
+            .pagination-wrapper .page-item.active .page-link {
+                background: linear-gradient(135deg, #435ebe 0%, #6f70f5 100%);
+                color: #fff;
+                border-color: transparent;
+                box-shadow: 0 10px 20px rgba(67, 94, 190, 0.25);
+            }
+
+            .pagination-wrapper .page-item.disabled .page-link {
+                color: #a0a7c4;
+                background: transparent;
+            }
             .modal { display:none; position:fixed; inset:0; background:rgba(15,23,42,.55); z-index:1200; padding:40px 20px; overflow-y:auto; }
             .modal.active { display:block; }
             .modal-content { background:#fff; border-radius:24px; max-width:780px; margin:auto; box-shadow:0 30px 50px rgba(15,23,42,.3); overflow:hidden; }
@@ -186,7 +230,7 @@
 
                 @if($promotions->hasPages())
                     <div class="pagination-wrapper">
-                        {{ $promotions->links('pagination::rounded') }}
+                        {{ $promotions->links('vendor.pagination.admin-users') }}
                     </div>
                 @endif
             </main>

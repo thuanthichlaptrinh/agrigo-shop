@@ -547,6 +547,53 @@
             color: #b91c1c;
             border-left: 4px solid #f87171;
         }
+
+        /* Pagination */
+        .pagination-wrapper {
+            margin: 28px 0 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .pagination-wrapper nav {
+            display: inline-flex;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.1);
+            border-radius: 14px;
+            padding: 4px;
+            background: #fff;
+        }
+
+        .pagination-wrapper .pagination { margin: 0; gap: 6px; }
+
+        .pagination-wrapper .page-item:first-child .page-link,
+        .pagination-wrapper .page-item:last-child .page-link { border-radius: 10px; }
+
+        .pagination-wrapper .page-link {
+            border: 1px solid transparent;
+            border-radius: 10px !important;
+            padding: 8px 16px;
+            color: #435ebe;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .pagination-wrapper .page-link:hover {
+            background: rgba(67, 94, 190, 0.08);
+            border-color: rgba(67, 94, 190, 0.2);
+            color: #2b3f91;
+        }
+
+        .pagination-wrapper .page-item.active .page-link {
+            background: linear-gradient(135deg, #435ebe 0%, #6f70f5 100%);
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 10px 20px rgba(67, 94, 190, 0.25);
+        }
+
+        .pagination-wrapper .page-item.disabled .page-link {
+            color: #a0a7c4;
+            background: transparent;
+        }
         
         @media (max-width:768px) {
             .page-header { 
@@ -771,8 +818,8 @@
         </div>
 
         @if($products->hasPages())
-            <div class="d-flex justify-content-center mt-3">
-                {{ $products->links('pagination::rounded') }}
+            <div class="pagination-wrapper mt-3">
+                {{ $products->links('vendor.pagination.admin-users') }}
             </div>
         @endif
 

@@ -778,8 +778,8 @@
             @endforelse
         </div>
         @if($logs->hasPages())
-            <div class="pt-3">
-                {{ $logs->links('pagination::rounded') }}
+            <div class="pagination-wrapper pt-3">
+                {{ $logs->links('vendor.pagination.admin-users') }}
             </div>
         @endif
     </div>

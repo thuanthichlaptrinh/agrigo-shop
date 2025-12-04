@@ -420,8 +420,8 @@
                 </tbody>
             </table>
         </div>
-        <div class="p-3">
-            {{ $promotedProducts->links('pagination::bootstrap-5') }}
+        <div class="pagination-wrapper p-3">
+            {{ $promotedProducts->links('vendor.pagination.admin-users') }}
         </div>
     </div>
 </div>

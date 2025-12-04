@@ -754,7 +754,7 @@
                 {{-- Phân trang --}}
                 @if($users->hasPages())
                     <div class="pagination-wrapper">
-                        {{ $users->links('pagination::rounded') }}
+                        {{ $users->links('vendor.pagination.admin-users') }}
                     </div>
                 @endif
             </main>

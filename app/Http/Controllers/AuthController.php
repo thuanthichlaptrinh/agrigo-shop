@@ -286,6 +286,11 @@ class AuthController extends Controller
                 Token::where('Token', $token)
                     ->where('IDNguoiDung', $userId)
                     ->delete();
+
+                // Thu hồi toàn bộ JWT còn hiệu lực của người dùng
+                if ($userId) {
+                    Token::revokeUserTokens($userId, Token::TYPE_JWT);
+                }
             }
             
             // Xóa Auth facade
