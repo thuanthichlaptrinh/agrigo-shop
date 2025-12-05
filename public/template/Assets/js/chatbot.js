@@ -27,6 +27,19 @@ class ChatbotWidget {
         this.sendBtn = document.getElementById("chatbotSend");
         this.minimizeBtn = document.getElementById("chatbotMinimize");
         this.icon = document.getElementById("chatbotIcon");
+        this.iconImg = document.getElementById("chatbotIconImg");
+        this.menuToggle = document.getElementById("chatbotMenuToggle");
+        this.menu = document.getElementById("chatbotMenu");
+        this.launcher = document.getElementById("chatbotLauncher");
+        this.launcherBackdrop = document.getElementById(
+            "chatbotLauncherBackdrop"
+        );
+        this.launchAssistantBtn = document.getElementById(
+            "chatLaunchAssistant"
+        );
+        this.launchAdminBtn = document.getElementById("chatLaunchAdmin");
+        this.launchZaloBtn = document.getElementById("chatLaunchZalo");
+        this.launcherCloseBtn = document.getElementById("chatLauncherClose");
 
         this.init();
     }
@@ -44,11 +57,22 @@ class ChatbotWidget {
         } else {
             this.renderMessages();
         }
+
+        // Sync auxiliary floating buttons with initial state
+        this.updateAuxButtons();
     }
 
     bindEvents() {
         // Toggle button
-        this.toggleBtn.addEventListener("click", () => this.toggleWidget());
+        this.toggleBtn.addEventListener("click", () => {
+            if (this.isOpen) {
+                this.toggleWidget();
+            } else if (this.isLauncherOpen()) {
+                this.closeLauncher();
+            } else {
+                this.openLauncher();
+            }
+        });
 
         // Minimize button
         this.minimizeBtn.addEventListener("click", () => this.toggleWidget());
@@ -79,6 +103,77 @@ class ChatbotWidget {
                 console.log("Emoji picker would open here");
             });
         }
+
+        if (this.menuToggle && this.menu) {
+            this.menuToggle.addEventListener("click", (e) => {
+                e.stopPropagation();
+                this.toggleMenu();
+            });
+
+            const clearChatItem = this.menu.querySelector(
+                '[data-action="clear-chat"]'
+            );
+            if (clearChatItem) {
+                clearChatItem.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    this.closeMenu();
+                    this.clearChat();
+                });
+            }
+
+            document.addEventListener("click", (e) => {
+                if (
+                    this.menu.classList.contains("open") &&
+                    !this.menu.contains(e.target) &&
+                    !this.menuToggle.contains(e.target)
+                ) {
+                    this.closeMenu();
+                }
+            });
+        }
+
+        // Launcher option events
+        if (this.launchAssistantBtn) {
+            this.launchAssistantBtn.addEventListener("click", () => {
+                this.closeLauncher();
+                if (!this.isOpen) this.toggleWidget();
+            });
+        }
+
+        if (this.launchAdminBtn) {
+            this.launchAdminBtn.addEventListener("click", () => {
+                this.closeLauncher();
+                if (!this.isOpen) this.toggleWidget();
+                this.contactAdmin();
+            });
+        }
+
+        if (this.launchZaloBtn) {
+            this.launchZaloBtn.addEventListener("click", () => {
+                this.closeLauncher();
+                window.open("https://zalo.me/", "_blank", "noopener");
+            });
+        }
+
+        if (this.launcherBackdrop) {
+            this.launcherBackdrop.addEventListener("click", () =>
+                this.closeLauncher()
+            );
+        }
+
+        document.addEventListener("click", (e) => {
+            const launcherVisible = this.isLauncherOpen();
+            if (!launcherVisible) return;
+
+            const clickInsideLauncher =
+                this.launcher && this.launcher.contains(e.target);
+            const clickToggle =
+                this.toggleBtn && this.toggleBtn.contains(e.target);
+
+            if (!clickInsideLauncher && !clickToggle) {
+                this.closeLauncher();
+            }
+        });
     }
 
     toggleWidget() {
@@ -86,13 +181,18 @@ class ChatbotWidget {
 
         if (this.isOpen) {
             this.container.classList.add("active");
-            this.icon.className = "ri-close-line";
+            if (this.icon) this.icon.style.display = "block";
+            if (this.iconImg) this.iconImg.style.display = "none";
             this.input.focus();
         } else {
             this.container.classList.remove("active");
-            this.icon.className = "ri-message-3-line";
+            if (this.icon) this.icon.style.display = "none";
+            if (this.iconImg) this.iconImg.style.display = "block";
+            this.closeMenu();
+            this.closeLauncher();
         }
 
+        this.updateAuxButtons();
         this.saveState();
     }
 
@@ -190,6 +290,22 @@ class ChatbotWidget {
         } finally {
             this.hideTyping();
             this.isSending = false;
+        }
+    }
+
+    toggleMenu() {
+        if (!this.menu) return;
+        const willOpen = !this.menu.classList.contains("open");
+        if (willOpen) {
+            this.menu.classList.add("open");
+        } else {
+            this.menu.classList.remove("open");
+        }
+    }
+
+    closeMenu() {
+        if (this.menu) {
+            this.menu.classList.remove("open");
         }
     }
 
@@ -353,11 +469,47 @@ class ChatbotWidget {
 
                 if (this.isOpen) {
                     this.container.classList.add("active");
-                    this.icon.className = "ri-close-line";
+                    if (this.icon) this.icon.style.display = "block";
+                    if (this.iconImg) this.iconImg.style.display = "none";
                 }
+
+                this.updateAuxButtons();
             }
         } catch (e) {
             console.warn("Could not load chatbot state:", e);
+        }
+    }
+
+    openLauncher() {
+        if (this.launcher) {
+            this.launcher.style.display = "flex";
+            document.body.classList.add("chatbot-blur");
+        }
+    }
+
+    closeLauncher() {
+        if (this.launcher) {
+            this.launcher.style.display = "none";
+            document.body.classList.remove("chatbot-blur");
+        }
+    }
+
+    isLauncherOpen() {
+        return (
+            this.launcher &&
+            (this.launcher.style.display === "flex" ||
+                this.launcher.style.display === "block")
+        );
+    }
+
+    updateAuxButtons() {
+        const scrollBtn = document.getElementById("scrollToTopBtn");
+        if (scrollBtn) {
+            scrollBtn.style.display = this.isOpen ? "none" : "";
+        }
+
+        if (this.toggleBtn) {
+            this.toggleBtn.style.display = this.isOpen ? "none" : "";
         }
     }
 
@@ -378,6 +530,26 @@ class ChatbotWidget {
 
         // You can add more logic here like opening a contact form or redirecting
         console.log("Contact admin requested");
+    }
+
+    clearChat() {
+        // Clear messages array
+        this.messages = [];
+
+        // Clear chat body UI
+        if (this.body) {
+            this.body.innerHTML = "";
+        }
+
+        // Clear saved state
+        try {
+            localStorage.removeItem("chatbotMessages");
+        } catch (e) {
+            console.warn("Could not clear chatbot state:", e);
+        }
+
+        // Show initial greeting again
+        this.showInitialGreeting();
     }
 }
 

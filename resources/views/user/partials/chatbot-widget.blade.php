@@ -8,8 +8,31 @@
 <div class="chatbot-widget" id="chatbotWidget">
     <!-- Toggle Button -->
     <button class="chatbot-toggle-btn" id="chatbotToggle" aria-label="Toggle chat">
-        <i class="ri-message-3-line" id="chatbotIcon"></i>
+        <img src="{{ asset('template/Assets/Images/chatbot/chatbox.png') }}" alt="Chatbot" id="chatbotIconImg" class="chatbot-toggle-img">
+        <i class="ri-close-line" id="chatbotIcon" aria-hidden="true" style="display: none;"></i>
     </button>
+
+    <!-- Launcher Options Overlay -->
+    <div class="chatbot-launcher" id="chatbotLauncher" aria-label="Chọn kênh chat" style="display: none;">
+        <div class="chatbot-launcher-backdrop" id="chatbotLauncherBackdrop"></div>
+        <div class="chatbot-launcher-panel">
+            <h5 class="chatbot-launcher-title">Bạn muốn trò chuyện qua kênh nào?</h5>
+            <div class="chatbot-launcher-actions">
+                <button class="chatbot-launcher-btn" id="chatLaunchAssistant">
+                    <i class="ri-robot-2-line"></i>
+                    <span>Trợ lý ảo</span>
+                </button>
+                <button class="chatbot-launcher-btn" id="chatLaunchAdmin">
+                    <i class="ri-customer-service-2-line"></i>
+                    <span>Chat với Admin</span>
+                </button>
+                <button class="chatbot-launcher-btn" id="chatLaunchZalo">
+                    <i class="ri-message-2-line"></i>
+                    <span>Tư vấn qua Zalo</span>
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Chat Container -->
     <div class="chatbot-container" id="chatbotContainer">
@@ -31,9 +54,15 @@
                     <button class="chatbot-header-btn" id="chatbotMinimize" aria-label="Minimize chat">
                         <i class="ri-arrow-down-s-line"></i>
                     </button>
-                    <button class="chatbot-header-btn" aria-label="Menu">
+                    <button class="chatbot-header-btn" id="chatbotMenuToggle" aria-label="Menu">
                         <i class="ri-more-fill"></i>
                     </button>
+                    <div class="chatbot-menu" id="chatbotMenu" aria-label="Chatbot menu">
+                        <button class="chatbot-menu-item" data-action="clear-chat">
+                            <i class="ri-delete-bin-line"></i>
+                            <span>Xóa đoạn chat</span>
+                        </button>
+                    </div>
                 </div>
             </div>
             <svg class="chatbot-wave" viewBox="0 0 1200 120" preserveAspectRatio="none">
@@ -47,7 +76,7 @@
         </div>
 
         <!-- Contact Admin Button -->
-        <div class="chatbot-contact-admin">
+        <div class="chatbot-contact-admin" style="display: none;">
             <button class="chatbot-admin-btn" id="chatbotContactAdmin">
                 <i class="ri-customer-service-2-line"></i>
                 <span>Chat với Admin</span>
