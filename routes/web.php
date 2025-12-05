@@ -23,6 +23,11 @@ Route::get('/', function () {
         ->orderBy('ThuTu')
         ->get();
 
+    $productBanners = Banner::where('ViTri', 'Sản phẩm')
+        ->where('TrangThai', 1)
+        ->orderBy('ThuTu')
+        ->get();
+
     $now = now();
     $activePromotionQuery = fn ($query) => $query->where('TrangThai', 1)
         ->where('NgayBatDau', '<=', $now)
@@ -122,6 +127,7 @@ Route::get('/', function () {
 
     return view('user.home', compact(
         'homeBanners',
+        'productBanners',
         'flashSaleProducts',
         'brandDealProducts',
         'favoriteProducts',

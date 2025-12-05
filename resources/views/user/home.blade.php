@@ -114,6 +114,9 @@
         border-radius: 10px;
         background: #f3f8f2;
         transition: transform 0.25s ease;
+        height: 180px;
+        object-fit: cover;
+        width: 100%;
     }
 
     .home-product-card:hover img {
@@ -122,6 +125,13 @@
 
     .home-product-card .card-body {
         padding: 14px 4px 0;
+        display: flex;
+        flex-direction: column;
+        min-height: 130px;
+    }
+
+    .home-product-card .container-ThemVGio {
+        margin-top: auto;
     }
 
     .home-product-card .card-title {
@@ -482,6 +492,16 @@
         <!-- Products Section -->
         @php
             $categorySections = collect($categoryProductSections ?? []);
+            $defaultBanner = (object) [
+                'HinhAnh' => 'template/Assets/Images/cate-pc-54_202410191139488622.jpg',
+                'TieuDe' => 'Banner sản phẩm'
+            ];
+
+            $productBannerChunks = collect($productBanners ?? [])->chunk(3)->values();
+
+            if ($productBannerChunks->isEmpty()) {
+                $productBannerChunks = collect([collect([$defaultBanner, $defaultBanner, $defaultBanner])]);
+            }
         @endphp 
 
         @foreach($categorySections as $section)
@@ -493,35 +513,50 @@
                 @continue
             @endif
 
-             <!-- Category Banner Carousel 2 -->
-            <div class="row mt-3" style="margin-left: -34px; margin-right: -24px; margin-bottom: 25px">
-                <div id="thi-ca-trung" class="carousel slide" data-bs-ride="carousel">
-                    <div class="carousel-indicators">
-                        <button type="button" data-bs-target="#thi-ca-trung" data-bs-slide-to="0" class="active"></button>
-                        <button type="button" data-bs-target="#thi-ca-trung" data-bs-slide-to="1"></button>
-                        <button type="button" data-bs-target="#thi-ca-trung" data-bs-slide-to="2"></button>
-                    </div>
+            @php
+                $categoryBanners = $productBannerChunks->get($loop->index, $productBannerChunks->first() ?? collect());
 
-                    <div class="carousel-inner">
-                        <div class="carousel-item active">
-                            <img src="{{ asset('template/Assets/Images/cate-pc-54_202410191139488622.jpg') }}" alt="Category 1" class="d-block w-100" />
-                        </div>
-                        <div class="carousel-item">
-                            <img src="{{ asset('template/Assets/Images/cate-pc-48_202410142214151821.jpg') }}" alt="Category 2" class="d-block w-100" />
-                        </div>
-                        <div class="carousel-item">
-                            <img src="{{ asset('template/Assets/Images/cate-pc-54_202410191139488622.jpg') }}" alt="Category 3" class="d-block w-100" />
-                        </div>
-                    </div>
+                // Always render 3 banners per category; pad with a fallback if missing and reset keys
+                $categoryBanners = collect($categoryBanners)->pad(3, $defaultBanner)->values();
+                $carouselId = 'category-banner-' . ($section['id'] ?? $loop->iteration);
+            @endphp
 
-                    <button class="carousel-control-prev" type="button" data-bs-target="#thi-ca-trung" data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon"></span>
-                    </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#thi-ca-trung" data-bs-slide="next">
-                        <span class="carousel-control-next-icon"></span>
-                    </button>
+            <!-- Category Banner Carousel -->
+            @if($categoryBanners->isNotEmpty())
+                <div class="row mt-3" style="margin-left: -34px; margin-right: -24px; margin-bottom: 25px">
+                    <div id="{{ $carouselId }}" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-indicators">
+                            @foreach($categoryBanners as $slideIndex => $banner)
+                                <button type="button" data-bs-target="#{{ $carouselId }}" data-bs-slide-to="{{ $slideIndex }}" class="{{ $loop->first ? 'active' : '' }}"></button>
+                            @endforeach
+                        </div>
+
+                        <div class="carousel-inner">
+                            @foreach($categoryBanners as $slideIndex => $banner)
+                                @php
+                                    $bannerPath = $banner->HinhAnh ?? '';
+                                    $bannerSrc = \Illuminate\Support\Str::startsWith($bannerPath, ['http://', 'https://'])
+                                        ? $bannerPath
+                                        : asset($bannerPath ? (\Illuminate\Support\Str::startsWith($bannerPath, 'uploads/') ? $bannerPath : 'uploads/banners/' . ltrim($bannerPath, '/'))
+                                                            : 'template/Assets/Images/cate-pc-54_202410191139488622.jpg');
+                                @endphp
+                                <div class="carousel-item {{ $loop->first ? 'active' : '' }}">
+                                    <img src="{{ $bannerSrc }}" alt="{{ $banner->TieuDe ?? 'Category Banner' }}" class="d-block w-100" />
+                                </div>
+                            @endforeach
+                        </div>
+
+                        @if($categoryBanners->count() > 1)
+                            <button class="carousel-control-prev" type="button" data-bs-target="#{{ $carouselId }}" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon"></span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#{{ $carouselId }}" data-bs-slide="next">
+                                <span class="carousel-control-next-icon"></span>
+                            </button>
+                        @endif
+                    </div>
                 </div>
-            </div>
+            @endif
 
             <div class="row mt-3 bg-white mb-13-t pb-12-t row-km" 
                 style="margin-left: -23px; border-top: 1px solid #2c9f45 !important;">

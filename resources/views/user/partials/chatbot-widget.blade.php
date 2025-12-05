@@ -43,7 +43,7 @@
                     <!-- <img src="{{ $avatarUrl }}" alt="Bot Avatar" class="chatbot-avatar" onerror="this.src='{{ asset('template/Assets/Images/logo2.png') }}'"> -->
                     <img src="{{ asset('template/Assets/Images/chatbot/chatbot3.jpg') }}"  alt="Bot Avatar" class="chatbot-avatar" onerror="this.src='{{ asset('template/Assets/Images/logo2.png') }}'">
                     <div class="chatbot-header-info">
-                        <h3 class="chatbot-title">Chat với trợ lý ảo!</h3>
+                        <h3 class="chatbot-title" id="chatbotTitle"><i class="fa-solid fa-robot"></i> Trợ lý ảo</h3>
                         <div class="chatbot-status">
                             <span class="chatbot-status-dot"></span>
                             <span>Chúng tôi đang online!</span>

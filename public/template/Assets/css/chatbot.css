@@ -508,6 +508,13 @@ body.chatbot-blur #scrollToTopBtn {
     margin-left: auto;
 }
 
+/* Admin mode: switch user bubbles to blue */
+.chatbot-container.admin-mode .chatbot-message.user .chatbot-message-content {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    border: 1px solid #1e3a8a;
+    box-shadow: 0 12px 22px rgba(37, 99, 235, 0.22);
+}
+
 .chatbot-message + .chatbot-message {
     margin-top: 10px;
 }
@@ -875,4 +882,134 @@ body.chatbot-blur #scrollToTopBtn {
         transform: translateY(-8px);
         opacity: 1;
     }
+}
+
+/* ============================================
+   Admin Chat Mode Styles
+   ============================================ */
+
+/* Admin mode container indicator */
+.chatbot-container.admin-mode .chatbot-header {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+}
+
+.chatbot-container.admin-mode .chatbot-header-title {
+    color: white;
+}
+
+.chatbot-container.admin-mode .chatbot-header-btn {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.chatbot-container.admin-mode .chatbot-header-btn:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* System message */
+.chatbot-message.system {
+    display: flex;
+    justify-content: center;
+    margin: 12px 0;
+}
+
+.chatbot-system-message {
+    background: #f3f4f6;
+    color: #6b7280;
+    font-size: 12px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    text-align: center;
+}
+
+/* Sender name for admin messages */
+.chatbot-sender-name {
+    font-size: 11px;
+    color: #6b7280;
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+
+/* Message time */
+.chatbot-message-time {
+    font-size: 10px;
+    color: #9ca3af;
+    margin-top: 4px;
+}
+
+.chatbot-message.user .chatbot-message-time {
+    text-align: right;
+}
+
+/* Admin chat message image */
+.chatbot-message-image {
+    max-width: 200px;
+    border-radius: 12px;
+    margin-top: 8px;
+}
+
+/* Admin mode input area styling */
+.chatbot-container.admin-mode .chatbot-input-area {
+    border-top: 1px solid #e5e7eb;
+}
+
+.chatbot-container.admin-mode .chatbot-send-btn {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+}
+
+.chatbot-container.admin-mode .chatbot-send-btn:hover {
+    background: linear-gradient(135deg, #2563eb, #1e40af);
+}
+
+/* Admin avatar override */
+.chatbot-container.admin-mode .chatbot-message.bot .chatbot-message-avatar {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+}
+
+/* Waiting indicator for admin response */
+.chatbot-waiting-admin {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: #fef3c7;
+    border-radius: 12px;
+    margin: 12px 0;
+    font-size: 13px;
+    color: #d97706;
+}
+
+.chatbot-waiting-admin i {
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* Online status indicator */
+.chatbot-admin-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: #6b7280;
+    margin-top: 2px;
+}
+
+.chatbot-admin-status .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #22c55e;
+}
+
+.chatbot-admin-status .status-dot.offline {
+    background: #9ca3af;
 }

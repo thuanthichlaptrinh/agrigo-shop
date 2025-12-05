@@ -656,9 +656,6 @@
                     <div class="card">
                         <div class="card-header">
                             <h6>Danh sách người dùng ({{ $users->total() }} người)</h6>
-                            <button type="button" class="btn-add" onclick="openCreateModal()">
-                                <i class="fa-solid fa-user-plus"></i> Thêm người dùng
-                            </button>
                         </div>
                         <div class="table-wrapper">
                             <table class="authors-table">
@@ -669,7 +666,7 @@
                                         <th style="width: 400px">SĐT & Địa chỉ</th>
                                         <th>Vai trò</th>
                                         <th>Trạng thái</th>
-                                        <th>Ngày đăng ký</th>
+                                        <th style="width: 240px">Ngày đăng ký</th>
                                         <th style="width: 240px">Thao tác</th>
                                     </tr>
                                 </thead>
@@ -718,9 +715,6 @@
                                         <td>
                                             <button type="button" onclick="viewUser({{ $user->ID }})" class="action-btn info-link" title="Xem chi tiết">
                                                 <i class="fa-solid fa-circle-info"></i>
-                                            </button>
-                                            <button type="button" onclick="editUser({{ $user->ID }})" class="action-btn edit-link" title="Sửa">
-                                                <i class="fa-solid fa-pen-to-square"></i>
                                             </button>
                                             @if($user->TrangThai)
                                                 <button type="button" onclick="toggleUserStatus({{ $user->ID }}, true)" class="action-btn lock-link" title="Khóa tài khoản">

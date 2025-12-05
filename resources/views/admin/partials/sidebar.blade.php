@@ -9,6 +9,11 @@
             </a>
         </li>
         <li class="divider" data-text="main">Main</li>
+        <li class="{{ request()->routeIs('admin.chat.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.chat.index') }}">
+                <i class="fa-solid fa-comments icon"></i> Hỗ trợ chat
+            </a>
+        </li>
         <li class="{{ request()->routeIs('admin.banners.*') ? 'active' : '' }}">
             <a href="{{ route('admin.banners.index') }}">
                 <i class="fa-solid fa-image icon"></i> Banner

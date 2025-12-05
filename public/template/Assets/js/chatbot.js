@@ -12,11 +12,19 @@ class ChatbotWidget {
                 "template/Assets/Images/chatbot/chatbot3.jpg",
             greeting: config.greeting || "Hello! How can I help you?",
             apiUrl: config.apiUrl || "/api/v1/chatbot/query",
+            chatApiUrl: config.chatApiUrl || "/api/v1/chat",
         };
 
         this.isOpen = false;
         this.messages = [];
         this.isSending = false;
+
+        // Chat mode: 'bot' or 'admin'
+        this.chatMode = "bot";
+        this.conversationId = null;
+        this.adminMessages = [];
+        this.adminRefreshInterval = null;
+        this.adminInfo = null;
 
         // DOM Elements
         this.widget = document.getElementById("chatbotWidget");
@@ -40,6 +48,9 @@ class ChatbotWidget {
         this.launchAdminBtn = document.getElementById("chatLaunchAdmin");
         this.launchZaloBtn = document.getElementById("chatLaunchZalo");
         this.launcherCloseBtn = document.getElementById("chatLauncherClose");
+        this.chatTitle = document.getElementById("chatbotTitle");
+
+        this.csrfToken = this.getCsrfToken();
 
         this.init();
     }
@@ -121,6 +132,22 @@ class ChatbotWidget {
                 });
             }
 
+            // Switch mode menu item
+            const switchModeItem = this.menu.querySelector(
+                '[data-action="switch-mode"]'
+            );
+            if (switchModeItem) {
+                switchModeItem.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    this.closeMenu();
+                    if (this.chatMode === "bot") {
+                        this.switchToAdminMode();
+                    } else {
+                        this.switchToBotMode();
+                    }
+                });
+            }
+
             document.addEventListener("click", (e) => {
                 if (
                     this.menu.classList.contains("open") &&
@@ -136,6 +163,7 @@ class ChatbotWidget {
         if (this.launchAssistantBtn) {
             this.launchAssistantBtn.addEventListener("click", () => {
                 this.closeLauncher();
+                this.switchToBotMode();
                 if (!this.isOpen) this.toggleWidget();
             });
         }
@@ -143,8 +171,8 @@ class ChatbotWidget {
         if (this.launchAdminBtn) {
             this.launchAdminBtn.addEventListener("click", () => {
                 this.closeLauncher();
+                this.switchToAdminMode();
                 if (!this.isOpen) this.toggleWidget();
-                this.contactAdmin();
             });
         }
 
@@ -184,16 +212,346 @@ class ChatbotWidget {
             if (this.icon) this.icon.style.display = "block";
             if (this.iconImg) this.iconImg.style.display = "none";
             this.input.focus();
+
+            // Start polling if in admin mode
+            if (this.chatMode === "admin") {
+                this.startAdminPolling();
+            }
         } else {
             this.container.classList.remove("active");
             if (this.icon) this.icon.style.display = "none";
             if (this.iconImg) this.iconImg.style.display = "block";
             this.closeMenu();
             this.closeLauncher();
+            this.stopAdminPolling();
         }
 
         this.updateAuxButtons();
         this.saveState();
+    }
+
+    // Admin chat mode methods
+    async switchToAdminMode() {
+        this.chatMode = "admin";
+        this.updateChatTitle();
+
+        // Load or reuse existing conversation
+        if (this.conversationId) {
+            await this.loadAdminMessages();
+        } else {
+            await this.loadAdminConversation();
+        }
+
+        // Render admin messages
+        this.renderAdminMessages();
+
+        // Start polling for new messages
+        this.startAdminPolling();
+
+        this.saveState();
+    }
+
+    switchToBotMode() {
+        this.chatMode = "bot";
+        this.updateChatTitle();
+        this.stopAdminPolling();
+
+        // Restore bot messages
+        this.renderMessages();
+
+        this.saveState();
+    }
+
+    updateChatTitle() {
+        if (this.chatTitle) {
+            if (this.chatMode === "admin") {
+                this.chatTitle.innerHTML =
+                    '<i class="fa-solid fa-headset"></i> Chat với Admin';
+            } else {
+                this.chatTitle.innerHTML =
+                    '<i class="fa-solid fa-robot"></i> Trợ lý ảo';
+            }
+        }
+
+        // Update container class
+        if (this.container) {
+            this.container.classList.toggle(
+                "admin-mode",
+                this.chatMode === "admin"
+            );
+        }
+    }
+
+    async loadAdminConversation() {
+        try {
+            const response = await fetch(
+                `${this.config.chatApiUrl}/conversation`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Accept: "application/json",
+                        "X-CSRF-TOKEN": this.csrfToken,
+                    },
+                    credentials: "same-origin",
+                }
+            );
+
+            const data = await response.json();
+
+            if (data.success && data.conversation) {
+                this.conversationId = data.conversation.ID;
+                this.adminInfo = data.conversation.admin || this.adminInfo;
+                await this.loadAdminMessages();
+            }
+        } catch (error) {
+            console.error("Error loading conversation:", error);
+            this.addAdminSystemMessage(
+                "Không thể kết nối với hệ thống chat. Vui lòng thử lại sau."
+            );
+        }
+    }
+
+    async loadAdminMessages() {
+        if (!this.conversationId) return;
+
+        try {
+            const response = await fetch(
+                `${this.config.chatApiUrl}/messages/${this.conversationId}`,
+                {
+                    method: "GET",
+                    headers: {
+                        Accept: "application/json",
+                    },
+                    credentials: "same-origin",
+                }
+            );
+
+            if (response.status === 404) {
+                // Conversation missing for this session (likely stale sessionStorage)
+                await this.resetConversationAndReload();
+                return;
+            }
+
+            const data = await response.json();
+
+            if (data.success) {
+                this.adminMessages = data.messages || [];
+                this.adminInfo = data.admin || this.adminInfo;
+
+                // If no messages yet, add welcome message
+                if (this.adminMessages.length === 0) {
+                    this.addAdminSystemMessage(
+                        "Chào bạn! Hãy để lại tin nhắn, Admin sẽ phản hồi sớm nhất có thể."
+                    );
+                } else {
+                    this.renderAdminMessages();
+                }
+            } else {
+                this.addAdminSystemMessage(
+                    "Không thể tải cuộc hội thoại. Đang thử khởi tạo lại..."
+                );
+                await this.resetConversationAndReload();
+            }
+        } catch (error) {
+            console.error("Error loading messages:", error);
+        }
+    }
+
+    addAdminSystemMessage(text) {
+        const msg = {
+            ID: Date.now(),
+            LoaiNguoiGui: "HeThong",
+            NoiDung: text,
+            ThoiGianGui: new Date().toISOString(),
+        };
+        this.adminMessages.push(msg);
+        this.renderAdminMessages();
+    }
+
+    renderAdminMessages() {
+        if (!this.body) return;
+
+        this.body.innerHTML = "";
+
+        this.adminMessages.forEach((msg) => {
+            const messageDiv = document.createElement("div");
+
+            if (msg.LoaiNguoiGui === "HeThong") {
+                messageDiv.className = "chatbot-message system";
+                messageDiv.innerHTML = `
+                    <div class="chatbot-system-message">
+                        ${this.escapeHtml(msg.NoiDung)}
+                    </div>
+                `;
+            } else {
+                const isUser = msg.LoaiNguoiGui === "NguoiDung";
+                messageDiv.className = `chatbot-message ${
+                    isUser ? "user" : "bot"
+                }`;
+
+                const sender = msg.nguoi_gui || {};
+                const avatarUrl = isUser
+                    ? sender.HinhAnh ||
+                      "template/Assets/Images/default-avatar.png"
+                    : sender.HinhAnh ||
+                      this.adminInfo?.HinhAnh ||
+                      "template/Assets/Images/admin-avatar.png";
+
+                const senderName = isUser
+                    ? ""
+                    : sender.TenNguoiDung ||
+                      this.adminInfo?.TenNguoiDung ||
+                      "Admin";
+
+                let html = "";
+
+                if (!isUser) {
+                    html += `<img src="${avatarUrl}" alt="Admin" class="chatbot-message-avatar" onerror="this.src='template/Assets/Images/admin-avatar.png'">`;
+                }
+
+                html += '<div class="chatbot-message-content">';
+
+                if (!isUser && senderName) {
+                    html += `<div class="chatbot-sender-name">${this.escapeHtml(
+                        senderName
+                    )}</div>`;
+                }
+
+                html += `
+                    <div class="chatbot-message-bubble">
+                        ${this.escapeHtml(msg.NoiDung)}
+                    </div>
+                    <div class="chatbot-message-time">${this.formatTime(
+                        msg.ThoiGianGui
+                    )}</div>
+                `;
+
+                if (msg.HinhAnh) {
+                    html += `<img src="${msg.HinhAnh}" class="chatbot-message-image" alt="">`;
+                }
+
+                html += "</div>";
+
+                messageDiv.innerHTML = html;
+            }
+
+            this.body.appendChild(messageDiv);
+        });
+
+        this.scrollToBottom();
+    }
+
+    async sendAdminMessage(text) {
+        if (!this.conversationId || !text.trim()) return;
+
+        this.isSending = true;
+
+        // Optimistically add message
+        const tempMsg = {
+            ID: "temp-" + Date.now(),
+            LoaiNguoiGui: "NguoiDung",
+            NoiDung: text,
+            ThoiGianGui: new Date().toISOString(),
+        };
+        this.adminMessages.push(tempMsg);
+        this.renderAdminMessages();
+
+        try {
+            const response = await fetch(`${this.config.chatApiUrl}/send`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                    "X-CSRF-TOKEN": this.csrfToken,
+                },
+                credentials: "same-origin",
+                body: JSON.stringify({
+                    conversation_id: this.conversationId,
+                    message: text,
+                }),
+            });
+
+            if (response.status === 404) {
+                // Conversation lost (new session); recreate and retry once
+                await this.resetConversationAndReload();
+                this.isSending = false;
+                await this.sendAdminMessage(text);
+                return;
+            }
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Replace temp message with real one
+                const tempIndex = this.adminMessages.findIndex(
+                    (m) => m.ID === tempMsg.ID
+                );
+                if (tempIndex !== -1 && data.message) {
+                    this.adminMessages[tempIndex] = data.message;
+                    this.renderAdminMessages();
+                }
+            } else {
+                // Remove temp message on error
+                this.adminMessages = this.adminMessages.filter(
+                    (m) => m.ID !== tempMsg.ID
+                );
+                this.renderAdminMessages();
+                this.addAdminSystemMessage(
+                    "Không thể gửi tin nhắn. Vui lòng thử lại."
+                );
+            }
+        } catch (error) {
+            console.error("Error sending message:", error);
+            this.adminMessages = this.adminMessages.filter(
+                (m) => m.ID !== tempMsg.ID
+            );
+            this.renderAdminMessages();
+            this.addAdminSystemMessage("Lỗi kết nối. Vui lòng thử lại.");
+        } finally {
+            this.isSending = false;
+        }
+    }
+
+    async resetConversationAndReload() {
+        this.conversationId = null;
+        this.adminMessages = [];
+        this.adminInfo = null;
+        this.saveState();
+        await this.loadAdminConversation();
+    }
+
+    startAdminPolling() {
+        this.stopAdminPolling();
+
+        this.adminRefreshInterval = setInterval(() => {
+            if (this.chatMode === "admin" && this.conversationId) {
+                this.loadAdminMessages();
+            }
+        }, 5000); // Poll every 5 seconds
+    }
+
+    stopAdminPolling() {
+        if (this.adminRefreshInterval) {
+            clearInterval(this.adminRefreshInterval);
+            this.adminRefreshInterval = null;
+        }
+    }
+
+    formatTime(dateString) {
+        if (!dateString) return "";
+        const date = new Date(dateString);
+        const now = new Date();
+        const diff = now - date;
+
+        if (diff < 60000) return "Vừa xong";
+        if (diff < 3600000) return Math.floor(diff / 60000) + " phút";
+        if (diff < 86400000) return Math.floor(diff / 3600000) + " giờ";
+
+        return date.toLocaleTimeString("vi-VN", {
+            hour: "2-digit",
+            minute: "2-digit",
+        });
     }
 
     showInitialGreeting() {
@@ -230,19 +588,23 @@ class ChatbotWidget {
 
         if (!text || this.isSending) return;
 
-        // Add user message
-        const userMessage = {
-            type: "user",
-            text: text,
-            timestamp: new Date(),
-        };
-
-        this.addMessage(userMessage);
-
-        // Clear input
+        // Clear input first
         this.input.value = "";
 
-        await this.queryBot(text);
+        // Route to appropriate handler based on mode
+        if (this.chatMode === "admin") {
+            await this.sendAdminMessage(text);
+        } else {
+            // Add user message
+            const userMessage = {
+                type: "user",
+                text: text,
+                timestamp: new Date(),
+            };
+
+            this.addMessage(userMessage);
+            await this.queryBot(text);
+        }
     }
 
     async queryBot(userText) {
@@ -452,6 +814,10 @@ class ChatbotWidget {
             const state = {
                 isOpen: this.isOpen,
                 messages: this.messages,
+                chatMode: this.chatMode,
+                conversationId: this.conversationId,
+                adminMessages: this.adminMessages,
+                adminInfo: this.adminInfo,
             };
             sessionStorage.setItem("chatbotState", JSON.stringify(state));
         } catch (e) {
@@ -466,12 +832,19 @@ class ChatbotWidget {
                 const state = JSON.parse(stateStr);
                 this.isOpen = state.isOpen || false;
                 this.messages = state.messages || [];
+                this.chatMode = state.chatMode || "bot";
+                this.conversationId = state.conversationId || null;
+                this.adminMessages = state.adminMessages || [];
+                this.adminInfo = state.adminInfo || null;
 
                 if (this.isOpen) {
                     this.container.classList.add("active");
                     if (this.icon) this.icon.style.display = "block";
                     if (this.iconImg) this.iconImg.style.display = "none";
                 }
+
+                // Update title based on mode
+                this.updateChatTitle();
 
                 this.updateAuxButtons();
             }
@@ -519,37 +892,43 @@ class ChatbotWidget {
         return div.innerHTML;
     }
 
-    contactAdmin() {
-        // Add system message
-        const adminMessage = {
-            type: "bot",
-            text: "Đang kết nối bạn với Admin... Vui lòng để lại số điện thoại hoặc email để Admin liên hệ lại với bạn.",
-            timestamp: new Date(),
-        };
-        this.addMessage(adminMessage);
+    getCsrfToken() {
+        const meta = document.querySelector('meta[name="csrf-token"]');
+        return meta ? meta.getAttribute("content") : "";
+    }
 
-        // You can add more logic here like opening a contact form or redirecting
-        console.log("Contact admin requested");
+    contactAdmin() {
+        // Switch to admin chat mode
+        this.switchToAdminMode();
     }
 
     clearChat() {
-        // Clear messages array
-        this.messages = [];
+        if (this.chatMode === "admin") {
+            // Clear admin messages but keep conversation
+            this.adminMessages = [];
+            this.renderAdminMessages();
+            this.addAdminSystemMessage(
+                "Đoạn chat đã được xóa. Hãy gửi tin nhắn mới để tiếp tục."
+            );
+        } else {
+            // Clear bot messages
+            this.messages = [];
 
-        // Clear chat body UI
-        if (this.body) {
-            this.body.innerHTML = "";
+            // Clear chat body UI
+            if (this.body) {
+                this.body.innerHTML = "";
+            }
+
+            // Show initial greeting again
+            this.showInitialGreeting();
         }
 
         // Clear saved state
         try {
-            localStorage.removeItem("chatbotMessages");
+            sessionStorage.removeItem("chatbotState");
         } catch (e) {
             console.warn("Could not clear chatbot state:", e);
         }
-
-        // Show initial greeting again
-        this.showInitialGreeting();
     }
 }
 

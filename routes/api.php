@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthApiController;
 use App\Http\Controllers\Api\ChatbotController;
+use App\Http\Controllers\Api\ChatController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -28,6 +29,14 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
 
     // Chatbot API (no CSRF)
     Route::post('/chatbot/query', [ChatbotController::class, 'query'])->name('chatbot.query');
+
+    // Chat với Admin API (cần session)
+    Route::prefix('chat')->name('chat.')->middleware(['web'])->group(function () {
+        Route::post('/conversation', [ChatController::class, 'getOrCreateConversation'])->name('conversation');
+        Route::get('/messages/{conversationId}', [ChatController::class, 'getMessages'])->name('messages');
+        Route::post('/send', [ChatController::class, 'sendMessage'])->name('send');
+        Route::post('/close/{conversationId}', [ChatController::class, 'closeConversation'])->name('close');
+    });
 
     // Protected routes (cần xác thực JWT)
     Route::middleware('jwt.auth')->group(function () {

@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\ThongBaoController;
 use App\Http\Controllers\Admin\VaiTroController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\BaiVietController;
+use App\Http\Controllers\Admin\AdminChatController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -163,6 +164,17 @@ Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
         Route::get('/{id}', [LoaiSanPhamController::class, 'show'])->name('show');
     });
 
+    // Chat với khách hàng
+    Route::prefix('chat')->name('chat.')->group(function () {
+        Route::get('/', [AdminChatController::class, 'index'])->name('index');
+        Route::get('/conversations', [AdminChatController::class, 'getConversations'])->name('conversations');
+        Route::get('/conversations/stats', [AdminChatController::class, 'getStats'])->name('stats');
+        Route::get('/conversations/{id}/messages', [AdminChatController::class, 'getMessages'])->name('messages');
+        Route::post('/conversations/{id}/assign', [AdminChatController::class, 'assignConversation'])->name('assign');
+        Route::post('/conversations/{id}/close', [AdminChatController::class, 'closeConversation'])->name('close');
+        Route::post('/messages/send', [AdminChatController::class, 'sendMessage'])->name('send');
+    });
+
     // Catalog Management
     Route::prefix('catalog')->name('catalog.')->group(function () {
         Route::get('/', [DanhMucController::class, 'index'])->name('index');
@@ -271,13 +283,24 @@ Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
         Route::delete('/{id}', [BaiVietController::class, 'destroy'])->name('destroy');
     });
 
+    // Chat Management - Hỗ trợ khách hàng
+    Route::prefix('chat')->name('chat.')->group(function () {
+        Route::get('/', [AdminChatController::class, 'index'])->name('index');
+        Route::get('/conversations', [AdminChatController::class, 'getConversations'])->name('conversations');
+        Route::get('/messages/{id}', [AdminChatController::class, 'getMessages'])->name('messages');
+        Route::post('/send', [AdminChatController::class, 'sendMessage'])->name('send');
+        Route::post('/assign/{id}', [AdminChatController::class, 'assignConversation'])->name('assign');
+        Route::post('/close/{id}', [AdminChatController::class, 'closeConversation'])->name('close');
+        Route::get('/stats', [AdminChatController::class, 'getStats'])->name('stats');
+    });
+
     // Utility Routes
     Route::get('/search', function () {
         return redirect()->route('admin.dashboard');
     })->name('search');
     
     Route::get('/messages', function () {
-        return redirect()->route('admin.dashboard');
+        return redirect()->route('admin.chat.index');
     })->name('messages');
     
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
