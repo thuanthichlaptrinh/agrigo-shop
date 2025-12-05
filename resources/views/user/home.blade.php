@@ -156,6 +156,115 @@
             max-width: 100%;
         }
     }
+
+    /* Promo brand deals hover overlay */
+    .promo-banner-card {
+        position: relative;
+        overflow: hidden;
+        border-radius: 10px;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
+        transition: transform 0.35s ease, box-shadow 0.35s ease;
+        background: #f9fafb;
+    }
+
+    .promo-banner-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 18px 38px rgba(15, 23, 42, 0.28);
+    }
+
+    .promo-banner-link {
+        display: block;
+        position: relative;
+        isolation: isolate;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .promo-banner-link img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.4s ease, filter 0.4s ease;
+    }
+
+    .promo-banner-link:hover img,
+    .promo-banner-link:focus-visible img {
+        transform: scale(1.06);
+        filter: saturate(1.08) brightness(1.04);
+    }
+
+    .promo-banner-link::before {
+        content: attr(data-discount);
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        z-index: 2;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #ff7a18, #ffb347);
+        color: #fff;
+        font-weight: 700;
+        font-size: 13px;
+        box-shadow: 0 10px 20px rgba(255, 122, 24, 0.35);
+        opacity: 0;
+        transform: translateY(-8px);
+        transition: opacity 0.25s ease, transform 0.25s ease;
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        backdrop-filter: blur(2px);
+        border-radius: inherit;
+    }
+
+    .promo-banner-link::after {
+        content: attr(data-name) "\A" attr(data-price) "  |  " attr(data-discount) "\A" "Giá gốc " attr(data-original);
+        white-space: pre-line;
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: flex-end;
+        padding: 20px 18px;
+        background: linear-gradient(185deg, rgba(3, 7, 18, 0.02) 0%, rgba(3, 7, 18, 0.86) 70%);
+        color: #fdfdfd;
+        font-weight: 700;
+        font-size: 14.5px;
+        line-height: 1.5;
+        letter-spacing: 0.25px;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+        opacity: 0;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        transform: translateY(14px);
+        backdrop-filter: blur(2px);
+        border-top: 1px solid rgba(255, 255, 255, 0.16);
+        box-shadow: inset 0 24px 48px rgba(0,0,0,0.32);
+        border-radius: inherit;
+    }
+
+    .promo-banner-link:hover::after,
+    .promo-banner-link:focus-visible::after,
+    .promo-banner-link:hover::before,
+    .promo-banner-link:focus-visible::before {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .promo-banner-link::selection,
+    .promo-banner-link *::selection {
+        background: rgba(0, 168, 107, 0.25);
+        color: #fff;
+    }
+
+    @media (max-width: 768px) {
+        .promo-banner-link::after {
+            font-size: 13px;
+            padding: 14px;
+        }
+        .promo-banner-link::before {
+            top: 10px;
+            left: 10px;
+            font-size: 12px;
+            padding: 5px 9px;
+        }
+    }
  
 </style>
 @endpush
@@ -370,92 +479,6 @@
             </div>
         </div>
 
-        {{-- <!-- Category Banner Carousel 1 -->
-        <div class="row mt-3" style="margin-left: -34px; margin-right: -24px; margin-bottom: 25px">
-            <div id="thi-ca-trung" class="carousel slide" data-bs-ride="carousel">
-                <div class="carousel-indicators">
-                    <button type="button" data-bs-target="#thi-ca-trung" data-bs-slide-to="0" class="active"></button>
-                    <button type="button" data-bs-target="#thi-ca-trung" data-bs-slide-to="1"></button>
-                    <button type="button" data-bs-target="#thi-ca-trung" data-bs-slide-to="2"></button>
-                </div>
-
-                <div class="carousel-inner">
-                    <div class="carousel-item active">
-                        <img src="{{ asset('template/Assets/Images/cate-pc-54_202410191139488622.jpg') }}" alt="Category 1" class="d-block w-100" />
-                    </div>
-                    <div class="carousel-item">
-                        <img src="{{ asset('template/Assets/Images/cate-pc-48_202410142214151821.jpg') }}" alt="Category 2" class="d-block w-100" />
-                    </div>
-                    <div class="carousel-item">
-                        <img src="{{ asset('template/Assets/Images/cate-pc-54_202410191139488622.jpg') }}" alt="Category 3" class="d-block w-100" />
-                    </div>
-                </div>
-
-                <button class="carousel-control-prev" type="button" data-bs-target="#thi-ca-trung" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon"></span>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#thi-ca-trung" data-bs-slide="next">
-                    <span class="carousel-control-next-icon"></span>
-                </button>
-            </div>
-        </div> --}}
-
-        <!-- Favorite Products Section -->
-        {{-- @php
-            $favoriteItems = collect($favoriteProducts ?? [])->take(4);
-        @endphp
-        <div class="row mt-3 bg-white mb-13-t pb-12-t row-km" style="margin-left: -23px">
-            <div class="title-banner-wrapper">
-                <div class="triangle-left"></div>
-                <a class="title-banner">
-                    <span>SẢN PHẨM YÊU THÍCH</span>
-                </a>
-                <div class="triangle-right"></div>
-            </div>
-
-            @for($i = 0; $i < 4; $i++)
-            @php
-                $product = $favoriteItems[$i] ?? null;
-                $image = $product ? product_image_url($product['image'] ?? null) : asset('template/Assets/Images/tao_gala_phap_size_100_8aef2b9571944ed0b7a6ee52ea416e3d_large.webp');
-                $price = $product['final_price'] ?? 28350;
-                $hasDiscount = (bool) ($product['has_discount'] ?? false);
-                $discountPercent = (int) round($product['discount_percent'] ?? 0);
-                $detailUrl = $product && !empty($product['id']) ? route('user.products.detail', $product['id']) : '#';
-            @endphp
-            <div class="col-lg-3 col-md-4 col-sm-12">
-                <div class="card home-product-card">
-                    @if($product && $hasDiscount)
-                        <div class="d-flex align-items-center justify-content-center box-flash">
-                            <i class="ri-flashlight-line"></i>
-                            <span style="font-weight: 700">-{{ $discountPercent }}%</span>
-                        </div>
-                    @endif
-                    <a href="{{ $detailUrl }}">
-                        <img src="{{ $image }}" class="w-100" alt="{{ $product['name'] ?? 'Ức gà có xương' }}" />
-                    </a>
-                    <div class="card-body">
-                        <p class="card-title fw-400 txt-gray product-name-single-line">{{ $product['name'] ?? 'Ức gà có xương' }}</p>
-                        <p class="card-title product-price">
-                            <span class="fw-700">{{ number_format($price, 0, ',', '.') }}đ</span>
-                            <span class="txt-gray fs-13-t">/{{ $product['unit'] ?? '300g' }}</span>
-                        </p>
-                        <div class="container-ThemVGio">
-                            <a href="#" class="btn btn-ThemVaoGio text-white mx-auto fw-500 d-block"
-                                @if($product)
-                                    data-add-to-cart="true"
-                                    data-product-id="{{ $product['id'] }}"
-                                @endif>
-                                Thêm vào giỏ
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            @endfor
-
-            <a href="#" class="text-center mt-2">Xem thêm</a>
-        </div> --}}
-
         <!-- Products Section -->
         @php
             $categorySections = collect($categoryProductSections ?? []);
@@ -556,6 +579,10 @@
         @endforeach
 
         <!-- Gian hàng và ưu đãi từ hãng -->
+        @php
+            $brandDeals = collect($brandDealProducts ?? [])->take(4);
+            $fallbackBanner = asset('template/Assets/Images/thumb-2024-26_202410171658026192.jpg');
+        @endphp
         <div class="row mt-2 mb-3" style="margin-left: -23px; margin-right: -24px;">
             <div class="col-12 px-0">
                 <!-- Header Section với ngôi sao - width 780px và center -->
@@ -575,11 +602,18 @@
                         <!-- Banner 1 - Tích Lũy Mua Sắm Nhận Quà Ưu Đãi -->
                         <div class="col-lg-3 col-md-6 col-sm-12">
                             <div class="promo-banner-card" style="position: relative; overflow: hidden; border-radius: 8px; height: 100%;">
-                                <a href="#">
-                                    <img src=""
+                                @php $deal = $brandDeals->get(0); @endphp
+                                <a href="{{ $deal ? route('user.products.detail', $deal['id']) : '#' }}"
+                                   class="promo-banner-link"
+                                   data-name="{{ $deal['name'] ?? '' }}"
+                                   data-price="{{ isset($deal['final_price']) ? number_format($deal['final_price'], 0, ',', '.') . 'đ' : '' }}"
+                                   data-original="{{ isset($deal['original_price']) ? number_format($deal['original_price'], 0, ',', '.') . 'đ' : '' }}"
+                                   data-discount="{{ $deal['discount_percent'] ?? 0 }}%">
+                                    <img src="{{ $deal ? product_image_url($deal['image'] ?? null) : $fallbackBanner }}"
                                         class="w-100"
                                         style="height: 320px; object-fit: cover; display: block;"
-                                        alt="Tích lũy mua sắm nhận quà ưu đãi" />
+                                        alt="{{ $deal['name'] ?? 'Tích lũy mua sắm nhận quà ưu đãi' }}"
+                                        title="{{ $deal ? ($deal['name'] . ' • Giảm ' . (int) round($deal['discount_percent'] ?? 0) . '%') : '' }}" />
                                 </a>
                             </div>
                         </div>
@@ -587,11 +621,18 @@
                         <!-- Banner 2 - Tích Lũy Mua Sắm Nhận Phiếu Mua Hàng -->
                         <div class="col-lg-3 col-md-6 col-sm-12">
                             <div class="promo-banner-card" style="position: relative; overflow: hidden; border-radius: 8px; height: 100%;">
-                                <a href="#">
-                                    <img src=""
+                                @php $deal = $brandDeals->get(1); @endphp
+                                <a href="{{ $deal ? route('user.products.detail', $deal['id']) : '#' }}"
+                                   class="promo-banner-link"
+                                   data-name="{{ $deal['name'] ?? '' }}"
+                                   data-price="{{ isset($deal['final_price']) ? number_format($deal['final_price'], 0, ',', '.') . 'đ' : '' }}"
+                                   data-original="{{ isset($deal['original_price']) ? number_format($deal['original_price'], 0, ',', '.') . 'đ' : '' }}"
+                                   data-discount="{{ $deal['discount_percent'] ?? 0 }}%">
+                                    <img src="{{ $deal ? product_image_url($deal['image'] ?? null) : $fallbackBanner }}"
                                         class="w-100"
                                         style="height: 320px; object-fit: cover; display: block;"
-                                        alt="Tích lũy mua sắm nhận phiếu mua hàng" />
+                                        alt="{{ $deal['name'] ?? 'Tích lũy mua sắm nhận phiếu mua hàng' }}"
+                                        title="{{ $deal ? ($deal['name'] . ' • Giảm ' . (int) round($deal['discount_percent'] ?? 0) . '%') : '' }}" />
                                 </a>
                             </div>
                         </div>
@@ -599,11 +640,18 @@
                         <!-- Banner 3 - P&G Giặt Xả Gia Tốt -->
                         <div class="col-lg-3 col-md-6 col-sm-12">
                             <div class="promo-banner-card" style="position: relative; overflow: hidden; border-radius: 8px; height: 100%;">
-                                <a href="#">
-                                    <img src=""
+                                @php $deal = $brandDeals->get(2); @endphp
+                                <a href="{{ $deal ? route('user.products.detail', $deal['id']) : '#' }}"
+                                   class="promo-banner-link"
+                                   data-name="{{ $deal['name'] ?? '' }}"
+                                   data-price="{{ isset($deal['final_price']) ? number_format($deal['final_price'], 0, ',', '.') . 'đ' : '' }}"
+                                   data-original="{{ isset($deal['original_price']) ? number_format($deal['original_price'], 0, ',', '.') . 'đ' : '' }}"
+                                   data-discount="{{ $deal['discount_percent'] ?? 0 }}%">
+                                    <img src="{{ $deal ? product_image_url($deal['image'] ?? null) : $fallbackBanner }}"
                                         class="w-100"
                                         style="height: 320px; object-fit: cover; display: block;"
-                                        alt="P&G Giặt Xả Gia Tốt" />
+                                        alt="{{ $deal['name'] ?? 'P&G Giặt Xả Gia Tốt' }}"
+                                        title="{{ $deal ? ($deal['name'] . ' • Giảm ' . (int) round($deal['discount_percent'] ?? 0) . '%') : '' }}" />
                                 </a>
                             </div>
                         </div>
@@ -611,11 +659,18 @@
                         <!-- Banner 4 - Cô Sprite Mát Lành Cực Đã -->
                         <div class="col-lg-3 col-md-6 col-sm-12">
                             <div class="promo-banner-card" style="position: relative; overflow: hidden; border-radius: 8px; height: 100%;">
-                                <a href="#">
-                                    <img src=""
+                                @php $deal = $brandDeals->get(3); @endphp
+                                <a href="{{ $deal ? route('user.products.detail', $deal['id']) : '#' }}"
+                                   class="promo-banner-link"
+                                   data-name="{{ $deal['name'] ?? '' }}"
+                                   data-price="{{ isset($deal['final_price']) ? number_format($deal['final_price'], 0, ',', '.') . 'đ' : '' }}"
+                                   data-original="{{ isset($deal['original_price']) ? number_format($deal['original_price'], 0, ',', '.') . 'đ' : '' }}"
+                                   data-discount="{{ $deal['discount_percent'] ?? 0 }}%">
+                                    <img src="{{ $deal ? product_image_url($deal['image'] ?? null) : $fallbackBanner }}"
                                         class="w-100"
                                         style="height: 320px; object-fit: cover; display: block;"
-                                        alt="Cô Sprite Mát Lành Cực Đã" />
+                                        alt="{{ $deal['name'] ?? 'Cô Sprite Mát Lành Cực Đã' }}"
+                                        title="{{ $deal ? ($deal['name'] . ' • Giảm ' . (int) round($deal['discount_percent'] ?? 0) . '%') : '' }}" />
                                 </a>
                             </div>
                         </div>
@@ -623,8 +678,8 @@
 
                     <!-- View More Button -->
                     <div class="text-center mt-3 pb-2">
-                        <a href="#" class="text-decoration-none" style="color: #666; font-size: 14px; font-weight: 500;">
-                            Xem thêm 1 Ưu đãi từ hãng
+                        <a href="{{ route('user.products.index', ['promotion' => 'flash', 'only_half_off' => 1]) }}" class="text-decoration-none" style="color: #666; font-size: 14px; font-weight: 500;">
+                            Xem thêm ưu đãi 50%
                             <i class="ri-arrow-down-s-line"></i>
                         </a>
                     </div>

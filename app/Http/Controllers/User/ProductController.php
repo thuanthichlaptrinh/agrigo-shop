@@ -77,6 +77,16 @@ class ProductController extends Controller
         $promotionFilter = $request->input('promotion');
         if (in_array($promotionFilter, ['yes', 'flash'], true)) {
             $query->whereHas('khuyenMai', $promotionScope);
+
+            if ($request->boolean('only_half_off')) {
+                $query->whereHas('khuyenMai', function ($q) use ($promotionScope) {
+                    $promotionScope($q);
+                    $q->where(function ($inner) {
+                        $inner->where('KhuyenMai.LoaiKhuyenMai', 'like', '%phan tram%')
+                              ->where('KhuyenMai.GiaTriGiam', '>=', 50);
+                    });
+                });
+            }
         }
 
         $supplierMap = [

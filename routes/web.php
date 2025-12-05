@@ -24,18 +24,28 @@ Route::get('/', function () {
         ->get();
 
     $now = now();
+    $activePromotionQuery = fn ($query) => $query->where('TrangThai', 1)
+        ->where('NgayBatDau', '<=', $now)
+        ->where('NgayKetThuc', '>=', $now);
+
     $flashSaleProducts = SanPhamKhuyenMai::with(['sanPham', 'khuyenMai'])
         ->whereHas('sanPham', fn ($query) => $query->where('TrangThai', 1))
-        ->whereHas('khuyenMai', function ($query) use ($now) {
-            $query->where('TrangThai', 1)
-                ->where('NgayBatDau', '<=', $now)
-                ->where('NgayKetThuc', '>=', $now);
-        })
+        ->whereHas('khuyenMai', $activePromotionQuery)
         ->orderByDesc('NgayTao')
         ->limit(4)
         ->get()
         ->map(fn ($pivot) => format_promoted_product($pivot))
         ->filter(fn ($product) => $product && ($product['is_percent'] ?? false))
+        ->values();
+
+    $brandDealProducts = SanPhamKhuyenMai::with(['sanPham', 'khuyenMai'])
+        ->whereHas('sanPham', fn ($query) => $query->where('TrangThai', 1))
+        ->whereHas('khuyenMai', $activePromotionQuery)
+        ->orderByDesc('NgayTao')
+        ->get()
+        ->map(fn ($pivot) => format_promoted_product($pivot))
+        ->filter(fn ($product) => $product && ($product['is_percent'] ?? false) && (($product['discount_percent'] ?? 0) >= 50))
+        ->take(4)
         ->values();
 
     $activePromotionConstraint = function ($query) use ($now) {
@@ -113,6 +123,7 @@ Route::get('/', function () {
     return view('user.home', compact(
         'homeBanners',
         'flashSaleProducts',
+        'brandDealProducts',
         'favoriteProducts',
         'categoryProductSections',
         'homeArticles'
