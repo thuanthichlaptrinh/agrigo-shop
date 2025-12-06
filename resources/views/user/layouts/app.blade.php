@@ -62,6 +62,7 @@
         'greeting' => 'Xin chào! Chào mừng bạn đến với Organic Shop. Tôi có thể giúp gì cho bạn hôm nay?'
     ])
 
+
     <!-- Bootstrap 5 JS -->
     <script src="{{ asset('template/Assets/Bootstrap5/js/bootstrap.min.js') }}"></script>
     <!-- Custom JS -->

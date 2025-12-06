@@ -47,8 +47,19 @@ class ChatbotWidget {
         );
         this.launchAdminBtn = document.getElementById("chatLaunchAdmin");
         this.launchZaloBtn = document.getElementById("chatLaunchZalo");
+        this.launchContactBtn = document.getElementById("chatLaunchContact");
         this.launcherCloseBtn = document.getElementById("chatLauncherClose");
         this.chatTitle = document.getElementById("chatbotTitle");
+
+        // Contact modal elements
+        this.contactModal = document.getElementById("chatContactModal");
+        this.contactOverlay = document.getElementById("chatContactOverlay");
+        this.contactCloseBtn = document.getElementById("chatContactClose");
+        this.contactForm = document.getElementById("chatContactForm");
+        this.contactSubmitBtn = document.getElementById("chatContactSubmit");
+        this.contactProductInput =
+            document.getElementById("chatContactProduct");
+        this.contactTitleInput = document.getElementById("chatContactTitle");
 
         this.csrfToken = this.getCsrfToken();
 
@@ -183,9 +194,34 @@ class ChatbotWidget {
             });
         }
 
+        if (this.launchContactBtn) {
+            this.launchContactBtn.addEventListener("click", () => {
+                this.closeLauncher();
+                this.openContactForm();
+            });
+        }
+
         if (this.launcherBackdrop) {
             this.launcherBackdrop.addEventListener("click", () =>
                 this.closeLauncher()
+            );
+        }
+
+        if (this.contactCloseBtn) {
+            this.contactCloseBtn.addEventListener("click", () =>
+                this.closeContactForm()
+            );
+        }
+
+        if (this.contactOverlay) {
+            this.contactOverlay.addEventListener("click", () =>
+                this.closeContactForm()
+            );
+        }
+
+        if (this.contactForm) {
+            this.contactForm.addEventListener("submit", (e) =>
+                this.submitContactForm(e)
             );
         }
 
@@ -223,6 +259,7 @@ class ChatbotWidget {
             if (this.iconImg) this.iconImg.style.display = "block";
             this.closeMenu();
             this.closeLauncher();
+            this.closeContactForm();
             this.stopAdminPolling();
         }
 
@@ -867,6 +904,95 @@ class ChatbotWidget {
         }
     }
 
+    openContactForm() {
+        if (!this.contactModal) return;
+        this.prefillContactTitle();
+        this.contactModal.style.display = "flex";
+        document.body.classList.add("chatbot-blur");
+    }
+
+    closeContactForm() {
+        if (!this.contactModal) return;
+        this.contactModal.style.display = "none";
+        document.body.classList.remove("chatbot-blur");
+    }
+
+    prefillContactTitle() {
+        if (!this.contactTitleInput) return;
+        const product = (this.contactProductInput?.value || "").trim();
+        this.contactTitleInput.value = product
+            ? `Tư vấn về ${product}`
+            : "Yêu cầu tư vấn từ chatbox";
+    }
+
+    async submitContactForm(event) {
+        event.preventDefault();
+        if (!this.contactForm) return;
+
+        this.prefillContactTitle();
+
+        if (this.contactSubmitBtn) {
+            this.contactSubmitBtn.disabled = true;
+            this.contactSubmitBtn.classList.add("is-loading");
+        }
+
+        const headers = {
+            "X-Requested-With": "XMLHttpRequest",
+            Accept: "application/json",
+        };
+
+        if (this.csrfToken) {
+            headers["X-CSRF-TOKEN"] = this.csrfToken;
+        }
+
+        try {
+            const response = await fetch(this.contactForm.action, {
+                method: "POST",
+                credentials: "same-origin",
+                headers,
+                body: new FormData(this.contactForm),
+            });
+
+            if (response.status === 422) {
+                const data = await response.json();
+                const errors = Object.values(data.errors || {})
+                    .flat()
+                    .join(", ");
+                this.notify(
+                    errors || "Vui lòng kiểm tra lại thông tin.",
+                    "error"
+                );
+                return;
+            }
+
+            if (!response.ok) {
+                throw new Error("network");
+            }
+
+            const data = await response.json().catch(() => ({}));
+            this.notify(
+                data?.message ||
+                    "Đã gửi yêu cầu liên hệ. Chúng tôi sẽ phản hồi sớm.",
+                "success"
+            );
+            this.contactForm.reset();
+            if (this.contactTitleInput) {
+                this.contactTitleInput.value = "Yêu cầu tư vấn từ chatbox";
+            }
+            this.closeContactForm();
+        } catch (error) {
+            this.notify(
+                "Không thể gửi yêu cầu, vui lòng thử lại sau.",
+                "error"
+            );
+        } finally {
+            if (this.contactSubmitBtn) {
+                this.contactSubmitBtn.disabled = false;
+                this.contactSubmitBtn.classList.remove("is-loading");
+            }
+        }
+    }
+
     isLauncherOpen() {
         return (
             this.launcher &&
@@ -895,6 +1021,15 @@ class ChatbotWidget {
     getCsrfToken() {
         const meta = document.querySelector('meta[name="csrf-token"]');
         return meta ? meta.getAttribute("content") : "";
+    }
+
+    notify(message, type = "info") {
+        if (!message) return;
+        if (window.AppAlert && typeof window.AppAlert.show === "function") {
+            window.AppAlert.show(message, { type });
+        } else {
+            alert(message);
+        }
     }
 
     contactAdmin() {

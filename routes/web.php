@@ -140,6 +140,10 @@ Route::get('/', function () {
 Route::get('/bai-viet', [ArticleController::class, 'index'])->name('articles.index');
 Route::get('/bai-viet/{slug}', [ArticleController::class, 'show'])->name('articles.show');
 
+// Liên hệ
+Route::get('/lien-he', [\App\Http\Controllers\User\ContactController::class, 'show'])->name('user.contact.show');
+Route::post('/lien-he', [\App\Http\Controllers\User\ContactController::class, 'store'])->name('user.contact.submit');
+
 // Trang không có quyền truy cập
 Route::get('/unauthorized', function () {
     return view('errors.unauthorized');

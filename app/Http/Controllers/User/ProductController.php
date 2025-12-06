@@ -38,6 +38,9 @@ class ProductController extends Controller
         $selectedCategoryId = null;
         $selectedSubCategoryId = null;
 
+        // Clone query for building supplier options later (category constraints only)
+        $supplierOptionsQuery = clone $query;
+
         if ($subCategoryId) {
             $subCategory = LoaiSanPham::where('TrangThai', 1)->find($subCategoryId);
             if ($subCategory) {
@@ -45,6 +48,7 @@ class ProductController extends Controller
                 $selectedSubCategoryId = $subCategoryId;
                 $selectedCategoryId = $subCategory->IDDanhMuc;
                 $query->where('SanPham.IDLoaiSP', $subCategoryId);
+                $supplierOptionsQuery->where('SanPham.IDLoaiSP', $subCategoryId);
             }
         } elseif ($categoryId) {
             $category = DanhMuc::where('TrangThai', 1)->find($categoryId);
@@ -52,12 +56,26 @@ class ProductController extends Controller
                 $categoryName = $category->TenDanhMuc;
                 $selectedCategoryId = $categoryId;
                 $query->whereHas('loaiSanPham', fn ($q) => $q->where('IDDanhMuc', $categoryId));
+                $supplierOptionsQuery->whereHas('loaiSanPham', fn ($q) => $q->where('IDDanhMuc', $categoryId));
             }
         }
 
         $sortPrice = $request->input('sort_price');
         if (in_array($sortPrice, ['asc', 'desc'], true)) {
-            $query->orderBy('SanPham.Gia', $sortPrice);
+            $query->select('SanPham.*');
+            
+            $discountSubquery = DB::table('KhuyenMai as km')
+                ->join('SanPhamKhuyenMai as spkm', 'km.ID', '=', 'spkm.IDKhuyenMai')
+                ->whereColumn('spkm.IDSanPham', 'SanPham.ID')
+                ->where('km.TrangThai', 1)
+                ->where('km.NgayBatDau', '<=', now())
+                ->where('km.NgayKetThuc', '>=', now())
+                ->selectRaw('CASE WHEN km.LoaiKhuyenMai = "Phần trăm" THEN SanPham.Gia * km.GiaTriGiam / 100 ELSE km.GiaTriGiam END')
+                ->orderByRaw('CASE WHEN km.LoaiKhuyenMai = "Phần trăm" THEN SanPham.Gia * km.GiaTriGiam / 100 ELSE km.GiaTriGiam END DESC')
+                ->limit(1);
+
+            $query->selectSub($discountSubquery, 'max_discount');
+            $query->orderByRaw('(SanPham.Gia - COALESCE(max_discount, 0)) ' . $sortPrice);
         } else {
             $query->orderByDesc('SanPham.NgayTao');
         }
@@ -89,15 +107,34 @@ class ProductController extends Controller
             }
         }
 
-        $supplierMap = [
-            'us' => 'Mỹ',
-            'vn' => 'Việt Nam',
-        ];
-
-        $supplierKey = $request->input('supplier');
-        if ($supplierKey && isset($supplierMap[$supplierKey])) {
-            $query->where('SanPham.XuatXu', $supplierMap[$supplierKey]);
+        $discountMin = (int) $request->input('discount_min');
+        if ($discountMin > 0) {
+            $query->whereHas('khuyenMai', function ($q) use ($promotionScope, $discountMin) {
+                $promotionScope($q);
+                $q->where('KhuyenMai.LoaiKhuyenMai', 'like', '%phan tram%')
+                  ->where('KhuyenMai.GiaTriGiam', '>=', $discountMin);
+            });
         }
+
+        if ($request->boolean('in_stock')) {
+            $query->where('SanPham.SoLuongTon', '>', 0);
+        }
+
+        $supplierValue = trim((string) $request->input('supplier'));
+        if ($supplierValue !== '') {
+            $query->where('SanPham.XuatXu', $supplierValue);
+        }
+
+        // Supplier options (distinct origins) based on current category/subcategory constraints
+        $supplierOptions = $supplierOptionsQuery
+            ->select('SanPham.XuatXu')
+            ->whereNotNull('SanPham.XuatXu')
+            ->distinct()
+            ->orderBy('SanPham.XuatXu')
+            ->pluck('SanPham.XuatXu')
+            ->filter()
+            ->values()
+            ->all();
 
         $products = $query->paginate(12)->withQueryString();
         
@@ -120,6 +157,7 @@ class ProductController extends Controller
             'categoryName' => $categoryName,
             'selectedCategoryId' => $selectedCategoryId,
             'selectedSubCategoryId' => $selectedSubCategoryId,
+            'supplierOptions' => $supplierOptions,
         ]);
     }
 
@@ -522,5 +560,114 @@ class ProductController extends Controller
         $breadcrumbs[] = ['label' => $product->TenSanPham, 'url' => null];
 
         return $breadcrumbs;
+    }
+
+    /**
+     * Tìm kiếm sản phẩm
+     */
+    public function search(Request $request)
+    {
+        $keyword = trim($request->input('q', ''));
+        
+        if (empty($keyword)) {
+            return redirect()->route('user.products.index');
+        }
+
+        // Lưu từ khóa tìm kiếm vào hoạt động người dùng
+        $user = auth_user();
+        if ($user) {
+            HoatDongNguoiDung::logTimKiem($user->ID, $keyword);
+        }
+
+        $now = now();
+        $promotionScope = function ($query) use ($now) {
+            $query->where('KhuyenMai.TrangThai', 1)
+                ->where('KhuyenMai.NgayBatDau', '<=', $now)
+                ->where('KhuyenMai.NgayKetThuc', '>=', $now);
+        };
+
+        $query = SanPham::query()
+            ->with(['khuyenMai' => $promotionScope, 'loaiSanPham'])
+            ->where('SanPham.TrangThai', 1)
+            ->where(function ($q) use ($keyword) {
+                $q->where('SanPham.TenSanPham', 'LIKE', "%{$keyword}%")
+                  ->orWhere('SanPham.MoTa', 'LIKE', "%{$keyword}%")
+                  ->orWhere('SanPham.XuatXu', 'LIKE', "%{$keyword}%");
+            });
+
+        // Sắp xếp
+        $sortPrice = $request->input('sort_price');
+        if (in_array($sortPrice, ['asc', 'desc'], true)) {
+            $query->orderBy('SanPham.Gia', $sortPrice);
+        } else {
+            $query->orderByDesc('SanPham.NgayTao');
+        }
+
+        $products = $query->paginate(12)->withQueryString();
+
+        // Lấy danh sách ID sản phẩm yêu thích của user
+        $wishlistProductIds = [];
+        if ($user) {
+            $wishlistProductIds = HoatDongNguoiDung::where('IDNguoiDung', $user->ID)
+                ->where('Loai', 'Yêu thích')
+                ->pluck('IDSanPham')
+                ->toArray();
+        }
+
+        $products->getCollection()->transform(function (SanPham $product) use ($wishlistProductIds) {
+            return $this->formatProduct($product, $wishlistProductIds);
+        });
+
+        return view('user.products.index', [
+            'products' => $products,
+            'categoryName' => "Kết quả tìm kiếm: \"{$keyword}\"",
+            'searchKeyword' => $keyword,
+            'selectedCategoryId' => null,
+            'selectedSubCategoryId' => null,
+        ]);
+    }
+
+    /**
+     * API lấy từ khóa tìm kiếm gần đây của người dùng
+     */
+    public function getSearchKeywords(Request $request)
+    {
+        $user = auth_user();
+        $keywords = [];
+
+        if ($user) {
+            // Lấy từ khóa tìm kiếm gần đây của người dùng (không trùng lặp)
+            $keywords = HoatDongNguoiDung::where('IDNguoiDung', $user->ID)
+                ->where('Loai', 'Tìm kiếm')
+                ->whereNotNull('TuKhoa')
+                ->where('TuKhoa', '!=', '')
+                ->select('TuKhoa')
+                ->distinct()
+                ->orderByDesc('Ngay')
+                ->limit(5)
+                ->pluck('TuKhoa')
+                ->toArray();
+        }
+
+        // Nếu chưa có từ khóa hoặc ít hơn 5, bổ sung từ khóa phổ biến
+        if (count($keywords) < 5) {
+            $popularKeywords = HoatDongNguoiDung::where('Loai', 'Tìm kiếm')
+                ->whereNotNull('TuKhoa')
+                ->where('TuKhoa', '!=', '')
+                ->whereNotIn('TuKhoa', $keywords)
+                ->select('TuKhoa', DB::raw('COUNT(*) as count'))
+                ->groupBy('TuKhoa')
+                ->orderByDesc('count')
+                ->limit(5 - count($keywords))
+                ->pluck('TuKhoa')
+                ->toArray();
+
+            $keywords = array_merge($keywords, $popularKeywords);
+        }
+
+        return response()->json([
+            'success' => true,
+            'keywords' => $keywords,
+        ]);
     }
 }

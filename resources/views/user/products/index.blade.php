@@ -45,6 +45,9 @@
         border-radius: 10px;
         background: #f3f8f2;
         transition: transform 0.25s ease;
+        height: 180px;
+        object-fit: cover;
+        width: 100%;
     }
 
     .home-product-card:hover img {
@@ -53,6 +56,13 @@
 
     .home-product-card .card-body {
         padding: 14px 4px 0;
+        display: flex;
+        flex-direction: column;
+        min-height: 130px;
+    }
+
+    .home-product-card .container-ThemVGio {
+        margin-top: auto;
     }
 
     .home-product-card .product-price span:first-child {
@@ -134,6 +144,45 @@
         opacity: 0.6;
         cursor: not-allowed;
     }
+
+    /* FAQ block */
+    .product-faq {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.06);
+        padding: 18px 20px;
+        margin-top: 18px;
+    }
+    .product-faq h5 {
+        font-weight: 800;
+        margin-bottom: 10px;
+    }
+    .product-faq .faq-item {
+        border-bottom: 1px solid #e5e7eb;
+        padding: 12px 0;
+    }
+    .product-faq .faq-item:last-child {
+        border-bottom: none;
+    }
+    .product-faq .faq-question {
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 700;
+        color: #0f172a;
+    }
+    .product-faq .faq-answer {
+        display: none;
+        color: #4b5563;
+        margin-top: 8px;
+    }
+    .product-faq .faq-item.active .faq-answer {
+        display: block;
+    }
+    .product-faq .faq-item.active .faq-question i {
+        transform: rotate(180deg);
+    }
 </style>
 @endpush
 
@@ -178,13 +227,24 @@
                         <select name="promotion" class="form-select" style="height: 34px; font-size: 15px">
                             <option value="">Khuyến mãi</option>
                             <option value="yes" {{ request('promotion') === 'yes' ? 'selected' : '' }}>Còn khuyến mãi</option>
+                            <option value="flash" {{ request('promotion') === 'flash' ? 'selected' : '' }}>Flash sale</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select name="discount_min" class="form-select" style="height: 34px; font-size: 15px">
+                            <option value="">Giảm từ</option>
+                            <option value="10" {{ request('discount_min') === '10' ? 'selected' : '' }}>Từ 10%</option>
+                            <option value="20" {{ request('discount_min') === '20' ? 'selected' : '' }}>Từ 20%</option>
+                            <option value="30" {{ request('discount_min') === '30' ? 'selected' : '' }}>Từ 30%</option>
+                            <option value="50" {{ request('discount_min') === '50' ? 'selected' : '' }}>Từ 50%</option>
                         </select>
                     </div>
                     <div>
                         <select name="supplier" class="form-select" style="height: 34px; font-size: 15px">
                             <option value="">Nhà cung cấp</option>
-                            <option value="us" {{ request('supplier') === 'us' ? 'selected' : '' }}>Mỹ</option>
-                            <option value="vn" {{ request('supplier') === 'vn' ? 'selected' : '' }}>Việt Nam</option>
+                            @foreach(($supplierOptions ?? []) as $origin)
+                                <option value="{{ $origin }}" {{ request('supplier') === $origin ? 'selected' : '' }}>{{ $origin }}</option>
+                            @endforeach
                         </select>
                     </div>
                     @if(!empty($selectedCategoryId))
@@ -270,6 +330,30 @@
             </div>
             @endif
         </div>
+        @php
+            $productFaqs = [
+                ['q' => 'Thời gian giao hàng bao lâu?', 'a' => 'Nội thành 2-4 giờ, các tỉnh lân cận 1-2 ngày tùy khu vực.'],
+                ['q' => 'Có kiểm hàng khi nhận không?', 'a' => 'Bạn được kiểm tra ngoại quan và số lượng trước khi thanh toán.'],
+                ['q' => 'Chính sách đổi trả thế nào?', 'a' => 'Đổi/hoàn trong 48h nếu hàng hỏng, kém chất lượng. Giữ lại hóa đơn và hình ảnh.'],
+                ['q' => 'Phí vận chuyển tính ra sao?', 'a' => 'Miễn phí đơn từ 300.000đ nội thành; đơn thấp hơn tính theo khu vực/khối lượng.'],
+                ['q' => 'Có hỗ trợ xuất hóa đơn không?', 'a' => 'Có. Ghi chú “xuất hóa đơn” khi đặt hoặc liên hệ sau khi đặt thành công.'],
+            ];
+        @endphp
+
+        <div class="product-faq" style="margin-left: -23px; margin-right: -11px; margin-bottom: 20px; border-radius: 0">
+            <h5>Câu hỏi thường gặp</h5>
+            <div id="product-faq-list">
+                @foreach($productFaqs as $item)
+                    <div class="faq-item">
+                        <div class="faq-question" data-faq-toggle>
+                            <span>{{ $item['q'] }}</span>
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">{{ $item['a'] }}</div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
     </div>
 </div>
 @endsection
@@ -349,6 +433,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.disabled = false;
             });
         });
+    });
+});
+
+document.querySelectorAll('[data-faq-toggle]').forEach(item => {
+    item.addEventListener('click', () => {
+        const parent = item.closest('.faq-item');
+        parent.classList.toggle('active');
     });
 });
 </script>

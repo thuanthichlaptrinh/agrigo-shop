@@ -32,6 +32,33 @@ class CheckAdmin
             return redirect()->route('unauthorized')->with('error', 'Bạn không có quyền truy cập khu vực quản trị');
         }
 
+        // Giới hạn ProductManager chỉ được thao tác sản phẩm, loại sản phẩm, danh mục, sản phẩm khuyến mãi
+        if ($vaiTro === VaiTro::PRODUCT_MANAGER) {
+            $pmAllowed = [
+                'admin.dashboard',
+                'admin.products.*',
+                'admin.categories.*',
+                'admin.catalog.*',
+                'admin.promotions.*',
+            ];
+
+            if (!$request->routeIs($pmAllowed)) {
+                return response()->view('admin.unauthorized', [], 403);
+            }
+        }
+
+        // Giới hạn OrderManager chỉ được thao tác đơn hàng
+        if ($vaiTro === VaiTro::ORDER_MANAGER) {
+            $omAllowed = [
+                'admin.dashboard',
+                'admin.orders.*',
+            ];
+
+            if (!$request->routeIs($omAllowed)) {
+                return response()->view('admin.unauthorized', [], 403);
+            }
+        }
+
         // Lưu user vào request để sử dụng trong controller
         $request->merge(['auth_user' => $user]);
 

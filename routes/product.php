@@ -13,9 +13,10 @@ Route::prefix('products')->name('user.products.')->group(function () {
 });
 
 // Search
-Route::get('/search', function () {
-    return redirect()->back();
-})->name('user.search');
+Route::get('/search', [ProductController::class, 'search'])->name('user.search');
+
+// API lấy từ khóa đã tìm kiếm
+Route::get('/api/search-keywords', [ProductController::class, 'getSearchKeywords'])->name('api.search.keywords');
 
 // Category
 Route::get('/category/{slug}', function ($slug) {

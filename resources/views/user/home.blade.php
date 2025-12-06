@@ -289,12 +289,15 @@
         <!-- Categories -->
         <div class="row" style="margin-left: -23px">
             <div class="pro-cate d-flex align-items-center bg-white">
-                <div class="" style="width: calc(100% / 12)">
+                <div class="" style="width: calc(100% / 12); cursor: pointer;" onclick="document.getElementById('reorder-form').submit()">
                     <img src="{{ asset('template/Assets/Images/icon-history.v202301091407.png') }}" class="w-75" alt="" />
                     <div class="pro-cate-body" style="padding-left: 5px; padding-right: 5px">
                         <p style="font-size: 14px; color: rgb(0 126 66 / 1); font-weight: bold; margin-top: 5px; line-height: 1.2">Mua lại đơn cũ</p>
                     </div>
                 </div>
+                <form id="reorder-form" action="{{ route('user.cart.reorder') }}" method="POST" style="display: none;">
+                    @csrf
+                </form>
                 <div class="" style="width: calc(100% / 12)">
                     <img src="{{ asset('template/Assets/Images/raucuqua.png') }}" class="w-75" alt="" />
                     <div class="pro-cate-body" style="padding-left: 5px; padding-right: 5px">

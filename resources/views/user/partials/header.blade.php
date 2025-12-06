@@ -9,11 +9,35 @@
                         </a>
                     </div>
 
-                    <form class="col-6 d-flex align-items-center" action="{{ route('user.search') }}" method="GET">
-                        <button type="submit" style="margin-right: -40px; border: none; background-color: transparent; z-index: 2">
-                            <i class="ri-search-line fs-22-t" style="color: green"></i>
-                        </button>
-                        <input type="search" name="q" class="form-control w-100 header-search" style="padding-left: 42px" placeholder="Bạn tìm gì ở Agrigo Shop" />
+                    <form class="col-6 d-flex align-items-center" action="{{ route('user.search') }}" method="GET" style="position: relative;">
+                        <div class="search-container" style="position: relative; flex: 1;">
+                            <button type="submit" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); border: none; background-color: transparent; z-index: 2">
+                                <i class="ri-search-line fs-22-t" style="color: green"></i>
+                            </button>
+                            <input type="search" name="q" id="search-input" class="form-control w-100 header-search" style="padding-left: 42px" placeholder="Bạn muốn tìm gì..." autocomplete="off" />
+                            
+                            <!-- Search Dropdown -->
+                            <div id="search-dropdown" class="search-dropdown" style="
+                                position: absolute;
+                                top: 100%;
+                                left: 0;
+                                right: 0;
+                                background: white;
+                                border-radius: 8px;
+                                box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+                                padding: 15px;
+                                margin-top: 5px;
+                                z-index: 9999;
+                                display: none;
+                            ">
+                                <div class="search-keywords-title" style="font-size: 14px; color: #666; margin-bottom: 10px; font-weight: 500;">
+                                    Từ khóa nổi bật
+                                </div>
+                                <div id="search-keywords-list" class="search-keywords-list" style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                    <!-- Keywords sẽ được load bằng JS -->
+                                </div>
+                            </div>
+                        </div>
                         <a href="{{ route('user.cart.index') }}" class="nav-link text-white align-items-centers cart">
                             <i class="ri-shopping-cart-line d-flex align-content-center justify-content-center"></i>
                             <span data-cart-count-target="true" style="top: 0; text-align: center;">{{ session('cart_count', 0) }}</span>
@@ -45,7 +69,7 @@
                     @include('user.partials.sidebar-dropdown')
                 </div>
                 <div class="col-7">
-                    <div></div>
+                    
                 </div>
                 <div class="col-2" style="padding-left: 0; position: relative; right: -24px">
                     <div class="float-end">
@@ -154,10 +178,44 @@
     .user-menu-wrapper.active .ri-arrow-down-s-line {
         transform: rotate(180deg);
     }
+
+    /* Search dropdown styles */
+    .search-keyword-item {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 12px;
+        background: #f5f5f5;
+        border-radius: 20px;
+        font-size: 13px;
+        color: #333;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .search-keyword-item:hover {
+        background: #e8f5e9;
+        color: #2e7d32;
+    }
+
+    .search-keyword-item i {
+        margin-right: 6px;
+        color: #9e9e9e;
+        font-size: 14px;
+    }
+
+    .search-keyword-item:hover i {
+        color: #2e7d32;
+    }
+
+    .search-dropdown.show {
+        display: block !important;
+    }
 </style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // User menu dropdown
         const userMenuWrapper = document.querySelector('.user-menu-wrapper');
         const userMenuTrigger = document.querySelector('.user-menu-trigger');
         const userDropdown = document.querySelector('.user-dropdown');
@@ -180,6 +238,82 @@
             userDropdown.addEventListener('click', function(e) {
                 e.stopPropagation();
             });
+        }
+
+        // Search dropdown
+        const searchInput = document.getElementById('search-input');
+        const searchDropdown = document.getElementById('search-dropdown');
+        const searchKeywordsList = document.getElementById('search-keywords-list');
+        let keywordsLoaded = false;
+
+        if (searchInput && searchDropdown) {
+            // Hiển thị dropdown khi focus vào input
+            searchInput.addEventListener('focus', function() {
+                searchDropdown.classList.add('show');
+                
+                // Load keywords lần đầu
+                if (!keywordsLoaded) {
+                    loadSearchKeywords();
+                }
+            });
+
+            // Ẩn dropdown khi click ra ngoài
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !searchDropdown.contains(e.target)) {
+                    searchDropdown.classList.remove('show');
+                }
+            });
+
+            // Ngăn ẩn khi click vào dropdown
+            searchDropdown.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        }
+
+        // Load từ khóa tìm kiếm
+        function loadSearchKeywords() {
+            fetch('{{ route("api.search.keywords") }}')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.keywords.length > 0) {
+                        searchKeywordsList.innerHTML = data.keywords.map(keyword => `
+                            <a href="{{ route('user.search') }}?q=${encodeURIComponent(keyword)}" class="search-keyword-item">
+                                <i class="ri-search-line"></i>
+                                ${escapeHtml(keyword)}
+                            </a>
+                        `).join('');
+                        keywordsLoaded = true;
+                    } else {
+                        // Hiển thị từ khóa mặc định nếu không có dữ liệu
+                        const defaultKeywords = ['Rau củ', 'Trái cây', 'Thịt heo', 'Sữa tươi', 'Gạo'];
+                        searchKeywordsList.innerHTML = defaultKeywords.map(keyword => `
+                            <a href="{{ route('user.search') }}?q=${encodeURIComponent(keyword)}" class="search-keyword-item">
+                                <i class="ri-search-line"></i>
+                                ${keyword}
+                            </a>
+                        `).join('');
+                        keywordsLoaded = true;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading search keywords:', error);
+                    // Hiển thị từ khóa mặc định nếu lỗi
+                    const defaultKeywords = ['Rau củ', 'Trái cây', 'Thịt heo', 'Sữa tươi', 'Gạo'];
+                    searchKeywordsList.innerHTML = defaultKeywords.map(keyword => `
+                        <a href="{{ route('user.search') }}?q=${encodeURIComponent(keyword)}" class="search-keyword-item">
+                            <i class="ri-search-line"></i>
+                            ${keyword}
+                        </a>
+                    `).join('');
+                    keywordsLoaded = true;
+                });
+        }
+
+        // Escape HTML để tránh XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
     });
 </script>

@@ -763,7 +763,7 @@
                         @forelse($products as $product)
                             @php $cover = $product->HinhAnh ? asset($product->HinhAnh) : 'https://via.placeholder.com/120x120?text=No+Image'; @endphp
                             <tr>
-                                <td>
+                                <td style="width: 420px">
                                     <div class="product-info">
                                         <img
                                             src="{{ $lazyImagePlaceholder }}"

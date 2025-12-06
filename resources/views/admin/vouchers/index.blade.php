@@ -157,6 +157,22 @@
         </style>
     </head>
     <body>
+        @php
+            $alerts = [];
+            if (session('success')) {
+                $alerts[] = ['message' => session('success'), 'type' => 'success'];
+            }
+            if (session('error')) {
+                $alerts[] = ['message' => session('error'), 'type' => 'error'];
+            }
+            if (session('skipped')) {
+                $alerts[] = ['message' => 'Dòng bị bỏ qua: '.implode(', ', session('skipped')), 'type' => 'warning'];
+            }
+            if ($errors->any()) {
+                $alerts[] = ['message' => implode(', ', $errors->all()), 'type' => 'error', 'timeout' => 6000];
+            }
+        @endphp
+        <x-alert-stack :messages="$alerts" />
         @include('admin.partials.sidebar')
         <section id="content">
             @include('admin.partials.navbar')
@@ -345,7 +361,7 @@
                     <h3>Thêm voucher</h3>
                     <span class="modal-close" onclick="closeCreateModal()">&times;</span>
                 </div>
-                <form action="{{ route('admin.vouchers.store') }}" method="POST">
+                <form id="createForm" action="{{ route('admin.vouchers.store') }}" method="POST" accept="application/json">
                     @csrf
                     <div class="modal-body">
                         <div class="form-row">
@@ -356,8 +372,8 @@
                             <div class="form-group">
                                 <label>Loại <span class="text-danger">*</span></label>
                                 <select name="Loai" class="form-control" required>
-                                    <option value="Cố định">Cố định</option>
                                     <option value="Phần trăm">Phần trăm</option>
+                                    <option value="Tiền mặt">Tiền mặt</option>
                                 </select>
                             </div>
                         </div>
@@ -502,6 +518,79 @@
         </div>
 
         <script>
+            // Đợi DOM ready trước khi chạy script
+            document.addEventListener('DOMContentLoaded', function() {
+                setupFormSubmission();
+                setupModalListeners();
+            });
+
+            function setupFormSubmission() {
+                const createForm = document.getElementById('createForm');
+                if (!createForm) return;
+
+                createForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const formData = new FormData(this);
+                    const submitBtn = this.querySelector('.btn-submit');
+                    const originalText = submitBtn.textContent;
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Đang lưu...';
+
+                    fetch(this.action, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+                        },
+                        body: formData
+                    })
+                    .then(res => {
+                        console.log('Response status:', res.status);
+                        if (res.status === 422) {
+                            return res.json().then(data => {
+                                console.log('Validation errors:', data.errors);
+                                const errors = Object.values(data.errors).flat();
+                                window.AppAlert?.show(errors.join(', '), { type: 'error', timeout: 5000 });
+                                throw new Error('Validation failed');
+                            });
+                        }
+                        if (res.status === 201 || res.status === 200) {
+                            return res.json();
+                        }
+                        throw new Error('Network response was not ok: ' + res.status);
+                    })
+                    .then(data => {
+                        console.log('Success response:', data);
+                        window.AppAlert?.show(data.message || 'Thêm voucher thành công!', { type: 'success' });
+                        closeCreateModal();
+                        this.reset();
+                        setTimeout(() => location.reload(), 1500);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        if (error.message !== 'Validation failed') {
+                            window.AppAlert?.show('Đã xảy ra lỗi khi thêm voucher', { type: 'error' });
+                        }
+                    })
+                    .finally(() => {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = originalText;
+                    });
+                });
+            }
+
+            function setupModalListeners() {
+                document.querySelectorAll('.modal').forEach(modal => {
+                    modal.addEventListener('click', function(e) {
+                        if (e.target === this) {
+                            closeModal(this.id);
+                        }
+                    });
+                });
+            }
+            
             function openModal(id) {
                 const modal = document.getElementById(id);
                 if (!modal) return;
@@ -538,7 +627,7 @@
                 })
                 .then(data => {
                     document.getElementById('edit_MaVoucher').value = data.MaVoucher || '';
-                    document.getElementById('edit_Loai').value = data.Loai || 'Cố định';
+                    document.getElementById('edit_Loai').value = data.Loai || 'Tiền mặt';
                     document.getElementById('edit_GiaTri').value = data.GiaTri ?? '';
                     document.getElementById('edit_GiamToiDa').value = data.GiamToiDa ?? '';
                     document.getElementById('edit_DonToiThieu').value = data.DonToiThieu ?? '';
@@ -606,6 +695,7 @@
                     }
                 });
             });
+
         </script>
         <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
         <script src="/template/admin/script.js"></script>

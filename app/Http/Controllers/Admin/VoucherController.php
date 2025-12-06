@@ -77,7 +77,14 @@ class VoucherController extends Controller
         $validated = $request->validate($this->rules(), $this->messages());
         $validated['DaDung'] = 0;
 
-        Voucher::create($validated);
+        $voucher = Voucher::create($validated);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'message' => 'Thêm voucher thành công!',
+                'voucher' => $voucher
+            ], 201);
+        }
 
         return redirect()->route('admin.vouchers.index')->with('success', 'Thêm voucher thành công!');
     }
@@ -112,7 +119,7 @@ class VoucherController extends Controller
                 continue;
             }
 
-            $type = $parts[1] ?? 'Cố định';
+            $type = $parts[1] ?? 'Tiền mặt';
             $value = (float) ($parts[2] ?? 0);
             $qty = (int) ($parts[3] ?? 0);
             $end = $parts[4] ?? null;
@@ -210,7 +217,7 @@ class VoucherController extends Controller
     {
         return [
             'MaVoucher' => ['required', 'string', 'max:50', Rule::unique('Voucher', 'MaVoucher')->ignore($ignoreId, 'ID')],
-            'Loai' => ['required', 'in:Cố định,Phần trăm'],
+            'Loai' => ['required', 'in:Phần trăm,Tiền mặt'],
             'GiaTri' => ['required', 'numeric', 'min:1'],
             'GiamToiDa' => ['nullable', 'numeric', 'min:0'],
             'DonToiThieu' => ['nullable', 'numeric', 'min:0'],
@@ -225,7 +232,7 @@ class VoucherController extends Controller
         return [
             'MaVoucher.required' => 'Vui lòng nhập mã voucher',
             'MaVoucher.unique' => 'Mã voucher đã tồn tại',
-            'Loai.in' => 'Loại voucher phải là Cố định hoặc Phần trăm',
+            'Loai.in' => 'Loại voucher phải là Phần trăm hoặc Tiền mặt',
             'GiaTri.min' => 'Giá trị phải lớn hơn 0',
             'SoLuong.min' => 'Số lượng phải lớn hơn 0',
             'NgayKetThuc.required' => 'Vui lòng chọn ngày kết thúc',

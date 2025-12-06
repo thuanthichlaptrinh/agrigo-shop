@@ -64,6 +64,37 @@ class CartController extends Controller
         return $this->cartResponse($request, 'Đã làm trống giỏ hàng.');
     }
 
+    public function reorder(Request $request)
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'Vui lòng đăng nhập để sử dụng tính năng này.');
+        }
+
+        $lastOrder = \App\Models\DonHang::where('IDNguoiDung', $user->ID)
+            ->orderByDesc('NgayDat')
+            ->with('chiTiet.sanPham')
+            ->first();
+
+        if (!$lastOrder) {
+            return redirect()->back()->with('error', 'Bạn chưa có đơn hàng nào.');
+        }
+
+        $count = 0;
+        foreach ($lastOrder->chiTiet as $detail) {
+            if ($detail->sanPham && $detail->sanPham->TrangThai == 1) {
+                $this->cart->addProduct($detail->sanPham, $detail->SoLuong);
+                $count++;
+            }
+        }
+
+        if ($count > 0) {
+            return redirect()->route('user.cart.index')->with('success', 'Đã thêm sản phẩm từ đơn hàng cũ vào giỏ.');
+        }
+
+        return redirect()->back()->with('error', 'Không thể thêm sản phẩm (Sản phẩm có thể đã ngừng kinh doanh).');
+    }
+
     protected function cartResponse(Request $request, string $message, string $type = 'success')
     {
         if ($request->expectsJson()) {
