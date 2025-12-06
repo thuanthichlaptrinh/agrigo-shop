@@ -1,351 +1,372 @@
 @extends('user.layouts.app')
 
-@section('title', ($article->TieuDe ?? 'Bài viết') . ' - Organic Blog')
+@section('title', ($article->TieuDe ?? 'Bài viết') . ' - Organic Shop')
 
 @push('styles')
 <style>
-    .article-detail-wrapper {
-        padding-bottom: 60px;
+    .article-detail-page {
+        background-color: #f8f9fa;
     }
 
-    .article-hero-card {
-        background: linear-gradient(135deg, #0ea5e9 0%, #22c55e 100%);
-        border-radius: 34px;
-        color: #fff;
-        padding: 32px;
-        margin-bottom: 30px;
-        box-shadow: 0 40px 80px rgba(14, 165, 233, 0.30);
+    /* Breadcrumb */
+    .breadcrumb-nav {
+        margin-bottom: 20px;
+        font-size: 0.9rem;
+        color: #6c757d;
     }
 
-    .article-hero-top {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        gap: 18px;
+    .breadcrumb-nav a {
+        color: #6c757d;
+        text-decoration: none;
+        transition: color 0.2s;
     }
 
-    .article-hero-top h1 {
-        font-size: 36px;
-        font-weight: 700;
-        margin: 10px 0 12px;
-        max-width: 720px;
+    .breadcrumb-nav a:hover {
+        color: #22c55e;
     }
 
-    .article-hero-badge {
-        background: rgba(255,255,255,0.15);
-        border-radius: 999px;
-        padding: 8px 18px;
-        font-size: 13px;
-        font-weight: 600;
-        letter-spacing: 0.2em;
-        text-transform: uppercase;
+    .breadcrumb-separator {
+        margin: 0 8px;
+        color: #adb5bd;
     }
 
-    .article-hero-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 14px 24px;
-        font-size: 14px;
-        opacity: 0.95;
-    }
-
-    .article-hero-meta span {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .article-hero-cover {
-        margin-top: 24px;
-        border-radius: 24px;
-        overflow: hidden;
-        border: 2px solid rgba(255,255,255,0.3);
-        box-shadow: 0 25px 50px rgba(15, 23, 42, 0.25);
-    }
-
-    .article-hero-cover img {
-        width: 100%;
-        height: 420px;
-        object-fit: cover;
-        display: block;
-    }
-
-    .article-body .article-content-card {
+    /* Main Content */
+    .article-main {
         background: #fff;
-        border-radius: 28px;
-        padding: 32px;
-        box-shadow: 0 35px 60px rgba(15, 23, 42, 0.08);
+        border-radius: 12px;
+        padding: 40px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
     }
 
-    .article-content-card .content-tools {
+    .article-header {
+        margin-bottom: 30px;
+        border-bottom: 1px solid #f0f0f0;
+        padding-bottom: 20px;
+    }
+
+    .article-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 15px;
+        line-height: 1.3;
+    }
+
+    .article-meta {
         display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
         align-items: center;
         gap: 20px;
-        padding-bottom: 18px;
-        margin-bottom: 24px;
-        border-bottom: 1px solid #e2e8f0;
+        color: #6c757d;
+        font-size: 0.9rem;
     }
 
-    .info-pills {
+    .meta-item {
         display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-    }
-
-    .info-pill {
-        background: #f1f5f9;
-        color: #0f172a;
-        font-weight: 600;
-        border-radius: 999px;
-        padding: 8px 16px;
-        font-size: 13px;
-        display: inline-flex;
         align-items: center;
         gap: 6px;
     }
 
-    .share-buttons {
-        display: flex;
-        gap: 10px;
+    .article-featured-img {
+        width: 100%;
+        height: auto;
+        max-height: 500px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-bottom: 30px;
     }
 
-    .share-buttons a {
-        width: 40px;
-        height: 40px;
-        border-radius: 12px;
-        background: #0f172a;
-        color: #fff;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        text-decoration: none;
-    }
-
-    .article-detail-content {
-        font-size: 16px;
+    .article-content {
+        font-size: 1.05rem;
         line-height: 1.8;
-        color: #1f2937;
+        color: #333;
     }
 
-    .article-detail-content img {
+    .article-content p {
+        margin-bottom: 20px;
+    }
+
+    .article-content h2, 
+    .article-content h3 {
+        color: #1a1a1a;
+        font-weight: 600;
+        margin-top: 30px;
+        margin-bottom: 15px;
+    }
+
+    .article-content img {
         max-width: 100%;
-        border-radius: 16px;
-        margin: 18px 0;
+        height: auto;
+        border-radius: 8px;
+        margin: 20px 0;
     }
 
-    .article-detail-content h2,
-    .article-detail-content h3,
-    .article-detail-content h4 {
-        margin-top: 28px;
-        font-weight: 700;
-        color: #0f172a;
+    .article-content ul, 
+    .article-content ol {
+        margin-bottom: 20px;
+        padding-left: 20px;
     }
 
-    .article-sidebar {
-        display: flex;
-        flex-direction: column;
-        gap: 24px;
+    .article-content li {
+        margin-bottom: 10px;
     }
 
-    .author-card,
-    .quick-card {
+    /* Sidebar */
+    .sidebar-widget {
         background: #fff;
-        border-radius: 22px;
-        padding: 22px;
-        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.07);
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
     }
 
-    .author-card-header {
+    .widget-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #f0f0f0;
+        position: relative;
+    }
+
+    .widget-title::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 50px;
+        height: 2px;
+        background: #22c55e;
+    }
+
+    /* Author Widget */
+    .author-profile {
         display: flex;
         align-items: center;
-        gap: 14px;
+        gap: 15px;
     }
 
     .author-avatar {
-        width: 56px;
-        height: 56px;
+        width: 60px;
+        height: 60px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #22c55e, #16a34a);
-        color: #fff;
-        font-weight: 700;
+        background: #e9ecef;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 18px;
+        font-size: 24px;
+        color: #adb5bd;
     }
 
-    .author-card p {
-        margin: 12px 0 0;
-        color: #475569;
-        font-size: 14px;
+    .author-info h4 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0 0 5px;
+        color: #1a1a1a;
     }
 
-    .quick-card ul {
-        padding-left: 18px;
-        margin-bottom: 0;
-        color: #475569;
-        font-size: 14px;
-    }
-
-    .related-section {
-        margin-top: 40px;
-    }
-
-    .related-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 16px;
-    }
-
-    .related-header h3 {
-        font-size: 22px;
-        font-weight: 700;
+    .author-info p {
+        font-size: 0.85rem;
+        color: #6c757d;
         margin: 0;
     }
 
-    .related-card {
-        border-radius: 20px;
-        overflow: hidden;
-        border: 1px solid #e2e8f0;
-        background: #fff;
-        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.07);
-        height: 100%;
+    /* Related Articles */
+    .related-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
     }
 
-    .related-card img {
-        width: 100%;
-        height: 170px;
+    .related-item {
+        display: flex;
+        gap: 15px;
+        text-decoration: none;
+        group: hover;
+    }
+
+    .related-img {
+        width: 80px;
+        height: 80px;
+        border-radius: 8px;
         object-fit: cover;
+        flex-shrink: 0;
     }
 
-    .related-card-body {
-        padding: 16px;
+    .related-content {
+        flex: 1;
     }
 
-    .related-card-title {
-        font-size: 16px;
+    .related-title {
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: #1a1a1a;
+        margin-bottom: 5px;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        transition: color 0.2s;
+    }
+
+    .related-item:hover .related-title {
+        color: #22c55e;
+    }
+
+    .related-date {
+        font-size: 0.8rem;
+        color: #adb5bd;
+    }
+
+    /* Share Buttons */
+    .share-section {
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid #f0f0f0;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .share-label {
         font-weight: 600;
-        color: #0f172a;
-        margin-bottom: 8px;
+        color: #1a1a1a;
     }
 
-    .related-card-meta {
-        font-size: 13px;
-        color: #94a3b8;
+    .share-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        text-decoration: none;
+        transition: transform 0.2s;
     }
 
-    @media (max-width: 992px) {
-        .article-hero-cover img {
-            height: 260px;
-        }
-
-        .article-content-card {
-            padding: 24px !important;
-        }
+    .share-btn:hover {
+        transform: translateY(-3px);
+        color: #fff;
     }
+
+    .share-facebook { background: #1877f2; }
+    .share-twitter { background: #1da1f2; }
+    .share-pinterest { background: #bd081c; }
+
 </style>
 @endpush
 
 @php
-    $coverImage = !empty($article->HinhAnh)
-        ? (\Illuminate\Support\Str::startsWith($article->HinhAnh, ['http://', 'https://']) ? $article->HinhAnh : asset($article->HinhAnh))
-        : asset('template/Assets/Images/thumb-2024-26_202410171658026192.jpg');
+    $imageUrl = function ($article) {
+        if (!$article || empty($article->HinhAnh)) {
+            return asset('template/Assets/Images/thumb-2024-26_202410171658026192.jpg');
+        }
+
+        return \Illuminate\Support\Str::startsWith($article->HinhAnh, ['http://', 'https://'])
+            ? $article->HinhAnh
+            : asset($article->HinhAnh);
+    };
 @endphp
 
 @section('content')
-<div class="article-detail-wrapper">
-    <section class="article-hero-card">
-        <div class="article-hero-top">
-            <div>
-                <div class="article-hero-badge">{{ $article->danhMuc->TenDanhMuc ?? 'Bài viết' }}</div>
-                <h1>{{ $article->TieuDe }}</h1>
-                <div class="article-hero-meta">
-                    <span><i class="ri-user-line"></i> {{ $article->nguoiDung->TenNguoiDung ?? 'Organic Team' }}</span>
-                    <span><i class="ri-time-line"></i> {{ optional($article->NgayTao)->translatedFormat('H:i d/m/Y') }}</span>
-                    <span><i class="ri-eye-line"></i> {{ number_format($article->LuotXem ?? 0) }} lượt xem</span>
-                </div>
+<div class="article-detail-page" style="margin-left: -12px; margin-right: -12px;">
+    <div class="container">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb-nav pt-3">
+            <a href="{{ route('user.home') }}">Trang chủ</a>
+            <span class="breadcrumb-separator">/</span>
+            <a href="{{ route('articles.index') }}">Góc chia sẻ</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="text-dark">{{ Str::limit($article->TieuDe, 50) }}</span>
+        </div>
+
+        <div class="row g-4">
+            <!-- Main Content -->
+            <div class="col-lg-8">
+                <article class="article-main">
+                    <header class="article-header">
+                        <h1 class="article-title">{{ $article->TieuDe }}</h1>
+                        <div class="article-meta">
+                            <div class="meta-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar3" viewBox="0 0 16 16">
+                                    <path d="M14 0H2a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zM1 3.857C1 3.384 1.448 3 2 3h12c.552 0 1 .384 1 .857v10.286c0 .473-.448.857-1 .857H2c-.552 0-1-.384-1-.857V3.857z"/>
+                                    <path d="M6.5 7a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
+                                </svg>
+                                {{ \Carbon\Carbon::parse($article->NgayTao)->format('d/m/Y') }}
+                            </div>
+                            <div class="meta-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">
+                                    <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
+                                    <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
+                                </svg>
+                                {{ $article->LuotXem }} lượt xem
+                            </div>
+                        </div>
+                    </header>
+
+                    <img src="{{ $imageUrl($article) }}" alt="{{ $article->TieuDe }}" class="article-featured-img">
+
+                    <div class="article-content">
+                        {!! $article->NoiDung !!}
+                    </div>
+
+                    <div class="share-section">
+                        <span class="share-label">Chia sẻ:</span>
+                        <a href="#" class="share-btn share-facebook">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-facebook" viewBox="0 0 16 16">
+                                <path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951z"/>
+                            </svg>
+                        </a>
+                        <a href="#" class="share-btn share-twitter">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-twitter" viewBox="0 0 16 16">
+                                <path d="M5.026 15c6.038 0 9.341-5.003 9.341-9.334 0-.14 0-.282-.006-.422A6.685 6.685 0 0 0 16 3.542a6.658 6.658 0 0 1-1.889.518 3.301 3.301 0 0 0 1.447-1.817 6.533 6.533 0 0 1-2.087.793A3.286 3.286 0 0 0 7.875 6.03a9.325 9.325 0 0 1-6.767-3.429 3.289 3.289 0 0 0 1.018 4.382A3.323 3.323 0 0 1 .64 6.575v.045a3.288 3.288 0 0 0 2.632 3.218 3.203 3.203 0 0 1-.865.115 3.23 3.23 0 0 1-.614-.057 3.283 3.283 0 0 0 3.067 2.277A6.588 6.588 0 0 1 .78 13.58a6.32 6.32 0 0 1-.78-.045A9.344 9.344 0 0 0 5.026 15z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </article>
             </div>
-        </div>
-        <div class="article-hero-cover">
-            <img src="{{ $coverImage }}" alt="{{ $article->TieuDe }}">
-        </div>
-    </section>
 
-    <div class="article-body row g-4">
-        <div class="col-lg-8">
-            <article class="article-content-card">
-                <div class="content-tools">
-                    <div class="info-pills">
-                        @if($article->danhMuc)
-                            <span class="info-pill"><i class="ri-price-tag-3-line"></i> {{ $article->danhMuc->TenDanhMuc }}</span>
-                        @endif
-                        <span class="info-pill"><i class="ri-timer-line"></i> {{ optional($article->NgayTao)->diffForHumans() }}</span>
-                        <span class="info-pill"><i class="ri-eye-line"></i> {{ number_format($article->LuotXem ?? 0) }} lượt xem</span>
-                    </div>
-                    <div class="share-buttons">
-                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(request()->fullUrl()) }}" target="_blank" rel="noopener" aria-label="Chia sẻ Facebook"><i class="ri-facebook-fill"></i></a>
-                        <a href="https://www.messenger.com/t/?link={{ urlencode(request()->fullUrl()) }}" target="_blank" rel="noopener" aria-label="Chia sẻ Messenger"><i class="ri-messenger-fill"></i></a>
-                        <a href="https://zalo.me/share?url={{ urlencode(request()->fullUrl()) }}" target="_blank" rel="noopener" aria-label="Chia sẻ Zalo"><i class="ri-send-plane-fill"></i></a>
-                    </div>
-                </div>
-
-                <div class="article-detail-content">
-                    {!! $article->NoiDung !!}
-                </div>
-            </article>
-        </div>
-        <div class="col-lg-4">
-            <div class="article-sidebar">
-                <div class="author-card">
-                    <div class="author-card-header">
-                        <div class="author-avatar">
-                            {{ mb_substr($article->nguoiDung->TenNguoiDung ?? 'OT', 0, 2) }}
-                        </div>
-                        <div>
-                            <strong>{{ $article->nguoiDung->TenNguoiDung ?? 'Organic Team' }}</strong>
-                            <p class="mb-0 text-muted" style="font-size: 13px;">Người chia sẻ kinh nghiệm xanh mỗi ngày</p>
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <div class="ps-lg-4">
+                    <!-- Author Widget -->
+                    <div class="sidebar-widget">
+                        <h3 class="widget-title">Tác giả</h3>
+                        <div class="author-profile">
+                            <div class="author-avatar">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-person-fill" viewBox="0 0 16 16">
+                                    <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                                </svg>
+                            </div>
+                            <div class="author-info">
+                                <h4>{{ $article->nguoiDung->TenNguoiDung ?? 'Admin' }}</h4>
+                                <p>Biên tập viên</p>
+                            </div>
                         </div>
                     </div>
-                    <p>Đồng hành cùng Organic Shop mang đến nhiều cảm hứng nấu ăn, dinh dưỡng và thói quen sống khỏe dành cho gia đình bạn.</p>
-                </div>
 
-                <div class="quick-card">
-                    <h6 class="fw-bold mb-3">Gợi ý nhanh</h6>
-                    <ul>
-                        <li>Chọn thực phẩm sạch, nguồn gốc rõ ràng.</li>
-                        <li>Ưu tiên chế biến trong ngày để giữ dưỡng chất.</li>
-                        <li>Kết hợp rau củ đa màu cho mỗi bữa ăn.</li>
-                    </ul>
+                    <!-- Related Articles -->
+                    @if($related->count() > 0)
+                    <div class="sidebar-widget">
+                        <h3 class="widget-title">Bài viết liên quan</h3>
+                        <div class="related-list">
+                            @foreach($related as $item)
+                            <a href="{{ route('articles.show', $item->Slug) }}" class="related-item">
+                                <img src="{{ $imageUrl($item) }}" alt="{{ $item->TieuDe }}" class="related-img">
+                                <div class="related-content">
+                                    <h4 class="related-title">{{ $item->TieuDe }}</h4>
+                                    <span class="related-date">{{ \Carbon\Carbon::parse($item->NgayTao)->format('d/m/Y') }}</span>
+                                </div>
+                            </a>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>
     </div>
-
-    @if($related->isNotEmpty())
-    <div class="related-section">
-        <div class="related-header">
-            <h3>Bài viết liên quan</h3>
-            <a href="{{ route('articles.index') }}" class="text-decoration-none" style="color: #0ea5e9; font-weight: 600;">Xem tất cả</a>
-        </div>
-        <div class="row g-3">
-            @foreach($related as $item)
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <a href="{{ route('articles.show', $item->Slug) }}" class="text-decoration-none">
-                    <div class="related-card">
-                        <img src="{{ !empty($item->HinhAnh) ? (\Illuminate\Support\Str::startsWith($item->HinhAnh, ['http://', 'https://']) ? $item->HinhAnh : asset($item->HinhAnh)) : asset('template/Assets/Images/thumb-2024-26_202410171658026192.jpg') }}" alt="{{ $item->TieuDe }}">
-                        <div class="related-card-body">
-                            <div class="related-card-title">{{ $item->TieuDe }}</div>
-                            <div class="related-card-meta"><i class="ri-time-line"></i> {{ optional($item->NgayTao)->diffForHumans() }}</div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            @endforeach
-        </div>
-    </div>
-    @endif
 </div>
 @endsection
