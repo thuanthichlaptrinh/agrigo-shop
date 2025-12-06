@@ -174,7 +174,19 @@
                     <div class="field-error mb-2" id="emailError"></div>
                     
                     <div class="input-group mb-1">
-                        <input type="password" name="password" id="password" class="form-control form-control-lg bg-light fs-6" placeholder="Mật khẩu" required />
+                        <input type="password" name="password" id="password" class="form-control form-control-lg bg-light fs-6" placeholder="Mật khẩu" required style="border-right: none;" />
+                        <span class="input-group-text" id="togglePassword" style="cursor: pointer; border-left: none; background-color: #e8f0fd;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16" id="eyeIconOpen">
+                                <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
+                                <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
+                            </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-slash d-none" viewBox="0 0 16 16" id="eyeIconClosed">
+                                <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7.028 7.028 0 0 0-2.79.588l.77.771A5.944 5.944 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.134 13.134 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755-.165.165-.337.328-.517.486l.708.709z"/>
+                                <path d="M11.297 9.377L9.499 7.58l-1.15 1.15-1.748 1.75a2.5 2.5 0 0 0 2.5 2.5c.745 0 1.43-.3 1.947-.824z"/>
+                                <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
+                                <path d="M1.646 2.646a.5.5 0 0 1 .708 0l12 12a.5.5 0 0 1-.708.708l-12-12a.5.5 0 0 1 0-.708z"/>
+                            </svg>
+                        </span>
                     </div>
                     <div class="field-error mb-2" id="passwordError"></div>
                     
@@ -225,6 +237,23 @@
 
     <script>
         const API_BASE = '/api/v1';
+
+        // Toggle password visibility
+        document.getElementById('togglePassword').addEventListener('click', function (e) {
+            const passwordInput = document.getElementById('password');
+            const eyeIconOpen = document.getElementById('eyeIconOpen');
+            const eyeIconClosed = document.getElementById('eyeIconClosed');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIconOpen.classList.add('d-none');
+                eyeIconClosed.classList.remove('d-none');
+            } else {
+                passwordInput.type = 'password';
+                eyeIconOpen.classList.remove('d-none');
+                eyeIconClosed.classList.add('d-none');
+            }
+        });
 
         // Show toast notification
         function showToast(type, title, message) {

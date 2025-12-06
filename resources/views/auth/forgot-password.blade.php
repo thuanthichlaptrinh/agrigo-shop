@@ -55,9 +55,79 @@
                 padding: 20px;
             }
         }
+
+        /* Toast notification styles */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+        
+        .custom-toast {
+            min-width: 300px;
+            padding: 15px 20px;
+            padding-right: 35px;
+            border-radius: 10px;
+            background: #fff;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            margin-bottom: 10px;
+            animation: slideIn 0.3s ease;
+            position: relative;
+        }
+        
+        .custom-toast.success {
+            border-left: 4px solid #22c55e;
+        }
+        
+        .custom-toast.error {
+            border-left: 4px solid #ef4444;
+        }
+        
+        .custom-toast .toast-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .custom-toast.success .toast-title {
+            color: #16a34a;
+        }
+        
+        .custom-toast.error .toast-title {
+            color: #dc2626;
+        }
+        
+        .custom-toast .toast-message {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .custom-toast .toast-close {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: #999;
+            cursor: pointer;
+            line-height: 1;
+        }
+        
+        .custom-toast .toast-close:hover {
+            color: #333;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
     </style>
 </head>
 <body>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
     <div class="container d-flex justify-content-center align-items-center min-vh-100">
         <div class="row border rounded-5 p-3 bg-white shadow box-area">
             <!-- Left Box -->
@@ -65,9 +135,7 @@
                 class="col-md-6 rounded-4 d-flex justify-content-center align-items-center flex-column left-box"
                 style="background: radial-gradient(159.85% 367.97% at 150% 123.85%, #ffe147 0, #65ae17 38.76%, #469c4b 59.65%, #00713b 100%)"
             >
-                <div class="featured-image mb-3">
-                    <img src="{{ asset('template/images/1.png') }}" class="img-fluid" style="width: 250px" />
-                </div>
+                
                 <p class="text-white fs-2" style="font-family: 'Courier New', Courier, monospace; font-weight: 600">Quên mật khẩu?</p>
                 <small class="text-white text-wrap text-center" style="width: 17rem; font-family: 'Courier New', Courier, monospace">
                     Đừng lo lắng, chúng tôi sẽ giúp bạn lấy lại mật khẩu.
@@ -85,12 +153,6 @@
                         <h2>Quên mật khẩu</h2>
                         <p>Nhập email của bạn để nhận link đặt lại mật khẩu.</p>
                     </div>
-
-                    @if (session('success'))
-                        <div class="alert alert-success">
-                            {{ session('success') }}
-                        </div>
-                    @endif
 
                     @if ($errors->any())
                         <div class="alert alert-danger">
@@ -125,5 +187,31 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // Show toast notification
+        function showToast(type, title, message) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `custom-toast ${type}`;
+            toast.innerHTML = `
+                <div class="toast-title">${title}</div>
+                <div class="toast-message">${message}</div>
+                <button type="button" class="toast-close" onclick="this.parentElement.remove()">&times;</button>
+            `;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.style.animation = 'slideIn 0.3s ease reverse';
+                    setTimeout(() => toast.remove(), 300);
+                }
+            }, 4000);
+        }
+
+        @if (session('success'))
+            showToast('success', 'Thành công', "{{ session('success') }}");
+        @endif
+    </script>
 </body>
 </html>

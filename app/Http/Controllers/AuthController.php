@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ResetPasswordMail;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -383,8 +386,19 @@ class AuthController extends Controller
             return back()->withErrors($validator)->withInput();
         }
 
-        // TODO: Gửi email reset password
-        // Tạm thời chỉ thông báo thành công
+        $user = NguoiDung::where('Email', $request->email)->first();
+        $token = Str::random(60);
+
+        // Lưu token vào database
+        Token::createToken($user->ID, $token, Token::TYPE_RESET_PASSWORD, 60);
+
+        // Gửi email
+        try {
+            Mail::to($user->Email)->send(new ResetPasswordMail($user, $token));
+        } catch (\Exception $e) {
+            return back()->withErrors(['email' => 'Không thể gửi email. Vui lòng thử lại sau.']);
+        }
+
         return back()->with('success', 'Link đặt lại mật khẩu đã được gửi đến email của bạn');
     }
 
@@ -414,17 +428,26 @@ class AuthController extends Controller
             return back()->withErrors($validator)->withInput();
         }
 
-        // TODO: Kiểm tra token và cập nhật mật khẩu
-        // Tạm thời chỉ cập nhật mật khẩu trực tiếp
+        // Kiểm tra token
         $user = NguoiDung::where('Email', $request->email)->first();
         
-        if ($user) {
-            $user->MatKhau = Hash::make($request->password);
-            $user->save();
+        $tokenRecord = Token::where('Token', $request->token)
+            ->where('IDNguoiDung', $user->ID)
+            ->where('Loai', Token::TYPE_RESET_PASSWORD)
+            ->where('HetHan', '>', now())
+            ->first();
 
-            return redirect()->route('login')->with('success', 'Đặt lại mật khẩu thành công');
+        if (!$tokenRecord) {
+            return back()->withErrors(['email' => 'Token không hợp lệ hoặc đã hết hạn']);
         }
 
-        return back()->withErrors(['email' => 'Có lỗi xảy ra, vui lòng thử lại']);
+        // Cập nhật mật khẩu
+        $user->MatKhau = Hash::make($request->password);
+        $user->save();
+
+        // Xóa token đã sử dụng
+        $tokenRecord->delete();
+
+        return redirect()->route('login')->with('success', 'Đặt lại mật khẩu thành công');
     }
 }
