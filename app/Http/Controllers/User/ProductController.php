@@ -210,6 +210,45 @@ class ProductController extends Controller
         ]);
     }
 
+    public function toggleWishlist(Request $request)
+    {
+        $request->validate([
+            'product_id' => 'required|exists:SanPham,ID',
+        ]);
+
+        $user = auth()->user();
+        if (!$user) {
+            return response()->json(['status' => 'error', 'message' => 'Vui lòng đăng nhập để thực hiện chức năng này.'], 401);
+        }
+
+        $productId = $request->input('product_id');
+        $wishlist = HoatDongNguoiDung::where('IDNguoiDung', $user->ID)
+            ->where('IDSanPham', $productId)
+            ->where('Loai', 'Yêu thích')
+            ->first();
+
+        if ($wishlist) {
+            $wishlist->delete();
+            $isWishlisted = false;
+            $message = 'Đã xóa khỏi danh sách yêu thích.';
+        } else {
+            HoatDongNguoiDung::create([
+                'IDNguoiDung' => $user->ID,
+                'IDSanPham' => $productId,
+                'Loai' => 'Yêu thích',
+                'Ngay' => now(),
+            ]);
+            $isWishlisted = true;
+            $message = 'Đã thêm vào danh sách yêu thích.';
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => $message,
+            'is_wishlisted' => $isWishlisted,
+        ]);
+    }
+
     public function storeReview(Request $request, int $id)
     {
         $product = SanPham::where('SanPham.TrangThai', 1)->findOrFail($id);

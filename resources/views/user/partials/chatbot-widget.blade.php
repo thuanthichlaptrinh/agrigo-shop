@@ -1,6 +1,6 @@
 {{-- Chatbot Widget Component --}}
 @php
-    $botName = $botName ?? 'Organic Shop Support';
+    $botName = $botName ?? 'Agrigo Shop Support';
     $avatarUrl = $avatarUrl ?? asset('template/Assets/Images/bot-avatar.png');
     $greeting = $greeting ?? 'Xin chào! Tôi có thể giúp gì cho bạn?';
 @endphp
@@ -128,7 +128,7 @@
                 <img src="{{ asset('template/Assets/Images/logo5.png') }}" alt="Logo" onerror="this.style.display='none'">
             </div>
             <h2 class="chat-contact-title">Agrigo Shop</h2>
-            <p class="chat-contact-desc">Chào mừng Quý Khách đến với Organic Shop. Vui lòng nhập thông tin để được chuyên viên tư vấn hỗ trợ.</p>
+            <p class="chat-contact-desc">Chào mừng Quý Khách đến với Agrigo Shop. Vui lòng nhập thông tin để được chuyên viên tư vấn hỗ trợ.</p>
         </div>
 
         <div class="chat-contact-form-card">
@@ -164,7 +164,7 @@
                 </div>
             </form>
         </div>
-    </div>
+    </div>  
 </div>
 
 <style>

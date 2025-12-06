@@ -721,8 +721,10 @@
     </div>
     <div class="col-lg-6">
         <div class="product-summary">
-            <button class="btn-wishlist" title="Thêm vào yêu thích">
-                <i class="ri-heart-line"></i>
+            <button class="btn-wishlist {{ $product['is_wishlisted'] ? 'active' : '' }}" 
+                    title="{{ $product['is_wishlisted'] ? 'Bỏ yêu thích' : 'Thêm vào yêu thích' }}"
+                    data-product-id="{{ $product['id'] }}">
+                <i class="{{ $product['is_wishlisted'] ? 'ri-heart-fill' : 'ri-heart-line' }}"></i>
             </button>
             <div class="product-meta">
                 <div class="meta-item">
@@ -1212,7 +1214,6 @@ document.addEventListener('DOMContentLoaded', function() {
             e.stopPropagation();
             
             const productId = this.dataset.productId;
-            const isWishlisted = this.dataset.wishlisted === 'true';
             const icon = this.querySelector('i');
             
             if (!productId) {
@@ -1228,41 +1229,38 @@ document.addEventListener('DOMContentLoaded', function() {
             // Disable button
             this.disabled = true;
             
-            const url = isWishlisted 
-                ? '{{ url("user/wishlist/remove") }}/' + productId
-                : '{{ url("user/wishlist/add") }}/' + productId;
-            
-            const method = isWishlisted ? 'DELETE' : 'POST';
-
-            fetch(url, {
-                method: method,
+            fetch('{{ route("user.wishlist.toggle") }}', {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
                     'Accept': 'application/json'
-                }
+                },
+                body: JSON.stringify({ product_id: productId })
             })
             .then(response => response.json())
             .then(data => {
-                // Toggle trạng thái
-                if (isWishlisted) {
-                    icon.className = 'ri-heart-line';
-                    this.classList.remove('active');
-                    this.dataset.wishlisted = 'false';
-                    this.title = 'Thêm vào yêu thích';
+                if (data.status === 'success') {
+                    if (data.is_wishlisted) {
+                        icon.className = 'ri-heart-fill';
+                        this.classList.add('active');
+                        this.dataset.wishlisted = 'true';
+                        this.title = 'Bỏ yêu thích';
+                        
+                        // Animation
+                        this.style.transform = 'scale(1.2)';
+                        setTimeout(() => {
+                            this.style.transform = 'scale(1)';
+                        }, 200);
+                    } else {
+                        icon.className = 'ri-heart-line';
+                        this.classList.remove('active');
+                        this.dataset.wishlisted = 'false';
+                        this.title = 'Thêm vào yêu thích';
+                    }
                 } else {
-                    icon.className = 'ri-heart-fill';
-                    this.classList.add('active');
-                    this.dataset.wishlisted = 'true';
-                    this.title = 'Bỏ yêu thích';
-                    
-                    // Animation
-                    this.style.transform = 'scale(1.2)';
-                    setTimeout(() => {
-                        this.style.transform = 'scale(1)';
-                    }, 200);
+                    alert(data.message);
                 }
-                
                 this.disabled = false;
             })
             .catch(error => {
@@ -1277,22 +1275,59 @@ document.addEventListener('DOMContentLoaded', function() {
     const mainWishlistBtn = document.querySelector('.product-summary .btn-wishlist');
     if (mainWishlistBtn) {
         mainWishlistBtn.addEventListener('click', function() {
+            const productId = this.dataset.productId;
+            if (!productId) return;
+
+            @guest
+                window.location.href = '{{ route("login") }}';
+                return;
+            @endguest
+
+            this.disabled = true;
             const icon = this.querySelector('i');
-            this.classList.toggle('active');
-            
-            if (this.classList.contains('active')) {
-                icon.classList.remove('ri-heart-line');
-                icon.classList.add('ri-heart-fill');
-                
-                // Animation effect
-                this.style.transform = 'scale(1.2)';
-                setTimeout(() => {
-                    this.style.transform = 'scale(1)';
-                }, 200);
-            } else {
-                icon.classList.remove('ri-heart-fill');
-                icon.classList.add('ri-heart-line');
-            }
+
+            fetch('{{ route("user.wishlist.toggle") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ product_id: productId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    if (data.is_wishlisted) {
+                        this.classList.add('active');
+                        icon.className = 'ri-heart-fill';
+                        this.title = 'Bỏ yêu thích';
+                        
+                        // Animation effect
+                        this.style.transform = 'scale(1.2)';
+                        setTimeout(() => {
+                            this.style.transform = 'scale(1)';
+                        }, 200);
+                    } else {
+                        this.classList.remove('active');
+                        icon.className = 'ri-heart-line';
+                        this.title = 'Thêm vào yêu thích';
+                    }
+                    
+                    // Show toast message if available
+                    if (typeof showToast === 'function') {
+                        showToast('success', 'Thành công', data.message);
+                    }
+                } else {
+                    alert(data.message);
+                }
+                this.disabled = false;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Có lỗi xảy ra, vui lòng thử lại');
+                this.disabled = false;
+            });
         });
     }
 });

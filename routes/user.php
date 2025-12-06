@@ -50,6 +50,8 @@ Route::prefix('user')->name('user.')->middleware('user')->group(function () {
             return redirect()->route('user.profile', ['section' => 'wishlist']);
         })->name('index');
 
+        Route::post('/toggle', [App\Http\Controllers\User\ProductController::class, 'toggleWishlist'])->name('toggle');
+
         Route::post('/add/{productId}', [ProfileController::class, 'addToWishlist'])->name('add');
         Route::delete('/remove/{productId}', [ProfileController::class, 'removeFromWishlist'])->name('remove');
     });
