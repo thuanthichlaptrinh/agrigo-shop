@@ -2,7 +2,7 @@
 
 > Website thương mại điện tử bán nông sản hữu cơ được xây dựng bằng Laravel 11
 
-[![Laravel](https://img.shields.io/badge/Laravel-11.x-red.svg)](https://laravel.com)
+[![Laravel](https://img.shields.io/badge/Laravel-12.x-red.svg)](https://laravel.com)
 [![PHP](https://img.shields.io/badge/PHP-8.2+-blue.svg)](https://php.net)
 [![MySQL](https://img.shields.io/badge/MySQL-8.0+-orange.svg)](https://mysql.com)
 [![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-purple.svg)](https://getbootstrap.com)
@@ -203,7 +203,7 @@ GET  /admin/suppliers           → admin.suppliers.index
 
 ### Backend
 
--   **Laravel 11** - PHP Framework
+-   **Laravel 12** - PHP Framework
 -   **PHP 8.2+** - Programming Language
 -   **MySQL 8.0+** - Database
 -   **Composer** - Dependency Manager
@@ -219,7 +219,7 @@ GET  /admin/suppliers           → admin.suppliers.index
 
 ### Tools & Libraries
 
--   **Laravel Breeze** - Authentication (optional)
+-   **JWT Auth** - Authentication
 -   **Laravel Debugbar** - Debugging
 -   **Intervention Image** - Image processing
 -   **Carbon** - Date/Time library
@@ -543,27 +543,51 @@ Yêu cầu: Đăng nhập với tài khoản có vai trò Admin
 
 ## 📸 Screenshots
 
-### Trang chủ
+### Giao diện dự án
 
--   Banner carousel
--   Danh mục sản phẩm
--   Khuyến mãi sốc
--   Gian hàng và ưu đãi
--   Bài viết
+#### Đăng nhập
 
-### Sản phẩm
+![alt text](<Screenshot 2025-12-06 105150.png>)
 
--   Danh sách sản phẩm
--   Chi tiết sản phẩm
--   Đánh giá sản phẩm
+#### Đăng ký
 
-### Giỏ hàng & Thanh toán
+![alt text](<Screenshot 2025-12-06 105224.png>)
 
--   Giỏ hàng
--   Trang thanh toán
--   Xác nhận đơn hàng
+#### Trang chủ
 
----
+![alt text](<Screenshot 2025-12-06 104504.png>)
+
+#### Danh sách sản phẩm
+
+![alt text](<Screenshot 2025-12-06 125216.png>)
+
+#### Chi tiết sản phẩm
+
+![alt text](<Screenshot 2025-12-06 130658.png>)
+
+#### Giỏ hàng
+
+![alt text](<Screenshot 2025-12-06 105440.png>)
+
+#### Thanh toán
+
+![alt text](<Screenshot 2025-12-06 130113.png>)
+
+#### Chatbot
+
+![alt text](<Screenshot 2025-12-06 110422.png>)
+
+#### Chat với Admin
+
+![alt text](<Screenshot 2025-12-06 110443.png>)
+
+#### Admin Dashboard
+
+#### Quản lý banner
+
+![alt text](<Screenshot 2025-12-06 132333.png>)
+
+## ...
 
 ## 📚 Tài liệu
 
@@ -586,14 +610,14 @@ Yêu cầu: Đăng nhập với tài khoản có vai trò Admin
 
 ---
 
-## � TODO lList
+## 📝 TODO List
 
 ### Cần hoàn thiện
 
--   [ ] Tạo `AdminMiddleware` để phân quyền admin
--   [ ] Tạo các Controllers cho Admin module
--   [ ] Tạo các Controllers cho User module
--   [ ] Implement authentication với Laravel Breeze/Sanctum
+-   [x] Tạo `AdminMiddleware` để phân quyền admin
+-   [x] Tạo các Controllers cho Admin module
+-   [x] Tạo các Controllers cho User module
+-   [x] Implement authentication (JWT Auth)
 -   [ ] Tạo Seeders cho database
 -   [ ] Implement payment gateways (VNPay, MoMo)
 -   [ ] Tạo API endpoints

@@ -14,7 +14,7 @@
                             <button type="submit" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); border: none; background-color: transparent; z-index: 2">
                                 <i class="ri-search-line fs-22-t" style="color: green"></i>
                             </button>
-                            <input type="search" name="q" id="search-input" class="form-control w-100 header-search" style="padding-left: 42px" placeholder="Bạn muốn tìm gì..." autocomplete="off" />
+                            <input type="search" name="q" id="search-input" class="form-control w-100 header-search" style="padding-left: 42px; padding-right: 35px" placeholder="Bạn muốn tìm gì..." autocomplete="off" />
                             
                             <!-- Search Dropdown -->
                             <div id="search-dropdown" class="search-dropdown" style="
