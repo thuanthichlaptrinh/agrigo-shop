@@ -547,45 +547,45 @@ Yêu cầu: Đăng nhập với tài khoản có vai trò Admin
 
 #### Đăng nhập
 
-![alt text](<Screenshot 2025-12-06 105150.png>)
+![alt text](<public/screenshots/Screenshot 2025-12-06 105150.png>)
 
 #### Đăng ký
 
-![alt text](<Screenshot 2025-12-06 105224.png>)
+![alt text](<public/screenshots/Screenshot 2025-12-06 105224.png>)
 
 #### Trang chủ
 
-![alt text](<Screenshot 2025-12-06 104504.png>)
+![alt text](<public/screenshots/Screenshot 2025-12-06 104504.png>)
 
 #### Danh sách sản phẩm
 
-![alt text](<Screenshot 2025-12-06 125216.png>)
+![alt text](<public/screenshots/Screenshot 2025-12-06 125216.png>)
 
 #### Chi tiết sản phẩm
 
-![alt text](<Screenshot 2025-12-06 130658.png>)
+![alt text](<public/screenshots/Screenshot 2025-12-06 130658.png>)
 
 #### Giỏ hàng
 
-![alt text](<Screenshot 2025-12-06 105440.png>)
+![alt text](<public/screenshots/Screenshot 2025-12-06 105440.png>)
 
 #### Thanh toán
 
-![alt text](<Screenshot 2025-12-06 130113.png>)
+![alt text](<public/screenshots/Screenshot 2025-12-06 130113.png>)
 
 #### Chatbot
 
-![alt text](<Screenshot 2025-12-06 110422.png>)
+![alt text](<public/screenshots/Screenshot 2025-12-06 110422.png>)
 
 #### Chat với Admin
 
-![alt text](<Screenshot 2025-12-06 110443.png>)
+![alt text](<public/screenshots/Screenshot 2025-12-06 110443.png>)
 
 #### Admin Dashboard
 
 #### Quản lý banner
 
-![alt text](<Screenshot 2025-12-06 132333.png>)
+![alt text](<public/screenshots/Screenshot 2025-12-06 132333.png>)
 
 ## ...
 
