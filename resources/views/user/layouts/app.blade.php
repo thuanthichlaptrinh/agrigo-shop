@@ -33,6 +33,9 @@
         referrerpolicy="no-referrer"
     />
     
+    {{-- WebSocket Echo for real-time chat --}}
+    @vite(['resources/js/app.js'])
+    
     @stack('styles')
 </head>
 <body>

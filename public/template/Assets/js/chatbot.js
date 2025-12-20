@@ -25,6 +25,9 @@ class ChatbotWidget {
         this.adminMessages = [];
         this.adminRefreshInterval = null;
         this.adminInfo = null;
+        this.adminChannel = null;
+        this.isWebSocketConnected = false;
+        this.isAdminTyping = false;
 
         // DOM Elements
         this.widget = document.getElementById("chatbotWidget");
@@ -249,9 +252,9 @@ class ChatbotWidget {
             if (this.iconImg) this.iconImg.style.display = "none";
             this.input.focus();
 
-            // Start polling if in admin mode
+            // Connect WebSocket if in admin mode
             if (this.chatMode === "admin") {
-                this.startAdminPolling();
+                this.connectAdminWebSocket();
             }
         } else {
             this.container.classList.remove("active");
@@ -260,7 +263,7 @@ class ChatbotWidget {
             this.closeMenu();
             this.closeLauncher();
             this.closeContactForm();
-            this.stopAdminPolling();
+            // Don't disconnect WebSocket when minimizing - keep connection alive
         }
 
         this.updateAuxButtons();
@@ -282,8 +285,8 @@ class ChatbotWidget {
         // Render admin messages
         this.renderAdminMessages();
 
-        // Start polling for new messages
-        this.startAdminPolling();
+        // Connect WebSocket for real-time messages
+        this.connectAdminWebSocket();
 
         this.saveState();
     }
@@ -291,12 +294,178 @@ class ChatbotWidget {
     switchToBotMode() {
         this.chatMode = "bot";
         this.updateChatTitle();
-        this.stopAdminPolling();
+        this.disconnectAdminWebSocket();
 
         // Restore bot messages
         this.renderMessages();
 
         this.saveState();
+    }
+
+    // WebSocket connection for admin chat
+    connectAdminWebSocket() {
+        // Wait for Echo to be ready
+        if (!window.Echo) {
+            console.log('Echo chưa sẵn sàng, đợi...');
+            // Retry after a short delay
+            setTimeout(() => {
+                if (window.Echo) {
+                    this.connectAdminWebSocket();
+                } else {
+                    console.warn('WebSocket không khả dụng, sử dụng polling fallback');
+                    this.startAdminPolling();
+                }
+            }, 500);
+            return;
+        }
+
+        if (!this.conversationId) {
+            console.warn('Không có conversationId, sử dụng polling fallback');
+            this.startAdminPolling();
+            return;
+        }
+
+        try {
+            // Disconnect existing channel if any
+            this.disconnectAdminWebSocket();
+            
+            // Subscribe to conversation channel
+            this.adminChannel = window.Echo.private(`chat.conversation.${this.conversationId}`);
+
+            // Listen for new messages
+            this.adminChannel.listen('.message.new', (data) => {
+                this.handleWebSocketMessage(data.message);
+            });
+
+            // Listen for typing status
+            this.adminChannel.listen('.user.typing', (data) => {
+                this.handleAdminTyping(data);
+            });
+
+            this.adminChannel.subscribed(() => {
+                console.log('WebSocket: Đã kết nối channel', this.conversationId);
+                this.isWebSocketConnected = true;
+                this.stopAdminPolling(); // Stop polling when WebSocket connected
+            });
+
+            this.adminChannel.error((error) => {
+                console.error('WebSocket error:', error);
+                this.isWebSocketConnected = false;
+                this.startAdminPolling(); // Fallback to polling
+            });
+
+        } catch (err) {
+            console.error('WebSocket connection error:', err);
+            this.startAdminPolling();
+        }
+    }
+
+    disconnectAdminWebSocket() {
+        if (this.adminChannel && window.Echo) {
+            window.Echo.leave(`chat.conversation.${this.conversationId}`);
+            this.adminChannel = null;
+        }
+        this.isWebSocketConnected = false;
+        this.stopAdminPolling();
+    }
+
+    handleWebSocketMessage(message) {
+        // Bỏ qua tin nhắn từ chính user (đã hiển thị qua optimistic UI)
+        const senderType = message.sender_type || message.LoaiNguoiGui;
+        if (senderType === 'NguoiDung') {
+            // Tin nhắn từ user đã được hiển thị qua optimistic UI
+            return;
+        }
+
+        // Check if message already exists
+        const exists = this.adminMessages.some(m => 
+            m.ID === message.id || m.ID === message.ID
+        );
+        if (exists) return;
+
+        // Convert WebSocket format to local format
+        const formattedMessage = {
+            ID: message.id || message.ID,
+            IDCuocHoiThoai: message.conversation_id || message.IDCuocHoiThoai,
+            IDNguoiGui: message.sender_id || message.IDNguoiGui,
+            LoaiNguoiGui: message.sender_type || message.LoaiNguoiGui,
+            NoiDung: message.content || message.NoiDung,
+            HinhAnh: message.image || message.HinhAnh,
+            ThoiGianGui: message.sent_at || message.ThoiGianGui,
+            DaXem: message.is_read || message.DaXem,
+            nguoi_gui: {
+                ID: message.sender_id || message.IDNguoiGui,
+                TenNguoiDung: message.sender_name,
+                HinhAnh: message.sender_avatar
+            }
+        };
+
+        this.adminMessages.push(formattedMessage);
+        this.renderAdminMessages();
+
+        // Hide typing indicator
+        this.hideAdminTyping();
+
+        // Play notification sound if message from admin
+        if (formattedMessage.LoaiNguoiGui === 'Admin') {
+            this.playNotificationSound();
+        }
+    }
+
+    handleAdminTyping(data) {
+        if (data.userType === 'Admin' || data.user_type === 'Admin') {
+            if (data.isTyping || data.is_typing) {
+                this.showAdminTyping(data.userName || data.user_name || 'Admin');
+            } else {
+                this.hideAdminTyping();
+            }
+        }
+    }
+
+    showAdminTyping(name = 'Admin') {
+        if (this.isAdminTyping) return;
+        this.isAdminTyping = true;
+
+        // Remove existing indicator
+        this.hideAdminTyping();
+
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'chatbot-message bot';
+        typingDiv.id = 'admin-typing-indicator';
+        typingDiv.innerHTML = `
+            <img src="template/Assets/Images/admin-avatar.png" alt="Admin" class="chatbot-message-avatar">
+            <div class="chatbot-message-content">
+                <div class="chatbot-message-bubble">
+                    <div class="chatbot-typing">
+                        <div class="chatbot-typing-dot"></div>
+                        <div class="chatbot-typing-dot"></div>
+                        <div class="chatbot-typing-dot"></div>
+                    </div>
+                </div>
+                <div class="chatbot-typing-text">${this.escapeHtml(name)} đang gõ...</div>
+            </div>
+        `;
+
+        this.body.appendChild(typingDiv);
+        this.scrollToBottom();
+    }
+
+    hideAdminTyping() {
+        this.isAdminTyping = false;
+        const indicator = document.getElementById('admin-typing-indicator');
+        if (indicator) {
+            indicator.remove();
+        }
+    }
+
+    playNotificationSound() {
+        try {
+            const audio = new Audio('/template/Assets/sounds/notification.mp3');
+            audio.volume = 0.5;
+            audio.play().catch(() => {});
+        } catch (e) {
+            // Ignore audio errors
+        }
     }
 
     updateChatTitle() {
@@ -559,13 +728,17 @@ class ChatbotWidget {
     }
 
     startAdminPolling() {
+        // Only start polling if WebSocket is not connected
+        if (this.isWebSocketConnected) return;
+        
         this.stopAdminPolling();
 
+        console.log('Bắt đầu polling fallback cho admin chat');
         this.adminRefreshInterval = setInterval(() => {
-            if (this.chatMode === "admin" && this.conversationId) {
+            if (this.chatMode === "admin" && this.conversationId && !this.isWebSocketConnected) {
                 this.loadAdminMessages();
             }
-        }, 5000); // Poll every 5 seconds
+        }, 3000); // Poll every 3 seconds (faster fallback)
     }
 
     stopAdminPolling() {
@@ -878,6 +1051,14 @@ class ChatbotWidget {
                     this.container.classList.add("active");
                     if (this.icon) this.icon.style.display = "block";
                     if (this.iconImg) this.iconImg.style.display = "none";
+                    
+                    // Connect WebSocket if in admin mode and chat is open
+                    if (this.chatMode === "admin" && this.conversationId) {
+                        // Delay WebSocket connection to ensure Echo is ready
+                        setTimeout(() => {
+                            this.connectAdminWebSocket();
+                        }, 1000);
+                    }
                 }
 
                 // Update title based on mode

@@ -40,6 +40,7 @@ class CheckAdmin
                 'admin.categories.*',
                 'admin.catalog.*',
                 'admin.promotions.*',
+                'admin.chat.*', // Cho phép chat với khách hàng
             ];
 
             if (!$request->routeIs($pmAllowed)) {
@@ -52,6 +53,7 @@ class CheckAdmin
             $omAllowed = [
                 'admin.dashboard',
                 'admin.orders.*',
+                'admin.chat.*', // Cho phép chat với khách hàng
             ];
 
             if (!$request->routeIs($omAllowed)) {

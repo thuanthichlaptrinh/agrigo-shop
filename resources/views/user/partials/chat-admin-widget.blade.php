@@ -74,3 +74,57 @@
         welcomeText: @json($welcomeText),
     };
 </script>
+
+{{-- WebSocket Echo Configuration --}}
+@vite(['resources/js/app.js'])
+
+<style>
+/* Typing indicator animation */
+.chatbot-typing {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 12px;
+    background: #f0f0f0;
+    border-radius: 16px;
+    width: fit-content;
+}
+
+.typing-dot {
+    width: 8px;
+    height: 8px;
+    background: #888;
+    border-radius: 50%;
+    animation: typingBounce 1.4s infinite ease-in-out both;
+}
+
+.typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+.typing-dot:nth-child(3) { animation-delay: 0s; }
+
+@keyframes typingBounce {
+    0%, 80%, 100% {
+        transform: scale(0.6);
+        opacity: 0.5;
+    }
+    40% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.chatbot-typing-text {
+    font-size: 11px;
+    color: #888;
+    margin-top: 4px;
+}
+
+.typing-indicator {
+    opacity: 0.8;
+}
+
+/* Connection status */
+.chatbot-status-dot {
+    transition: background-color 0.3s ease;
+}
+</style>

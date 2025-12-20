@@ -72,6 +72,9 @@
     </style>
     
     @stack('styles')
+    
+    {{-- WebSocket Echo --}}
+    @vite(['resources/js/app.js'])
 </head>
 <body>
     @php

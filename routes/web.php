@@ -5,7 +5,56 @@ use App\Models\Banner;
 use App\Models\BaiViet;
 use App\Models\SanPham;
 use App\Models\SanPhamKhuyenMai;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| Broadcast Routes
+|--------------------------------------------------------------------------
+*/
+Broadcast::routes(['middleware' => ['web']]);
+
+// Custom broadcasting auth endpoint hỗ trợ JWT session
+Route::post('/broadcasting/auth-custom', function (\Illuminate\Http\Request $request) {
+    $user = null;
+    
+    // Thử lấy user từ JWT session
+    try {
+        $manager = app(\App\Support\Auth\JwtSessionManager::class);
+        $user = $manager->resolveUser();
+    } catch (\Exception $e) {
+        // Ignore
+    }
+    
+    // Nếu không có user, cho phép guest với session ID
+    if (!$user) {
+        $channelName = $request->input('channel_name');
+        
+        // Cho phép guest join conversation channel nếu session ID khớp
+        if (str_starts_with($channelName, 'private-chat.conversation.')) {
+            $conversationId = (int) str_replace('private-chat.conversation.', '', $channelName);
+            $conversation = \App\Models\CuocHoiThoai::find($conversationId);
+            
+            if ($conversation && $conversation->SessionID === $request->session()->getId()) {
+                $pusher = new \Pusher\Pusher(
+                    config('broadcasting.connections.reverb.key'),
+                    config('broadcasting.connections.reverb.secret'),
+                    config('broadcasting.connections.reverb.app_id'),
+                    []
+                );
+                
+                return response($pusher->authorizeChannel($channelName, $request->input('socket_id')));
+            }
+        }
+        
+        return response()->json(['error' => 'Unauthorized'], 403);
+    }
+    
+    // User đã đăng nhập - sử dụng Broadcast::auth()
+    $request->setUserResolver(fn() => $user);
+    return Broadcast::auth($request);
+})->middleware(['web'])->name('broadcasting.auth.custom');
 
 /*
 |--------------------------------------------------------------------------

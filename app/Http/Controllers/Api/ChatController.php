@@ -6,17 +6,31 @@ use App\Http\Controllers\Controller;
 use App\Models\CuocHoiThoai;
 use App\Models\TinNhan;
 use App\Models\NguoiDung;
+use App\Events\NewChatMessage;
+use App\Events\ConversationUpdated;
+use App\Events\UserTyping;
+use App\Support\Auth\JwtSessionManager;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class ChatController extends Controller
 {
     /**
+     * Lấy user hiện tại từ JWT session
+     */
+    protected function getAuthUser(): ?NguoiDung
+    {
+        /** @var JwtSessionManager $manager */
+        $manager = app(JwtSessionManager::class);
+        return $manager->resolveUser();
+    }
+    /**
      * Lấy hoặc tạo cuộc hội thoại với Admin
      */
     public function getOrCreateConversation(Request $request)
     {
-        $userId = auth()->id();
+        $user = $this->getAuthUser();
+        $userId = $user?->ID;
         $sessionId = $request->session()->getId();
 
         $conversation = null;
@@ -121,7 +135,8 @@ class ChatController extends Controller
             return response()->json(['success' => false, 'message' => 'Không tìm thấy cuộc hội thoại'], 404);
         }
 
-        $userId = auth()->id();
+        $user = $this->getAuthUser();
+        $userId = $user?->ID;
 
         $message = TinNhan::create([
             'IDCuocHoiThoai' => $conversation->ID,
@@ -137,10 +152,52 @@ class ChatController extends Controller
             'TrangThai' => 'Chờ', // Đợi admin phản hồi
         ]);
 
+        // Broadcast tin nhắn mới qua WebSocket (nếu Reverb đang chạy)
+        try {
+            broadcast(new NewChatMessage($message))->toOthers();
+            broadcast(new ConversationUpdated($conversation->fresh(), 'updated'));
+        } catch (\Exception $e) {
+            // Reverb không chạy, bỏ qua broadcast - chat vẫn hoạt động qua polling
+            \Log::warning('WebSocket broadcast failed: ' . $e->getMessage());
+        }
+
         return response()->json([
             'success' => true,
             'message' => $message->load('nguoiGui:ID,TenNguoiDung,HinhAnh'),
         ]);
+    }
+
+    /**
+     * Gửi trạng thái đang gõ
+     */
+    public function typing(Request $request)
+    {
+        $request->validate([
+            'conversation_id' => 'required|integer',
+            'is_typing' => 'required|boolean',
+        ]);
+
+        $conversation = $this->getAuthorizedConversation($request->conversation_id, $request);
+        
+        if (!$conversation) {
+            return response()->json(['success' => false], 404);
+        }
+
+        $user = $this->getAuthUser();
+        
+        try {
+            broadcast(new UserTyping(
+                $conversation->ID,
+                $user?->ID,
+                $user?->TenNguoiDung ?? 'Khách',
+                'NguoiDung',
+                $request->is_typing
+            ))->toOthers();
+        } catch (\Exception $e) {
+            // Ignore WebSocket errors for typing status
+        }
+
+        return response()->json(['success' => true]);
     }
 
     /**
@@ -167,7 +224,8 @@ class ChatController extends Controller
      */
     private function getAuthorizedConversation($conversationId, Request $request)
     {
-        $userId = auth()->id();
+        $user = $this->getAuthUser();
+        $userId = $user?->ID;
         $sessionId = $request->session()->getId();
 
         return CuocHoiThoai::where('ID', $conversationId)

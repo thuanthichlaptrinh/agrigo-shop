@@ -10,6 +10,7 @@ use App\Models\SanPham;
 use App\Support\Traits\AccentInsensitiveSearch;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ProductController extends Controller
@@ -335,19 +336,18 @@ class ProductController extends Controller
 
     protected function saveImage($file, ?string $oldPath = null): string
     {
-        $destination = public_path('uploads/products');
-        if (!File::exists($destination)) {
-            File::makeDirectory($destination, 0755, true);
-        }
-
-        if ($oldPath && File::exists(public_path($oldPath))) {
-            File::delete(public_path($oldPath));
+        // Xóa ảnh cũ nếu có
+        if ($oldPath) {
+            $this->deleteImage($oldPath);
         }
 
         $filename = 'product_' . now()->format('YmdHis') . '_' . Str::random(6) . '.' . $file->getClientOriginalExtension();
-        $file->move($destination, $filename);
+        
+        // Lưu vào storage/app/public/products
+        $path = $file->storeAs('products', $filename, 'public');
 
-        return 'uploads/products/' . $filename;
+        // Trả về đường dẫn để lưu vào database: storage/products/filename.jpg
+        return 'storage/' . $path;
     }
 
     protected function deleteImage(?string $path): void
@@ -356,10 +356,21 @@ class ProductController extends Controller
             return;
         }
 
-        $fullPath = public_path($path);
         if (Str::startsWith($path, ['http://', 'https://'])) {
             return;
         }
+
+        // Xử lý đường dẫn storage/...
+        if (Str::startsWith($path, 'storage/')) {
+            $storagePath = Str::after($path, 'storage/');
+            if (Storage::disk('public')->exists($storagePath)) {
+                Storage::disk('public')->delete($storagePath);
+            }
+            return;
+        }
+
+        // Xử lý đường dẫn cũ uploads/... (backward compatibility)
+        $fullPath = public_path($path);
         if (File::exists($fullPath)) {
             File::delete($fullPath);
         }

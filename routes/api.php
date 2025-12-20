@@ -35,6 +35,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::post('/conversation', [ChatController::class, 'getOrCreateConversation'])->name('conversation');
         Route::get('/messages/{conversationId}', [ChatController::class, 'getMessages'])->name('messages');
         Route::post('/send', [ChatController::class, 'sendMessage'])->name('send');
+        Route::post('/typing', [ChatController::class, 'typing'])->name('typing');
         Route::post('/close/{conversationId}', [ChatController::class, 'closeConversation'])->name('close');
     });
 

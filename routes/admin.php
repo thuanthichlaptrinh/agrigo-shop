@@ -173,6 +173,7 @@ Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
         Route::post('/conversations/{id}/assign', [AdminChatController::class, 'assignConversation'])->name('assign');
         Route::post('/conversations/{id}/close', [AdminChatController::class, 'closeConversation'])->name('close');
         Route::post('/messages/send', [AdminChatController::class, 'sendMessage'])->name('send');
+        Route::post('/typing', [AdminChatController::class, 'typing'])->name('typing');
     });
 
     // Catalog Management
@@ -283,16 +284,7 @@ Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
         Route::delete('/{id}', [BaiVietController::class, 'destroy'])->name('destroy');
     });
 
-    // Chat Management - Hỗ trợ khách hàng
-    Route::prefix('chat')->name('chat.')->group(function () {
-        Route::get('/', [AdminChatController::class, 'index'])->name('index');
-        Route::get('/conversations', [AdminChatController::class, 'getConversations'])->name('conversations');
-        Route::get('/messages/{id}', [AdminChatController::class, 'getMessages'])->name('messages');
-        Route::post('/send', [AdminChatController::class, 'sendMessage'])->name('send');
-        Route::post('/assign/{id}', [AdminChatController::class, 'assignConversation'])->name('assign');
-        Route::post('/close/{id}', [AdminChatController::class, 'closeConversation'])->name('close');
-        Route::get('/stats', [AdminChatController::class, 'getStats'])->name('stats');
-    });
+    // Chat Management - Đã được định nghĩa ở trên (xem phần "Chat với khách hàng")
 
     // Utility Routes
     Route::get('/search', function () {

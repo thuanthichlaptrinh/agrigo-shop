@@ -5,16 +5,28 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\CuocHoiThoai;
 use App\Models\TinNhan;
+use App\Events\NewChatMessage;
+use App\Events\ConversationUpdated;
+use App\Events\UserTyping;
 use Illuminate\Http\Request;
 
 class AdminChatController extends Controller
 {
     /**
+     * Lấy user hiện tại từ request (được set bởi middleware)
+     */
+    protected function getAuthUser(Request $request)
+    {
+        return $request->auth_user ?? $request->get('auth_user');
+    }
+
+    /**
      * Hiển thị trang quản lý chat
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view('admin.chat.index');
+        $user = $this->getAuthUser($request);
+        return view('admin.chat.index', ['authUser' => $user]);
     }
 
     /**
@@ -23,7 +35,8 @@ class AdminChatController extends Controller
     public function getConversations(Request $request)
     {
         $status = $request->get('status', 'all');
-        $adminId = auth()->id();
+        $user = $this->getAuthUser($request);
+        $adminId = $user?->ID;
 
         $query = CuocHoiThoai::with([
             'nguoiDung:ID,TenNguoiDung,HinhAnh,Email',
@@ -88,7 +101,16 @@ class AdminChatController extends Controller
             'message' => 'required|string|max:2000',
         ]);
 
-        $adminId = auth()->id();
+        $user = $this->getAuthUser($request);
+        $adminId = $user?->ID;
+
+        if (!$adminId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không xác định được người dùng'
+            ], 401);
+        }
+
         $conversation = CuocHoiThoai::findOrFail($request->conversation_id);
 
         // Nhận cuộc hội thoại nếu chưa có admin
@@ -110,10 +132,49 @@ class AdminChatController extends Controller
             'LanHoatDongCuoi' => now(),
         ]);
 
+        // Broadcast tin nhắn mới qua WebSocket (nếu Reverb đang chạy)
+        try {
+            broadcast(new NewChatMessage($message))->toOthers();
+        } catch (\Exception $e) {
+            \Log::warning('WebSocket broadcast failed: ' . $e->getMessage());
+        }
+
         return response()->json([
             'success' => true,
             'message' => $message->load('nguoiGui:ID,TenNguoiDung,HinhAnh'),
         ]);
+    }
+
+    /**
+     * Gửi trạng thái đang gõ
+     */
+    public function typing(Request $request)
+    {
+        $request->validate([
+            'conversation_id' => 'required|integer',
+            'is_typing' => 'required|boolean',
+        ]);
+
+        $conversation = CuocHoiThoai::findOrFail($request->conversation_id);
+        $user = $this->getAuthUser($request);
+        
+        if (!$user) {
+            return response()->json(['success' => false], 401);
+        }
+
+        try {
+            broadcast(new UserTyping(
+                $conversation->ID,
+                $user->ID,
+                $user->TenNguoiDung,
+                'Admin',
+                $request->is_typing
+            ))->toOthers();
+        } catch (\Exception $e) {
+            // Ignore WebSocket errors for typing status
+        }
+
+        return response()->json(['success' => true]);
     }
 
     /**
@@ -122,7 +183,15 @@ class AdminChatController extends Controller
     public function assignConversation(Request $request, $conversationId)
     {
         $conversation = CuocHoiThoai::findOrFail($conversationId);
-        $adminId = auth()->id();
+        $user = $this->getAuthUser($request);
+        $adminId = $user?->ID;
+
+        if (!$adminId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không xác định được người dùng'
+            ], 401);
+        }
 
         $conversation->update([
             'IDAdmin' => $adminId,
@@ -138,20 +207,29 @@ class AdminChatController extends Controller
     /**
      * Đóng cuộc hội thoại
      */
-    public function closeConversation($conversationId)
+    public function closeConversation(Request $request, $conversationId)
     {
         $conversation = CuocHoiThoai::findOrFail($conversationId);
+        $user = $this->getAuthUser($request);
         
         $conversation->update(['TrangThai' => 'Đóng']);
 
         // Gửi tin nhắn thông báo
-        TinNhan::create([
+        $message = TinNhan::create([
             'IDCuocHoiThoai' => $conversation->ID,
-            'IDNguoiGui' => auth()->id(),
+            'IDNguoiGui' => $user?->ID,
             'LoaiNguoiGui' => 'HeThong',
             'NoiDung' => 'Cuộc hội thoại đã được đóng. Cảm ơn bạn đã liên hệ với chúng tôi!',
             'ThoiGianGui' => now(),
         ]);
+
+        // Broadcast tin nhắn và cập nhật cuộc hội thoại (nếu Reverb đang chạy)
+        try {
+            broadcast(new NewChatMessage($message));
+            broadcast(new ConversationUpdated($conversation->fresh(), 'closed'));
+        } catch (\Exception $e) {
+            \Log::warning('WebSocket broadcast failed: ' . $e->getMessage());
+        }
 
         return response()->json([
             'success' => true,
@@ -162,11 +240,14 @@ class AdminChatController extends Controller
     /**
      * Đếm số cuộc hội thoại chờ
      */
-    public function getStats()
+    public function getStats(Request $request)
     {
+        $user = $this->getAuthUser($request);
+        $adminId = $user?->ID;
+
         $waiting = CuocHoiThoai::where('TrangThai', 'Chờ')->count();
         $open = CuocHoiThoai::where('TrangThai', 'Mở')->count();
-        $myChats = CuocHoiThoai::where('IDAdmin', auth()->id())
+        $myChats = CuocHoiThoai::where('IDAdmin', $adminId)
             ->whereIn('TrangThai', ['Mở', 'Chờ'])
             ->count();
 

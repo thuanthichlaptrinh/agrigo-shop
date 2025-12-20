@@ -184,17 +184,52 @@ if (!function_exists('format_promoted_product')) {
 }
 
 if (!function_exists('product_image_url')) {
+    /**
+     * Chuyển đổi đường dẫn hình ảnh sản phẩm thành URL đầy đủ
+     * Xử lý các trường hợp:
+     * - storage/... -> symbolic link từ public/storage
+     * - uploads/... -> thư mục public/uploads (legacy)
+     * - URL đầy đủ -> giữ nguyên
+     */
     function product_image_url(?string $path): string
     {
+        $placeholder = 'template/Assets/Images/tao_gala_phap_size_100_8aef2b9571944ed0b7a6ee52ea416e3d_large.webp';
+        
         if (empty($path)) {
-            return asset('template/Assets/Images/tao_gala_phap_size_100_8aef2b9571944ed0b7a6ee52ea416e3d_large.webp');
+            return asset($placeholder);
         }
 
+        // Nếu là URL đầy đủ, trả về nguyên
         if (filter_var($path, FILTER_VALIDATE_URL)) {
             return $path;
         }
 
-        return asset(ltrim($path, '/'));
+        // Chuẩn hóa đường dẫn
+        $path = ltrim($path, '/');
+        
+        // Kiểm tra file có tồn tại không
+        // 1. Đường dẫn storage/... -> kiểm tra trong public/storage (symbolic link)
+        // 2. Đường dẫn uploads/... -> kiểm tra trong public/uploads
+        if (file_exists(public_path($path))) {
+            return asset($path);
+        }
+        
+        // Thử tìm trong uploads/products nếu chỉ có tên file (legacy support)
+        if (!Str::contains($path, '/')) {
+            $productPath = 'uploads/products/' . $path;
+            if (file_exists(public_path($productPath))) {
+                return asset($productPath);
+            }
+            
+            // Thử tìm trong storage/products
+            $storagePath = 'storage/products/' . $path;
+            if (file_exists(public_path($storagePath))) {
+                return asset($storagePath);
+            }
+        }
+
+        // Trả về placeholder nếu không tìm thấy
+        return asset($placeholder);
     }
 }
 

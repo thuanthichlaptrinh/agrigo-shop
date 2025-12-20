@@ -747,7 +747,16 @@ document.addEventListener('DOMContentLoaded', function() {
         conversations: [],
         currentFilter: 'all',
         refreshInterval: null,
-        adminId: {{ auth()->id() ?? 'null' }},
+        adminId: {{ $authUser->ID ?? 'null' }},
+        wsChannel: null,
+        wsAdminChannel: null,
+        isWebSocketConnected: false,
+        typingTimeout: null,
+        isUserTyping: false,
+        pollingInterval: null,
+        messagePollingInterval: null,
+        isSending: false,
+        lastTypingStatus: false,
 
             normalizeAvatar(url) {
                 if (!url) return null;
@@ -762,14 +771,333 @@ document.addEventListener('DOMContentLoaded', function() {
             this.bindEvents();
             this.loadConversations();
             this.loadStats();
+            this.connectWebSocket();
             
-            // Auto refresh every 10 seconds
-            this.refreshInterval = setInterval(() => {
+            // Fallback polling - sẽ được điều chỉnh dựa trên WebSocket status
+            this.startPolling();
+        },
+
+        startPolling() {
+            // Polling cho danh sách cuộc hội thoại
+            if (this.pollingInterval) clearInterval(this.pollingInterval);
+            
+            // Nếu WebSocket kết nối, polling chậm hơn (30s), nếu không thì nhanh hơn (5s)
+            const interval = this.isWebSocketConnected ? 30000 : 5000;
+            
+            this.pollingInterval = setInterval(() => {
                 this.loadConversations();
-                if (this.currentConversationId) {
-                    this.loadMessages(this.currentConversationId);
+                this.loadStats();
+            }, interval);
+        },
+
+        startMessagePolling() {
+            // Polling cho tin nhắn trong cuộc hội thoại hiện tại
+            if (this.messagePollingInterval) clearInterval(this.messagePollingInterval);
+            
+            if (!this.isWebSocketConnected && this.currentConversationId) {
+                this.messagePollingInterval = setInterval(() => {
+                    if (this.currentConversationId) {
+                        this.loadMessages(this.currentConversationId);
+                    }
+                }, 3000);
+            }
+        },
+
+        stopMessagePolling() {
+            if (this.messagePollingInterval) {
+                clearInterval(this.messagePollingInterval);
+                this.messagePollingInterval = null;
+            }
+        },
+
+        // ==================== WebSocket Methods ====================
+        
+        connectWebSocket() {
+            if (!window.Echo) {
+                console.warn('WebSocket không khả dụng, sử dụng polling');
+                return;
+            }
+
+            try {
+                // Subscribe vào admin channel để nhận tất cả tin nhắn mới
+                this.wsAdminChannel = window.Echo.private('chat.admin');
+
+                // Lắng nghe tin nhắn mới từ tất cả cuộc hội thoại
+                this.wsAdminChannel.listen('.message.new', (data) => {
+                    this.handleNewMessage(data.message);
+                });
+
+                // Lắng nghe cập nhật cuộc hội thoại
+                this.wsAdminChannel.listen('.conversation.updated', (data) => {
+                    this.handleConversationUpdate(data.conversation, 'updated');
+                });
+
+                this.wsAdminChannel.listen('.conversation.closed', (data) => {
+                    this.handleConversationUpdate(data.conversation, 'closed');
+                });
+
+                this.wsAdminChannel.subscribed(() => {
+                    console.log('WebSocket: Đã kết nối admin channel');
+                    this.isWebSocketConnected = true;
+                    this.updateConnectionStatus(true);
+                    // Điều chỉnh polling interval khi WebSocket kết nối
+                    this.startPolling();
+                    this.stopMessagePolling();
+                });
+
+                this.wsAdminChannel.error((error) => {
+                    console.error('WebSocket error:', error);
+                    this.isWebSocketConnected = false;
+                    this.updateConnectionStatus(false);
+                    // Tăng tốc polling khi WebSocket lỗi
+                    this.startPolling();
+                    this.startMessagePolling();
+                });
+
+            } catch (err) {
+                console.error('WebSocket connection error:', err);
+            }
+        },
+
+        subscribeToConversation(conversationId) {
+            if (!window.Echo || !conversationId) return;
+
+            // Unsubscribe từ channel cũ
+            if (this.wsChannel) {
+                window.Echo.leave(`chat.conversation.${this.currentConversationId}`);
+            }
+
+            // Subscribe vào channel mới
+            this.wsChannel = window.Echo.private(`chat.conversation.${conversationId}`);
+
+            this.wsChannel.listen('.message.new', (data) => {
+                // Bỏ qua tin nhắn từ admin (đã hiển thị qua optimistic UI)
+                const senderType = data.message?.sender_type || data.message?.LoaiNguoiGui;
+                if (senderType === 'Admin') {
+                    return;
                 }
-            }, 10000);
+                
+                if (data.message.conversation_id === this.currentConversationId || 
+                    data.message.IDCuocHoiThoai === this.currentConversationId) {
+                    this.appendMessage(data.message);
+                }
+            });
+
+            this.wsChannel.listen('.user.typing', (data) => {
+                this.handleTypingStatus(data);
+            });
+        },
+
+        handleNewMessage(message) {
+            // Bỏ qua tin nhắn từ chính admin này (đã hiển thị qua optimistic UI)
+            const senderType = message.sender_type || message.LoaiNguoiGui;
+            if (senderType === 'Admin') {
+                // Tin nhắn từ admin đã được hiển thị qua optimistic UI
+                // Chỉ cập nhật sidebar nhẹ nhàng (không reload toàn bộ)
+                this.updateConversationPreview(message);
+                return;
+            }
+
+            // Cập nhật danh sách cuộc hội thoại (chỉ khi tin nhắn từ user)
+            this.loadConversations();
+            this.loadStats();
+
+            // Nếu đang xem cuộc hội thoại này, thêm tin nhắn
+            const convId = message.conversation_id || message.IDCuocHoiThoai;
+            if (convId === this.currentConversationId) {
+                this.appendMessage(message);
+            }
+
+            // Phát âm thanh thông báo nếu tin nhắn từ user
+            if (senderType === 'NguoiDung') {
+                this.playNotificationSound();
+            }
+        },
+
+        // Cập nhật preview tin nhắn mới nhất trong sidebar mà không reload toàn bộ
+        updateConversationPreview(message) {
+            const convId = message.conversation_id || message.IDCuocHoiThoai;
+            const content = message.content || message.NoiDung;
+            
+            // Tìm conversation item trong sidebar
+            const convItem = document.querySelector(`.conversation-item[data-id="${convId}"]`);
+            if (convItem) {
+                const previewEl = convItem.querySelector('.conversation-preview');
+                const timeEl = convItem.querySelector('.conversation-time');
+                
+                if (previewEl) {
+                    previewEl.textContent = content.substring(0, 50);
+                }
+                if (timeEl) {
+                    timeEl.textContent = 'Vừa xong';
+                }
+            }
+        },
+
+        appendMessage(message) {
+            const container = document.getElementById('chatMessages');
+            if (!container) return;
+
+            // Chuyển đổi format
+            const msg = {
+                ID: message.id || message.ID,
+                LoaiNguoiGui: message.sender_type || message.LoaiNguoiGui,
+                NoiDung: message.content || message.NoiDung,
+                HinhAnh: message.image || message.HinhAnh,
+                ThoiGianGui: message.sent_at || message.ThoiGianGui,
+                nguoi_gui: {
+                    TenNguoiDung: message.sender_name,
+                    HinhAnh: message.sender_avatar
+                }
+            };
+
+            // Kiểm tra tin nhắn đã tồn tại chưa
+            if (container.querySelector(`[data-message-id="${msg.ID}"]`)) return;
+
+            // Ẩn typing indicator
+            this.hideTypingIndicator();
+
+            const isAdmin = msg.LoaiNguoiGui === 'Admin';
+            const isSystem = msg.LoaiNguoiGui === 'HeThong';
+
+            let html = '';
+            if (isSystem) {
+                html = `
+                    <div class="system-message" data-message-id="${msg.ID}">
+                        <span>${this.escapeHtml(msg.NoiDung)}</span>
+                    </div>
+                `;
+            } else {
+                const senderName = msg.nguoi_gui?.TenNguoiDung || (isAdmin ? 'Admin' : 'Khách');
+                const initial = senderName.charAt(0).toUpperCase();
+                const avatar = this.normalizeAvatar(msg.nguoi_gui?.HinhAnh);
+                const time = this.formatTime(msg.ThoiGianGui);
+
+                html = `
+                    <div class="message-group" data-message-id="${msg.ID}">
+                        <div class="message ${isAdmin ? 'admin' : 'user'}">
+                            <div class="message-avatar">
+                                ${avatar ? `<img src="${avatar}" alt="" style="width:34px;height:34px;object-fit:cover;">` : initial}
+                            </div>
+                            <div>
+                                <div class="message-content">
+                                    ${this.escapeHtml(msg.NoiDung)}
+                                    ${msg.HinhAnh ? `<img src="${msg.HinhAnh}" class="message-image" alt="">` : ''}
+                                </div>
+                                <div class="message-time">${time}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.insertAdjacentHTML('beforeend', html);
+            container.scrollTop = container.scrollHeight;
+        },
+
+        handleConversationUpdate(conversation, action) {
+            this.loadConversations();
+            this.loadStats();
+        },
+
+        handleTypingStatus(data) {
+            if (data.userType === 'NguoiDung' || data.user_type === 'NguoiDung') {
+                if (data.isTyping || data.is_typing) {
+                    this.showTypingIndicator(data.userName || data.user_name || 'Khách');
+                } else {
+                    this.hideTypingIndicator();
+                }
+            }
+        },
+
+        showTypingIndicator(name = 'Khách') {
+            if (this.isUserTyping) return;
+            this.isUserTyping = true;
+
+            this.hideTypingIndicator();
+
+            const container = document.getElementById('chatMessages');
+            if (!container) return;
+
+            const html = `
+                <div class="message-group" id="typing-indicator">
+                    <div class="message user">
+                        <div class="message-avatar">K</div>
+                        <div>
+                            <div class="typing-indicator">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                            <div class="message-time">${this.escapeHtml(name)} đang gõ...</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            container.insertAdjacentHTML('beforeend', html);
+            container.scrollTop = container.scrollHeight;
+        },
+
+        hideTypingIndicator() {
+            this.isUserTyping = false;
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) indicator.remove();
+        },
+
+        sendTypingStatus(isTyping = true) {
+            if (!this.currentConversationId) return;
+
+            // Debounce - chỉ gửi nếu trạng thái thay đổi
+            if (this.lastTypingStatus === isTyping && isTyping) {
+                // Đang gõ và đã gửi rồi, chỉ reset timeout
+                if (this.typingTimeout) {
+                    clearTimeout(this.typingTimeout);
+                }
+                this.typingTimeout = setTimeout(() => {
+                    this.sendTypingStatus(false);
+                }, 3000);
+                return;
+            }
+
+            this.lastTypingStatus = isTyping;
+
+            if (this.typingTimeout) {
+                clearTimeout(this.typingTimeout);
+            }
+
+            fetch('/admin/chat/typing', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                },
+                body: JSON.stringify({
+                    conversation_id: this.currentConversationId,
+                    is_typing: isTyping
+                })
+            }).catch(console.error);
+
+            if (isTyping) {
+                this.typingTimeout = setTimeout(() => {
+                    this.sendTypingStatus(false);
+                }, 3000);
+            }
+        },
+
+        updateConnectionStatus(connected) {
+            const waitingBadge = document.getElementById('waitingCount');
+            if (waitingBadge) {
+                waitingBadge.title = connected ? 'WebSocket đã kết nối' : 'Đang sử dụng polling';
+            }
+        },
+
+        playNotificationSound() {
+            try {
+                const audio = new Audio('/template/Assets/sounds/notification.mp3');
+                audio.volume = 0.5;
+                audio.play().catch(() => {});
+            } catch (e) {}
         },
 
         bindEvents() {
@@ -796,6 +1124,8 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('messageInput').addEventListener('input', function() {
                 this.style.height = 'auto';
                 this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+                // Gửi trạng thái đang gõ
+                AdminChat.sendTypingStatus(true);
             });
 
             // Assign conversation
@@ -845,6 +1175,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const list = document.getElementById('conversationList');
             const noConversations = document.getElementById('noConversations');
             
+            // Null check
+            if (!list) return;
+            
             let filtered = this.conversations;
             if (this.currentFilter === 'waiting') {
                 filtered = this.conversations.filter(c => c.TrangThai === 'Chờ');
@@ -856,12 +1189,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (filtered.length === 0) {
                 list.innerHTML = '';
-                list.appendChild(noConversations);
-                noConversations.style.display = 'flex';
+                if (noConversations) {
+                    list.appendChild(noConversations);
+                    noConversations.style.display = 'flex';
+                }
                 return;
             }
 
-            noConversations.style.display = 'none';
+            if (noConversations) {
+                noConversations.style.display = 'none';
+            }
             
             list.innerHTML = filtered.map(conv => {
                 const isActive = conv.ID === this.currentConversationId;
@@ -899,6 +1236,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
         async selectConversation(id) {
             this.currentConversationId = id;
+            
+            // Subscribe WebSocket cho cuộc hội thoại này
+            this.subscribeToConversation(id);
+            
+            // Bắt đầu message polling nếu WebSocket không kết nối
+            if (!this.isWebSocketConnected) {
+                this.startMessagePolling();
+            }
             
             // Update UI
             document.getElementById('selectConversation').style.display = 'none';
@@ -1014,19 +1359,71 @@ document.addEventListener('DOMContentLoaded', function() {
 
         async sendMessage() {
             const input = document.getElementById('messageInput');
+            const sendBtn = document.getElementById('sendBtn');
             const content = input.value.trim();
             
-            if (!content || !this.currentConversationId) return;
+            if (!content || !this.currentConversationId) {
+                console.log('sendMessage: Missing content or conversationId', { content, conversationId: this.currentConversationId });
+                return;
+            }
 
+            // Prevent double send
+            if (this.isSending) {
+                console.log('sendMessage: Already sending');
+                return;
+            }
+            this.isSending = true;
+
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+            if (!csrfToken) {
+                console.error('CSRF token not found');
+                alert('Lỗi: Không tìm thấy CSRF token. Vui lòng refresh trang.');
+                this.isSending = false;
+                return;
+            }
+
+            // Clear input và disable button ngay lập tức
             input.value = '';
             input.style.height = 'auto';
+            if (sendBtn) sendBtn.disabled = true;
+
+            // Optimistic UI - hiển thị tin nhắn ngay lập tức
+            const tempId = 'temp-' + Date.now();
+            const adminAvatar = '{{ $authUser->HinhAnh ?? "" }}';
+            const adminName = '{{ $authUser->TenNguoiDung ?? "Admin" }}';
+            const tempMessage = {
+                id: tempId,
+                ID: tempId,
+                sender_type: 'Admin',
+                LoaiNguoiGui: 'Admin',
+                content: content,
+                NoiDung: content,
+                sent_at: new Date().toISOString(),
+                ThoiGianGui: new Date().toISOString(),
+                sender_name: adminName,
+                sender_avatar: adminAvatar,
+                nguoi_gui: { 
+                    TenNguoiDung: adminName,
+                    HinhAnh: adminAvatar
+                }
+            };
+            
+            console.log('Optimistic UI: Hiển thị tin nhắn ngay', tempMessage);
+            // Hiển thị tin nhắn tạm ngay lập tức
+            this.appendMessage(tempMessage);
+            
+            // Cập nhật preview trong sidebar ngay lập tức
+            this.updateConversationPreview(tempMessage);
+
+            console.log('Sending message:', { conversation_id: this.currentConversationId, message: content });
 
             try {
                 const response = await fetch('/admin/chat/messages/send', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
                     },
                     body: JSON.stringify({
                         conversation_id: this.currentConversationId,
@@ -1034,16 +1431,44 @@ document.addEventListener('DOMContentLoaded', function() {
                     })
                 });
 
+                console.log('Response status:', response.status);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Server error:', response.status, errorText);
+                    // Xóa tin nhắn tạm nếu lỗi
+                    const tempEl = document.querySelector(`[data-message-id="${tempId}"]`);
+                    if (tempEl) tempEl.remove();
+                    alert(`Lỗi server: ${response.status}`);
+                    return;
+                }
+
                 const data = await response.json();
+                console.log('Response data:', data);
                 
-                if (data.success) {
-                    await this.loadMessages(this.currentConversationId);
-                } else {
+                if (data.success && data.message) {
+                    // Cập nhật tin nhắn tạm với ID thật
+                    const tempEl = document.querySelector(`[data-message-id="${tempId}"]`);
+                    if (tempEl) {
+                        tempEl.setAttribute('data-message-id', data.message.ID);
+                    }
+                } else if (!data.success) {
+                    // Xóa tin nhắn tạm nếu lỗi
+                    const tempEl = document.querySelector(`[data-message-id="${tempId}"]`);
+                    if (tempEl) tempEl.remove();
                     alert(data.message || 'Có lỗi xảy ra');
                 }
             } catch (error) {
                 console.error('Error sending message:', error);
-                alert('Không thể gửi tin nhắn');
+                // Xóa tin nhắn tạm nếu lỗi
+                const tempEl = document.querySelector(`[data-message-id="${tempId}"]`);
+                if (tempEl) tempEl.remove();
+                alert('Không thể gửi tin nhắn: ' + error.message);
+            } finally {
+                // Reset sending state và enable button
+                this.isSending = false;
+                const sendBtn = document.getElementById('sendBtn');
+                if (sendBtn) sendBtn.disabled = false;
             }
         },
 
