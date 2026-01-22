@@ -24,27 +24,10 @@ Hệ thống quản lý bán nông sản Organic là một website thương mạ
 ## 🛠️ Công nghệ sử dụng
 
 ### Backend
-
--   **Laravel 12** - PHP Framework
--   **PHP 8.2+** - Programming Language
--   **MySQL 8.0+** - Database
--   **Composer** - Dependency Manager
+- Laravel, MySQL, JWT, ...
 
 ### Frontend
-
--   **Bootstrap 5.3** - CSS Framework
--   **Blade Template** - Laravel Template Engine
--   **Remix Icon** - Icon Library
--   **JavaScript (Vanilla)** - Client-side scripting
--   **Chatbot Widget** - AI-powered customer support
--   **Responsive Design** - Mobile-first approach
-
-### Tools & Libraries
-
--   **JWT Auth** - Authentication
--   **Laravel Debugbar** - Debugging
--   **Intervention Image** - Image processing
--   **Carbon** - Date/Time library
+- Bootstrap, Blade Template, Remix Icon, JavaScript
 
 ---
 
